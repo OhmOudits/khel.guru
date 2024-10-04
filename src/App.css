@@ -1,0 +1,199 @@
+/* #root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+} */
+
+* {
+  margin: 0px;
+  overflow: auto;
+}
+
+.bg-container {
+  background-color: #1a2c38;
+  background-size: cover;
+  height: 100vh;
+  width: 100vw;
+}
+
+.outer-frame-main {
+  background-color: #1a2c38;
+  background-size: cover;
+  height: 100vh;
+
+  color: #ffffff;
+
+  padding-left: 20rem;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.outer-frame-sidebar {
+  background-color: #213743;
+  background-size: cover;
+  height: 38rem;
+  width: 18vw;
+  border-radius: 8px 0px 0px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.outer-frame-body {
+  background-color: #0f212e;
+  background-size: cover;
+  margin-bottom: 2px;
+  height: 38rem;
+  width: 50vw;
+  border-radius: 0px 8px 0px 0px;
+}
+
+.outer-frame-taskbar {
+  background-color: #0f212e;
+  background-size: cover;
+  width: 70vw;
+  height: 5rem;
+  border-radius: 0px 0px 8px 8px;
+}
+
+.outer-frame-top-section {
+  display: flex;
+}
+
+.game-mode-type {
+  margin-top: 20px;
+  background-color: #0f212e;
+  border-radius: 48px;
+
+  height: 40px;
+  padding: 12px;
+
+  display: flex;
+  justify-content: space-between;
+}
+
+.game-mode-button {
+  background-color: #2f4553;
+  text-align: center;
+  width: 120px;
+  border-radius: 48px;
+  color: #ffffff;
+  padding-left: 28px;
+  padding-right: 28px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.top-text-card {
+  color: #b1bad3;
+  font-family: proxima-nova, sans-serif;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0px;
+}
+
+.bet-amount-container {
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+.bet-amount-input-and-button-container {
+  display: flex;
+}
+.bet-amount-container input {
+  background-color: #213743;
+  color: #ffffff;
+  border-color: red;
+  height: 34px;
+  width: 160px;
+}
+
+.bit-amount-button {
+  background-color: #2f4553;
+  color: #ffffff;
+  font-size: 14px;
+  border-radius: 0px;
+  border-right-width: solid;
+}
+
+.profit-win-input-container input {
+  background-color: #213743;
+  color: #ffffff;
+  border-width: none;
+  height: 34px;
+  width: 268px;
+  margin-bottom: 10px;
+}
+
+.bet-button {
+  background-color: #00e701;
+  color: #05080a;
+  width: 280px;
+
+  /* font-family: proxima-nova, sans-serif; */
+  font-weight: 500;
+  text-align: center;
+  font-size: 16px;
+  line-height: 16px;
+  padding-top: 18px;
+  padding-bottom: 18px;
+  padding-right: 28px;
+  padding-left: 28px;
+
+  border-radius: 4px;
+  /* box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, */
+  /* rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px; */
+}
+
+.outer-frame-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 128px;
+}
+
+.outer-frame-taskbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+}
