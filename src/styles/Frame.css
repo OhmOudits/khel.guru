@@ -1,0 +1,50 @@
+.svg-icon {
+  pointer-events: none;
+  stroke-width: 0;
+  stroke: currentColor;
+  fill: currentColor;
+  flex-shrink: 0;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+}
+
+.icons {
+  position: relative;
+  padding-right: 20px;
+}
+.icons::after {
+  position: absolute;
+  content: "";
+  height: 100%;
+  top: 0;
+  right: 0;
+  width: 1px;
+  background-color: #4b5563;
+}
+
+.lineBefore::before {
+  position: absolute;
+  content: "";
+  width: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.custom-scrollbar {
+  scrollbar-color: #2f4553 transparent;
+  -webkit-overflow-scrolling: touch;
+  -webkit-overflow-scroll: touch;
+  scrollbar-width: thin;
+}
+
+::marker {
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+  text-transform: none;
+  text-indent: 0px !important;
+  text-align: start !important;
+  text-align-last: start !important;
+}
