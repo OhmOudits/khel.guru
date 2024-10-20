@@ -1,11 +1,11 @@
 import { useState } from "react";
-import "../styles/Frame.css";
-import FairnessModal from "./Frame/FairnessModal";
-import BetAmount from "./Frame/BetAmount";
-import FrameFooter from "./Frame/FrameFooter";
-import HotKeysModal from "./Frame/HotKeysModal";
-import GameInfoModal from "./Frame/GameInfoModal";
-import MaxBetModal from "./Frame/MaxBetModal";
+import "../../styles/Frame.css";
+import FairnessModal from "./FairnessModal";
+import BetAmount from "./BetAmount";
+import FrameFooter from "./FrameFooter";
+import HotKeysModal from "./HotKeysModal";
+import GameInfoModal from "./GameInfoModal";
+import MaxBetModal from "./MaxBetModal";
 
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
@@ -13,6 +13,8 @@ const Frame = () => {
   const [nbets, setNBets] = useState("");
   const [onWin, setOnWin] = useState(0);
   const [onLoss, setOnLoss] = useState(0);
+  const [onWinReset, setOnWinReset] = useState(false);
+  const [onLossReset, setOnLossReset] = useState(false);
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
@@ -20,6 +22,7 @@ const Frame = () => {
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
   const [maxBetEnable, setMaxBetEnable] = useState(false);
+  const [theatreMode, setTheatreMode] = useState(false);
 
   const [volume, setVolume] = useState(50);
   const [instantBet, setInstantBet] = useState(false);
@@ -32,27 +35,37 @@ const Frame = () => {
   return (
     <>
       <div className="w-full">
-        <div className="my-[10vh] rounded mx-auto bg-[#213743] w-[96%] max-w-[1400px] max-lg:max-w-[450px]">
+        <div
+          className={`my-12 rounded mx-auto bg-primary-3 w-[96%] max-w-[1400px] max-md:max-w-[450px] ${
+            theatreMode ? "max-w-[100%] max-h-screen" : "max-lg:max-w-[450px]"
+          }`}
+        >
           <div className="flex flex-col gap-[0.15rem] relative">
             <div className="grid grid-cols-12 lg:min-h-[600px]">
               {/* Left Section */}
-              <div className="col-span-12 lg:col-span-4 xl:col-span-3 order-2 lg:order-1 max-lg:h-[fit-content]">
+              <div
+                className={`col-span-12 ${
+                  theatreMode
+                    ? "md:col-span-4 md:order-1"
+                    : "lg:col-span-4 lg:order-1"
+                } xl:col-span-3 order-2 max-lg:h-[fit-content]`}
+              >
                 <div className="my-4 px-3 flex flex-col">
                   {/* Manual and auto  */}
-                  <div className="order-[100] max-lg:mt-5 lg:order-1 switch mb-4 w-full bg-[#0f212e] rounded-full p-1.5 pb-[0.45rem] grid grid-cols-2 gap-1">
+                  <div className="order-[100] max-lg:mt-5 lg:order-1 switch mb-4 w-full bg-primary-1 rounded-full p-1.5 pb-[0.45rem] grid grid-cols-2 gap-1">
                     <div
                       onClick={() => setBetMode("manual")}
                       className={`${
-                        betMode === "manual" ? "bg-[#213743] scale-95" : ""
-                      } hover:bg-[#213743] cursor-pointer col-span-1 flex items-center justify-center py-3 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
+                        betMode === "manual" ? "bg-primary-3 scale-95" : ""
+                      } hover:bg-primary-3 cursor-pointer col-span-1 flex items-center justify-center py-3 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
                     >
                       Manual
                     </div>
                     <div
                       onClick={() => setBetMode("auto")}
                       className={`${
-                        betMode === "auto" ? "bg-[#213743] scale-95" : ""
-                      } hover:bg-[#213743] cursor-pointer col-span-1 flex items-center justify-center py-3 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
+                        betMode === "auto" ? "bg-primary-3 scale-95" : ""
+                      } hover:bg-primary-3 cursor-pointer col-span-1 flex items-center justify-center py-3 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
                     >
                       Auto
                     </div>
@@ -68,14 +81,14 @@ const Frame = () => {
 
                       {/* Profit on win */}
                       <div className="order-10 md:order-2 mt-4 w-full">
-                        <div className="flex items-center justify-between w-full font-semibold text-[#b1bad3]">
+                        <div className="flex items-center justify-between w-full font-semibold text-label">
                           <h1>Profit on Win</h1>
                           <h1 className="text-sm">$0.00</h1>
                         </div>
 
                         <div className="relative w-full">
                           <input
-                            className="w-full mt-2 h-full rounded bg-[#2f4553] outline-none text-white px-2 pr-6 py-2 border border-[#2f4553] hover:border-[#557086]"
+                            className="w-full mt-2 h-full rounded bg-input outline-none text-white px-2 pr-6 py-2 border border-input hover:border-primary-4"
                             value={"0.00000000"}
                             disabled
                           />
@@ -101,7 +114,7 @@ const Frame = () => {
                       </div>
 
                       {/* Bet button */}
-                      <div className="order-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 text-black bg-[#00e701] flex items-center justify-center w-full py-3 mt-5 max-lg:mt-1 rounded cursor-pointer text-lg font-semibold">
+                      <div className="order-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 text-black bg-button-primary flex items-center justify-center w-full py-3 mt-5 max-lg:mt-4 rounded cursor-pointer text-lg font-semibold">
                         Bet
                       </div>
                     </>
@@ -117,36 +130,51 @@ const Frame = () => {
 
                       {/* Number of bets */}
                       <div className="w-full mb-1 order-10 md:order-2">
-                        <h1 className="font-semibold mt-1 text-[#b1bad3]">
+                        <h1 className="font-semibold mt-1 text-label">
                           Number of Bets
                         </h1>
                         <input
                           type="number"
                           value={nbets}
                           onChange={(e) => setNBets(e.target.value)}
-                          className="w-full mt-2 h-full rounded bg-[#0f212e] outline-none text-white px-2 pr-6 py-2 border border-[#2f4553] hover:border-[#557086]"
+                          className="w-full mt-2 h-full rounded bg-primary-1 outline-none text-white px-2 pr-6 py-2 border border-input hover:border-primary-4"
                         />
                       </div>
 
                       {/* On Win */}
-                      <div className="order-10 md:order-2 mt-2 w-full">
-                        <h1 className="font-semibold text-[#b1bad3]">On Win</h1>
-                        <div className="flex mt-2 font-semibold bg-[#2f4553] rounded p-0.5 pb-[0.20rem]">
+                      <div className="order-10 md:order-2 py-3 w-full">
+                        <h1 className="font-semibold text-label">On Win</h1>
+                        <div className="flex mt-2 bg-input rounded p-0.5 pb-[0.20rem]">
                           <div
-                            onClick={() => setOnWin(0)}
-                            className="text-sm w-[50px] hover:bg-[#557086] rounded cursor-pointer p-2 flex items-center justify-center text-white transition-all duration-300 ease-in-out transform active:scale-90"
+                            onClick={() => {
+                              setOnWin(0);
+                              setOnWinReset(true);
+                            }}
+                            className={`text-sm ${
+                              onWinReset ? "bg-primary-1" : "hover:bg-primary-4"
+                            } font-semibold w-[50px] rounded cursor-pointer p-2 flex items-center justify-center text-white transition-all duration-300 ease-in-out transform active:scale-90`}
                           >
                             Reset
                           </div>
-                          <div className="text-sm font-semibold w-[190px] mr-1 bg-[#0f212e] rounded p-2 flex items-center justify-center text-white">
+                          <div
+                            onClick={() => setOnWinReset(false)}
+                            className={`text-sm cursor-pointer font-semibold w-[190px] mr-1 ${
+                              onWinReset ? "hover:bg-primary-4" : "bg-primary-1"
+                            } rounded p-2 flex  items-center justify-center text-white transition-all duration-300 ease-in-out transform active:scale-90`}
+                          >
                             Increase by :
                           </div>
                           <div className="w-full relative">
                             <input
                               type="number"
                               value={onWin}
+                              disabled={onWinReset}
                               onChange={(e) => setOnWin(e.target.value)}
-                              className="w-full rounded bg-[#0f212e] outline-none text-white px-2 pr-6 py-2 border border-[#2f4553] hover:border-[#557086]"
+                              className={`w-full rounded ${
+                                onWinReset
+                                  ? "bg-input border-primary-4"
+                                  : "bg-primary-1 border-input"
+                              } outline-none text-white px-2 pr-6 py-2 border hover:border-primary-4`}
                             />
                             <div className="absolute top-1.5 right-2 text-gray-500">
                               <svg
@@ -165,25 +193,42 @@ const Frame = () => {
 
                       {/* On Loss */}
                       <div className="order-10 md:order-2 py-3 w-full">
-                        <h1 className="font-semibold text-[#b1bad3]">
-                          On Loss
-                        </h1>
-                        <div className="flex mt-2 bg-[#2f4553] rounded p-0.5 pb-[0.20rem]">
+                        <h1 className="font-semibold text-label">On Loss</h1>
+                        <div className="flex mt-2 bg-input rounded p-0.5 pb-[0.20rem]">
                           <div
-                            onClick={() => setOnLoss(0)}
-                            className="text-sm font-semibold w-[50px] hover:bg-[#557086] rounded cursor-pointer p-2 flex items-center justify-center text-white transition-all duration-300 ease-in-out transform active:scale-90"
+                            onClick={() => {
+                              setOnLoss(0);
+                              setOnLossReset(true);
+                            }}
+                            className={`text-sm ${
+                              onLossReset
+                                ? "bg-primary-1"
+                                : "hover:bg-primary-4"
+                            } font-semibold w-[50px] rounded cursor-pointer p-2 flex items-center justify-center text-white transition-all duration-300 ease-in-out transform active:scale-90`}
                           >
                             Reset
                           </div>
-                          <div className="text-sm font-semibold w-[190px] mr-1 bg-[#0f212e] rounded p-2 flex items-center justify-center text-white">
+                          <div
+                            onClick={() => setOnLossReset(false)}
+                            className={`text-sm cursor-pointer font-semibold w-[190px] mr-1 ${
+                              onLossReset
+                                ? "hover:bg-primary-4"
+                                : "bg-primary-1"
+                            } rounded p-2 flex  items-center justify-center text-white transition-all duration-300 ease-in-out transform active:scale-90`}
+                          >
                             Increase by :
                           </div>
                           <div className="w-full relative">
                             <input
                               type="number"
                               value={onLoss}
+                              disabled={onLossReset}
                               onChange={(e) => setOnLoss(e.target.value)}
-                              className="w-full rounded bg-[#0f212e] outline-none text-white px-2 pr-6 py-2 border border-[#2f4553] hover:border-[#557086]"
+                              className={`w-full rounded ${
+                                onLossReset
+                                  ? "bg-input border-primary-4"
+                                  : "bg-primary-1 border-input"
+                              } outline-none text-white px-2 pr-6 py-2 border hover:border-primary-4`}
                             />
                             <div className="absolute top-1.5 right-2 text-gray-500">
                               <svg
@@ -202,7 +247,7 @@ const Frame = () => {
 
                       {/* Stop on Profit */}
                       <div className="order-10 md:order-2 mt-2 w-full">
-                        <div className="flex items-center justify-between w-full font-semibold text-[#b1bad3]">
+                        <div className="flex items-center justify-between w-full font-semibold text-label">
                           <label htmlFor="profit">Stop on Profit</label>
                           <h1 className="text-sm">$0.00</h1>
                         </div>
@@ -211,7 +256,7 @@ const Frame = () => {
                           <input
                             id="profit"
                             type="text"
-                            className="w-full mt-2 h-full rounded bg-[#0f212e] outline-none text-white px-2 pr-6 py-2 border border-[#2f4553] hover:border-[#557086]"
+                            className="w-full mt-2 h-full rounded bg-primary-1 outline-none text-white px-2 pr-6 py-2 border border-input hover:border-primary-4"
                             value={profit}
                             onChange={(e) => setProfit(e.target.value)}
                           />
@@ -238,7 +283,7 @@ const Frame = () => {
 
                       {/* Stop on Loss */}
                       <div className="order-10 md:order-2 mt-2 w-full">
-                        <div className="flex items-center justify-between w-full font-semibold text-[#b1bad3]">
+                        <div className="flex items-center justify-between w-full font-semibold text-label">
                           <label htmlFor="loss">Stop on Loss</label>
                           <h1 className="text-sm">$0.00</h1>
                         </div>
@@ -249,7 +294,7 @@ const Frame = () => {
                             type="text"
                             value={loss}
                             onChange={(e) => setLoss(e.target.value)}
-                            className="w-full mt-2 h-full rounded bg-[#0f212e] outline-none text-white px-2 pr-6 py-2 border border-[#2f4553] hover:border-[#557086]"
+                            className="w-full mt-2 h-full rounded bg-primary-1 outline-none text-white px-2 pr-6 py-2 border border-input hover:border-primary-4"
                           />
                           <div className="absolute top-[14px] right-3">
                             <svg
@@ -273,7 +318,7 @@ const Frame = () => {
                       </div>
 
                       {/* Bet button */}
-                      <div className="order-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 text-black bg-[#00e701] flex items-center justify-center w-full py-3 mt-5 max-lg:mt-1 rounded cursor-pointer text-lg font-semibold">
+                      <div className="order-2 my-4 mt-6 md:my-0 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 text-black bg-button-primary flex items-center justify-center w-full py-3 max-lg:mt-1 rounded cursor-pointer text-lg font-semibold">
                         Start Autobet
                       </div>
                     </>
@@ -282,7 +327,13 @@ const Frame = () => {
               </div>
 
               {/* Right Section */}
-              <div className="col-span-12 rounded-tr lg:col-span-8 xl:col-span-9 bg-[#0f212e] order-1 lg:order-2 max-lg:min-h-[400px]">
+              <div
+                className={`col-span-12 rounded-tr ${
+                  theatreMode
+                    ? "md:col-span-8 md:order-2"
+                    : "lg:col-span-8 lg:order-2"
+                } xl:col-span-9 bg-primary-1 order-1 max-lg:min-h-[400px]`}
+              >
                 <div className="w-full text-white h-full flex items-center justify-center text-3xl">
                   Game
                 </div>
@@ -309,6 +360,8 @@ const Frame = () => {
               setHotkeys={setHotkeys}
               maxBetEnable={maxBetEnable}
               setMaxBetEnable={setMaxBetEnable}
+              theatreMode={theatreMode}
+              setTheatreMode={setTheatreMode}
             />
 
             {isGameSettings && (
@@ -327,7 +380,7 @@ const Frame = () => {
                 >
                   <div className="text-white w-full flex items-center justify-center h-full ">
                     <div
-                      className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-[#1a2c38]"
+                      className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <FairnessModal setIsFairness={setIsFairness} />
@@ -345,7 +398,7 @@ const Frame = () => {
                 >
                   <div className="text-white w-full flex items-center justify-center h-full ">
                     <div
-                      className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-[#1a2c38]"
+                      className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <HotKeysModal
@@ -366,7 +419,7 @@ const Frame = () => {
               >
                 <div className="text-white w-full flex items-center justify-center h-full ">
                   <div
-                    className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-[#1a2c38]"
+                    className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <GameInfoModal setGameInfo={setGameInfo} />
@@ -382,7 +435,7 @@ const Frame = () => {
               >
                 <div className="text-white w-full flex items-center justify-center h-full ">
                   <div
-                    className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-[#1a2c38]"
+                    className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <MaxBetModal

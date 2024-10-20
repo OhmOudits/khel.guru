@@ -32,7 +32,7 @@ const GameInfoModal = ({ setGameInfo }) => {
         </div>
       </div>
 
-      <div className="my-4 text-[#b1bad3]">
+      <div className="my-4 text-label">
         <div className="flex gap-2">
           <h1>1.</h1>
           <h1>Only roll outcomes that hit the green area are winners.</h1>

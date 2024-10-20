@@ -45,15 +45,15 @@ const HotKeysModal = ({ setHotkeys, hotkeysEnabled, setHotkeysEnabled }) => {
             className="flex items-center justify-between my-3 text-lg"
             key={key.id}
           >
-            <h1 className="text-[#b1bad3]">{key.name}</h1>
-            <h2 className="py-1 rounded px-4 shadow-md bg-[#2f4553] text-[#d5dceb]">
+            <h1 className="text-label">{key.name}</h1>
+            <h2 className="py-1 rounded px-4 shadow-md bg-input text-[#d5dceb]">
               {key.key}
             </h2>
           </div>
         ))}
 
         {/* Disclaimer */}
-        <div className="my-4 w-full rounded border border-dashed border-[#b1bad3] text-[#b1bad3] bg-[#0f212e] p-3 flex gap-3 items-start">
+        <div className="my-4 w-full rounded border border-dashed border-label text-label bg-primary-1 p-3 flex gap-3 items-start">
           <svg
             fill="currentColor"
             viewBox="0 0 64 64"
@@ -71,7 +71,7 @@ const HotKeysModal = ({ setHotkeys, hotkeysEnabled, setHotkeysEnabled }) => {
       </div>
 
       {/* Hotkeys Enable/Disable Section */}
-      <div className="w-full px-4 py-2 bg-[#0f212e] flex items-center justify-center">
+      <div className="w-full px-4 py-2 bg-primary-1 flex items-center justify-center">
         <div className="flex items-center gap-2 my-2">
           <div className="flex items-center">
             <input
@@ -82,7 +82,7 @@ const HotKeysModal = ({ setHotkeys, hotkeysEnabled, setHotkeysEnabled }) => {
               onChange={handleCheckboxClick}
             />
             <span
-              className={`bg-[#0f212e] border border-solid border-[#2f4553] outline-0 w-6 h-6 flex-shrink-0 bg-center bg-no-repeat rounded cursor-pointer `}
+              className={`bg-primary-1 border border-solid border-input outline-0 w-6 h-6 flex-shrink-0 bg-center bg-no-repeat rounded cursor-pointer `}
               style={{
                 backgroundImage: `${
                   hotkeysEnabled
@@ -95,7 +95,7 @@ const HotKeysModal = ({ setHotkeys, hotkeysEnabled, setHotkeysEnabled }) => {
           </div>
           <h1
             htmlFor="checkkeys"
-            className="text-sm text-[#b1bad3] font-semibold cursor-pointer"
+            className="text-sm text-label font-semibold cursor-pointer"
             onClick={handleCheckboxClick}
           >
             HotKeys Enabled

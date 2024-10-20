@@ -98,20 +98,20 @@ const FairnessModal = ({ setIsFairness }) => {
 
         {/* Switching */}
         <div className="w-full flex items-center justify-center">
-          <div className="switch mt-6 w-full max-w-[200px]  bg-[#0f212e] rounded-full p-1.5 pb-[0.45rem] grid grid-cols-2 gap-1">
+          <div className="switch mt-6 w-full max-w-[200px]  bg-primary-1 rounded-full p-1.5 pb-[0.45rem] grid grid-cols-2 gap-1">
             <div
               onClick={() => setField("seeds")}
               className={`${
-                field === "seeds" ? "bg-[#213743] scale-95" : ""
-              } hover:bg-[#213743] cursor-pointer col-span-1 flex items-center justify-center py-3 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
+                field === "seeds" ? "bg-primary-3 scale-95" : ""
+              } hover:bg-primary-3 cursor-pointer col-span-1 flex items-center justify-center py-3 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
             >
               Seeds
             </div>
             <div
               onClick={() => setField("verify")}
               className={`${
-                field === "verify" ? "bg-[#213743] scale-95" : ""
-              } hover:bg-[#213743] cursor-pointer col-span-1 flex items-center justify-center py-3 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
+                field === "verify" ? "bg-primary-3 scale-95" : ""
+              } hover:bg-primary-3 cursor-pointer col-span-1 flex items-center justify-center py-3 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
             >
               Verify
             </div>
@@ -123,19 +123,19 @@ const FairnessModal = ({ setIsFairness }) => {
         <>
           <div className="px-4">
             {/* Client Seed */}
-            <h1 className="font-semibold text-sm mb-1 text-[#b1bad3] mt-4">
+            <h1 className="font-semibold text-sm mb-1 text-label mt-4">
               Active Client Seed
             </h1>
             <div className="flex w-full">
               <input
-                className="w-full p-2 rounded-bl rounded-tl bg-[#2f4553] border border-[#2f4553] hover:border-[#557086]"
+                className="w-full p-2 rounded-bl rounded-tl bg-input border border-input hover:border-primary-4"
                 disabled
                 value={seeds}
                 onChange={(e) => setSeeds(e.target.value)}
               />
               <div
                 onClick={() => handleCopyClick(seeds, setTooltipVisible)}
-                className="w-[50px] lineBefore relative group rounded-tr rounded-br flex items-center justify-center bg-[#2f4553] hover:bg-[#557086]"
+                className="w-[50px] lineBefore relative group rounded-tr rounded-br flex items-center justify-center bg-input hover:bg-primary-4"
               >
                 <svg
                   fill="currentColor"
@@ -156,19 +156,19 @@ const FairnessModal = ({ setIsFairness }) => {
             </div>
 
             {/* Client Seed Hashed */}
-            <h1 className="font-semibold text-sm mb-1 text-[#b1bad3] mt-4">
+            <h1 className="font-semibold text-sm mb-1 text-label mt-4">
               Active Server Seed (Hashed)
             </h1>
             <div className="flex w-full">
               <input
-                className="w-full p-2 rounded-bl rounded-tl bg-[#2f4553] border border-[#2f4553] hover:border-[#557086]"
+                className="w-full p-2 rounded-bl rounded-tl bg-input border border-input hover:border-primary-4"
                 disabled
                 value={seedHashed}
                 onChange={(e) => setSeedHashed(e.target.value)}
               />
               <div
                 onClick={() => handleCopyClick(seedHashed, setTooltipVisible2)}
-                className="w-[50px] lineBefore relative group rounded-tr rounded-br flex items-center justify-center bg-[#2f4553] hover:bg-[#557086]"
+                className="w-[50px] lineBefore relative group rounded-tr rounded-br flex items-center justify-center bg-input hover:bg-primary-4"
               >
                 <svg
                   fill="currentColor"
@@ -191,58 +191,58 @@ const FairnessModal = ({ setIsFairness }) => {
             {/* Total bets made with pair */}
             <label
               htmlFor="tbets"
-              className="font-semibold text-sm mb-2 text-[#b1bad3] mt-4"
+              className="font-semibold text-sm mb-2 text-label mt-4"
             >
               Total bets made with pair
             </label>
             <input
               id="tbets"
-              className="w-full p-2 rounded-bl rounded-tl bg-[#2f4553] border border-[#2f4553] hover:border-[#557086]"
+              className="w-full p-2 rounded-bl rounded-tl bg-input border border-input hover:border-primary-4"
               value={totalBets}
               type="number"
               onChange={(e) => setTotalBets(e.target.value)}
             />
           </div>
 
-          <div className="mt-4 p-4 bg-[#0f212e]">
+          <div className="mt-4 p-4 bg-primary-1">
             {/* Rotate Seed Pair */}
             <h1 className="font-semibold text-center text-white">
               Rotate Seed Pair
             </h1>
 
             {/* New Client Seed */}
-            <h1 className="font-semibold text-sm mb-1 text-[#b1bad3] mt-4">
+            <h1 className="font-semibold text-sm mb-1 text-label mt-4">
               Next Client Seed
             </h1>
             <div className="flex w-full">
               <input
-                className="w-full p-2 rounded-bl rounded-tl bg-[#0f212e] border border-[#2f4553] hover:border-[#557086]"
+                className="w-full p-2 rounded-bl rounded-tl bg-primary-1 border border-input hover:border-primary-4"
                 disabled
                 readOnly
                 value={clientSeed}
               />
               <div
                 onClick={generateRandomString}
-                className="w-[150px] lineBefore relative group rounded-tr rounded-br flex items-center justify-center text-black bg-[#00e701] transition-all duration-300 ease-in-out transform active:scale-95 font-semibold"
+                className="w-[150px] lineBefore relative group rounded-tr rounded-br flex items-center justify-center text-black bg-button-primary transition-all duration-300 ease-in-out transform active:scale-95 font-semibold"
               >
                 Change
               </div>
             </div>
 
             {/* Client Seed Server Hashed */}
-            <h1 className="font-semibold text-sm mb-1 text-[#b1bad3] mt-4">
+            <h1 className="font-semibold text-sm mb-1 text-label mt-4">
               Next Server Seed (Hashed)
             </h1>
             <div className="flex w-full">
               <input
-                className="w-full p-2 rounded-bl rounded-tl bg-[#2f4553] border border-[#2f4553] hover:border-[#557086]"
+                className="w-full p-2 rounded-bl rounded-tl bg-input border border-input hover:border-primary-4"
                 disabled
                 value={seedServer}
                 onChange={(e) => setSeedServer(e.target.value)}
               />
               <div
                 onClick={() => handleCopyClick(seedServer, setTooltipVisible3)}
-                className="w-[50px] lineBefore relative group rounded-tr rounded-br flex items-center justify-center bg-[#2f4553] hover:bg-[#557086]"
+                className="w-[50px] lineBefore relative group rounded-tr rounded-br flex items-center justify-center bg-input hover:bg-primary-4"
               >
                 <svg
                   fill="currentColor"
@@ -269,17 +269,17 @@ const FairnessModal = ({ setIsFairness }) => {
 
       {field === "verify" && (
         <>
-          <div className="px-4 py-4 mt-4 w-full bg-[#0f212e]">
+          <div className="px-4 py-4 mt-4 w-full bg-primary-1">
             {/* Game */}
             <label
               htmlFor="game"
-              className="font-semibold text-sm text-[#b1bad3] mt-4"
+              className="font-semibold text-sm text-label mt-4"
             >
               Game
             </label>
             <div className="flex w-full">
               <select
-                className="w-full p-2 mt-1 rounded-bl rounded-tl bg-[#0f212e] border border-[#2f4553] hover:border-[#557086]"
+                className="w-full p-2 mt-1 rounded-bl rounded-tl bg-primary-1 border border-input hover:border-primary-4"
                 value={game}
                 id="game"
                 onChange={(e) => setGame(e.target.value)}
@@ -294,13 +294,13 @@ const FairnessModal = ({ setIsFairness }) => {
             <div className="mt-4">
               <label
                 htmlFor="vcseed"
-                className="font-semibold text-sm mb-1 text-[#b1bad3]"
+                className="font-semibold text-sm mb-1 text-label"
               >
                 Client Seed
               </label>
               <div className="flex mt-1 w-full">
                 <input
-                  className="w-full p-2 rounded-bl rounded-tl bg-[#0f212e] border border-[#2f4553] hover:border-[#557086]"
+                  className="w-full p-2 rounded-bl rounded-tl bg-primary-1 border border-input hover:border-primary-4"
                   type="text"
                   id="vcseed"
                   value={vcseed}
@@ -313,13 +313,13 @@ const FairnessModal = ({ setIsFairness }) => {
             <div className="mt-4">
               <label
                 htmlFor="vsseed"
-                className="font-semibold text-sm mb-1 text-[#b1bad3] mt-4"
+                className="font-semibold text-sm mb-1 text-label mt-4"
               >
                 Server Seed
               </label>
               <div className="flex w-full mt-1">
                 <input
-                  className="w-full p-2 rounded-bl rounded-tl bg-[#0f212e] border border-[#2f4553] hover:border-[#557086]"
+                  className="w-full p-2 rounded-bl rounded-tl bg-primary-1 border border-input hover:border-primary-4"
                   type="text"
                   id="vsseed"
                   value={vsseed}
@@ -332,13 +332,13 @@ const FairnessModal = ({ setIsFairness }) => {
             <div className="mt-4">
               <label
                 htmlFor="nonce"
-                className="font-semibold text-sm mb-1 text-[#b1bad3] mt-4"
+                className="font-semibold text-sm mb-1 text-label mt-4"
               >
                 Nonce
               </label>
               <div className="flex w-full">
                 <input
-                  className="w-full p-2 rounded-bl rounded-tl bg-[#0f212e] border border-[#2f4553] hover:border-[#557086]"
+                  className="w-full p-2 rounded-bl rounded-tl bg-primary-1 border border-input hover:border-primary-4"
                   type="text"
                   id="nonce"
                   value={nonce}
@@ -346,7 +346,7 @@ const FairnessModal = ({ setIsFairness }) => {
                 />
                 <div
                   onClick={handleNonceDec}
-                  className="w-[70px] relative group flex items-center justify-center bg-[#2f4553] hover:bg-[#557086]"
+                  className="w-[70px] relative group flex items-center justify-center bg-input hover:bg-primary-4"
                 >
                   <svg
                     fill="currentColor"
@@ -360,7 +360,7 @@ const FairnessModal = ({ setIsFairness }) => {
                 </div>
                 <div
                   onClick={handleNonceInc}
-                  className="w-[70px] lineBefore relative group rounded-tr rounded-br flex items-center justify-center bg-[#2f4553] hover:bg-[#557086]"
+                  className="w-[70px] lineBefore relative group rounded-tr rounded-br flex items-center justify-center bg-input hover:bg-primary-4"
                 >
                   <svg
                     fill="currentColor"

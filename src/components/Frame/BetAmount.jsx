@@ -2,18 +2,18 @@
 const BetAmount = ({ bet, setBet, maxBetEnable }) => {
   return (
     <div className="order-1 md:order-2 my-2 w-full">
-      <div className="flex items-center justify-between w-full font-semibold text-[#b1bad3]">
+      <div className="flex items-center justify-between w-full font-semibold text-label">
         <label htmlFor="betAmount">Bet Amount</label>
         <h1 className="text-sm">$0.00</h1>
       </div>
-      <div className="w-full mt-1 bg-[#2f4553] shadow-md flex rounded">
+      <div className="w-full mt-1 bg-input shadow-md flex rounded">
         <div className="w-full relative">
           <input
             type="text"
             value={bet}
             id="betAmount"
             onChange={(e) => setBet(e.target.value)}
-            className="w-full h-full rounded bg-[#0f212e] outline-none text-white px-2 pr-6 border border-[#2f4553] hover:border-[#557086]"
+            className="w-full h-full rounded bg-primary-1 outline-none text-white px-2 pr-6 border border-input hover:border-primary-4"
           />
           <div className="absolute top-1.5 right-2">
             <svg fill="none" viewBox="0 0 96 96" className="svg-icon">
@@ -30,14 +30,14 @@ const BetAmount = ({ bet, setBet, maxBetEnable }) => {
             </svg>
           </div>
         </div>
-        <div className="cursor-pointer hover:bg-[#557086] inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
+        <div className="cursor-pointer hover:bg-primary-4 inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
           1/2
         </div>
-        <div className="cursor-pointer hover:bg-[#557086] inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
+        <div className="cursor-pointer hover:bg-primary-4 inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
           2x
         </div>
         {maxBetEnable && (
-          <div className="cursor-pointer hover:bg-[#557086] inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
+          <div className="cursor-pointer hover:bg-primary-4 inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
             Max
           </div>
         )}

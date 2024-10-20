@@ -42,6 +42,10 @@ const FrameFooter = ({
   maxBetEnable,
   // eslint-disable-next-line
   setMaxBetEnable,
+  // eslint-disable-next-line
+  theatreMode,
+  // eslint-disable-next-line
+  setTheatreMode,
 }) => {
   const handleVolumeChange = (event) => {
     setVolume(event.target.value);
@@ -50,7 +54,7 @@ const FrameFooter = ({
   return (
     <>
       {/* Footer */}
-      <div className="relative px-4 py-5 bg-[#0f212e] rounded-b flex justify-between items-center">
+      <div className="relative px-4 py-5 bg-primary-1 rounded-b flex justify-between items-center">
         {isGameSettings && (
           <div
             className={`absolute z-[4] font-semibold pt-1 bottom-[80%] left-2 transform text-sm text-black bg-white rounded shadow-lg transition-opacity duration-300`}
@@ -71,7 +75,7 @@ const FrameFooter = ({
             </div>
             <div
               className={`py-2 text-lg gap-2 cursor-pointer hover:bg-gray-300 px-5 flex items-center ${
-                instantBet ? "text-[#1475e1]" : "text-[#2f4553]"
+                instantBet ? "text-[#1475e1]" : "text-input"
               }`}
               onClick={() => setInstantBet(!instantBet)}
             >
@@ -80,7 +84,7 @@ const FrameFooter = ({
             </div>
             <div
               className={`py-2 text-lg gap-2 cursor-pointer hover:bg-gray-300 px-5 flex items-center ${
-                animations ? "text-[#1475e1]" : "text-[#2f4553]"
+                animations ? "text-[#1475e1]" : "text-input"
               }`}
               onClick={() => setAnimations(!animations)}
             >
@@ -89,7 +93,7 @@ const FrameFooter = ({
             </div>
             <div
               className={`py-2 text-lg gap-2 cursor-pointer hover:bg-gray-300 px-5 flex items-center ${
-                maxBetEnable ? "text-[#1475e1]" : "text-[#2f4553]"
+                maxBetEnable ? "text-[#1475e1]" : "text-input"
               }`}
               onClick={() => {
                 if (!maxBetEnable) {
@@ -105,7 +109,7 @@ const FrameFooter = ({
             </div>
             <div
               className={`py-2 text-lg gap-2 cursor-pointer hover:bg-gray-300 px-5 flex items-center ${
-                gameInfo ? "text-[#1475e1]" : "text-[#2f4553]"
+                gameInfo ? "text-[#1475e1]" : "text-input"
               }`}
               onClick={() => {
                 setGameInfo(true);
@@ -117,7 +121,7 @@ const FrameFooter = ({
             </div>
             <div
               className={`py-2 text-lg gap-2 rounded-bl rounded-br cursor-pointer hover:bg-gray-300 px-5 flex items-center ${
-                hotkeys ? "text-[#1475e1]" : "text-[#2f4553]"
+                hotkeys ? "text-[#1475e1]" : "text-input"
               }`}
               onClick={() => {
                 setHotkeys(true);
@@ -149,7 +153,12 @@ const FrameFooter = ({
           </div>
 
           {/* Theatre Mode */}
-          <div className="relative group flex items-center justify-center text-gray-300 max-md:hidden cursor-pointer hover:text-white">
+          <div
+            className={`relative group flex items-center justify-center max-lg:hidden cursor-pointer hover:text-white ${
+              theatreMode ? "text-white" : "text-gray-300"
+            }`}
+            onClick={() => setTheatreMode(!theatreMode)}
+          >
             <svg fill="currentColor" viewBox="0 0 64 64" className="svg-icon">
               {" "}
               <title></title>{" "}
@@ -157,7 +166,7 @@ const FrameFooter = ({
             </svg>
             {!isGameSettings && (
               <span className="absolute font-semibold bottom-[150%] mb-2 left-1/2 transform -translate-x-1/2 whitespace-nowrap px-2 py-1 text-sm text-black bg-white rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                Enable Theatre Mode
+                {theatreMode ? "Disable" : "Enable"} Theatre Mode
                 <span className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-t-white"></span>
               </span>
             )}

@@ -28,7 +28,7 @@ const MaxBetModal = ({ setMaxBet, setMaxBetEnable }) => {
         </div>
       </div>
 
-      <h1 className="mt-6 mb-4 text-[#b1bad3] text-center">
+      <h1 className="mt-6 mb-4 text-label text-center">
         Are you sure you want to enable the max bet button?
       </h1>
       <div className="w-full flex items-center justify-center mb-6">
@@ -37,7 +37,7 @@ const MaxBetModal = ({ setMaxBet, setMaxBetEnable }) => {
             setMaxBetEnable(true);
             setMaxBet(false);
           }}
-          className="transition-all duration-300 ease-in-out transform active:scale-90 text-black bg-[#00e701] flex items-center justify-center px-4 py-2 rounded cursor-pointer text-lg font-semibold"
+          className="transition-all duration-300 ease-in-out transform active:scale-90 text-black bg-button-primary flex items-center justify-center px-4 py-2 rounded cursor-pointer text-lg font-semibold"
         >
           Enable
         </div>
