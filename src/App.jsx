@@ -1,42 +1,94 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import "./App.css";
 import Footer from "./components/Footer/Footer";
-// import Frame from "./components/Frame/Frame";
 import Header from "./components/Header/Header";
 import Sidebar from "./components/Header/Sidebar";
 import MainFrame from "./components/MainFrame/MainFrame";
+import Login from "./components/Login/Login";
+import { motion } from "framer-motion";
+import Register from "./components/Login/Register";
 
 function App() {
   const [sideOpen, setSideOpen] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    console.log(params.get("tab"));
+    if (params.get("tab") === "login") {
+      setShowLogin(true);
+    } else {
+      setShowLogin(false);
+    }
+
+    if (params.get("tab") === "register") {
+      setShowRegister(true);
+    } else {
+      setShowRegister(false);
+    }
+  }, [location]);
 
   return (
-    <div className="w-full flex min-h-screen bg-primary">
-      {/* sidebar */}
-      <>
+    <>
+      {showLogin && (
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 50 }}
+          transition={{ duration: 0.5 }}
+          className="fixed inset-0 z-[1000]"
+        >
+          <Login />
+        </motion.div>
+      )}
+
+      {showRegister && (
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 50 }}
+          transition={{ duration: 0.5 }}
+          className="fixed inset-0 z-[1000]"
+        >
+          <Register />
+        </motion.div>
+      )}
+
+      <div className="w-full flex min-h-screen bg-primary">
+        {/* Sidebar */}
         <Sidebar setSideOpen={setSideOpen} sideOpen={sideOpen} />
-      </>
 
-      {/* Header */}
-      <div
-        className={`bg-primary ${
-          sideOpen ? "left-[230px]" : "left-[68px]"
-        } z-[12] fixed max-lg:left-0 right-0 px-6 max-md:px-2 py-2 flex items-center justify-between`}
-      >
-        <Header />
+        {/* Header */}
+        <div
+          className={`bg-primary ${
+            sideOpen ? "lg:pl-[240px]" : "lg:pl-[68px]"
+          } z-[12] fixed max-lg:left-0 right-0 px-6 max-md:px-2 py-2 w-full flex items-center justify-center `}
+        >
+          <div
+            className="w-full max-w-[1200px] flex items-center justify-between"
+            style={{}}
+          >
+            <Header />
+          </div>
+        </div>
+
+        {/* Main Frame */}
+        <div
+          className={`w-full ${
+            sideOpen ? "ml-[230px]" : "ml-[78px]"
+          } max-lg:ml-0 z-1`}
+        >
+          <div className="mt-[72px]"></div>
+          <MainFrame />
+        </div>
+
+        {/* Footer */}
+        <Footer />
       </div>
-
-      <div
-        className={`w-full ${
-          sideOpen ? "ml-[230px]" : "ml-[84px]"
-        } max-lg:ml-0 z-1`}
-      >
-        <div className="mt-[72px]"></div>
-        <MainFrame />
-      </div>
-
-      {/* Footer */}
-      <Footer />
-    </div>
+    </>
   );
 }
 

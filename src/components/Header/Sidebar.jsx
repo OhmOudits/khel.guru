@@ -39,7 +39,7 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
 
   return (
     <div
-      className={`fixed z-[10] h-full bg-primary max-lg:hidden ${
+      className={`fixed z-[13] h-full bg-primary max-lg:hidden ${
         sideOpen ? "w-full max-w-[230px]" : "w-[60px]"
       }`}
     >
@@ -155,7 +155,7 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
 
       {sideOpen && (
         <div
-          className="w-full mb-4 overflow-x-hidden cus-scroll overflow-y-auto"
+          className="w-full mb-4 text-[0.9rem] overflow-x-hidden cus-scroll overflow-y-auto"
           style={{
             minHeight: "calc(100vh - 100px)",
             maxHeight: "calc(100vh - 100px)",

@@ -8,7 +8,6 @@ const GamesLines = ({ title, link, games }) => {
 
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-
   const moveLeft = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({
@@ -43,7 +42,7 @@ const GamesLines = ({ title, link, games }) => {
 
   return (
     <div className="w-full flex flex-col">
-      <div className="w-full flex items-center justify-between mt-4 px-1 pb-2">
+      <div className="w-full flex items-center justify-between mt-2 px-1 pb-2">
         <h1 className="text-3xl font-semibold max-md:text-2xl">{title}</h1>
         <div className="flex gap-2">
           <Link to={link}>
@@ -79,7 +78,7 @@ const GamesLines = ({ title, link, games }) => {
       {/* Scrollable Games Section */}
       <div
         ref={scrollRef}
-        className="my-2 flex overflow-x-scroll"
+        className="mb-2 mt-0.5 flex overflow-x-scroll"
         style={{
           scrollbarWidth: "none",
         }}
@@ -90,20 +89,20 @@ const GamesLines = ({ title, link, games }) => {
             <Link
               to={g.link}
               key={g.id}
-              className="flex-none p-2 max-md:p-1 min-w-[33.33%] md:min-w-[25%] xl:min-w-[16.66%] 2xl:min-w-[14.28%]"
+              className="flex-none p-2 max-md:p-1 min-w-[33.33%] sm:min-w-[25%] xl:min-w-[16.66%] 2xl:min-w-[14.28%]"
             >
               <div
                 className="bg-primary cursor-pointer border-2 border-transparent hover:border-white rounded-xl aspect-[8/10] relative bg-bottom bg-cover bg-no-repeat"
                 style={{ backgroundImage: `url(${g.img})` }}
               >
                 {g.exclusive && (
-                  <div className="absolute text-black text-sm max-md:hidden max-md:text-xs font-bold top-[8px] left-[8px] px-2.5 py-1.5 rounded-lg bg-yellow-400">
+                  <div className="absolute text-black text-sm max-md:hidden max-md:text-xs xl:text-xs font-bold top-[8px] left-[8px] px-2.5 py-1.5 rounded-lg bg-yellow-400">
                     Exclusive
                   </div>
                 )}
 
                 {g.new && (
-                  <div className="absolute text-black text-sm max-md:hidden max-md:text-xs font-bold top-[8px] left-[8px] px-2.5 py-1.5 rounded-lg bg-green-700">
+                  <div className="absolute text-black text-sm max-md:hidden max-md:text-xs xl:text-xs font-bold top-[8px] left-[8px] px-2.5 py-1.5 rounded-lg bg-green-700">
                     New
                   </div>
                 )}

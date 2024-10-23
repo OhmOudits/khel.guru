@@ -17,6 +17,7 @@ const Footer = () => {
           </div>
         </div>
       )}
+
       <div
         className="absolute text-white bottom-0 left-0 right-0 lg:hidden w-full bg-inactive py-3 flex items-center justify-around"
         style={{ position: "fixed" }}
@@ -34,7 +35,12 @@ const Footer = () => {
         </div>
 
         {/* item 2 */}
-        <Link to="/search">
+        <Link
+          to="/search"
+          onClick={() => {
+            setOpenMenu(false);
+          }}
+        >
           <div className="flex flex-col items-center cursor-pointer justify-center gap-2">
             <FaSearch
               className={
@@ -49,7 +55,12 @@ const Footer = () => {
         </Link>
 
         {/* item 3 */}
-        <Link to="/casino">
+        <Link
+          to="/casino"
+          onClick={() => {
+            setOpenMenu(false);
+          }}
+        >
           <div className="flex flex-col items-center cursor-pointer justify-center gap-2">
             <FaCoins
               size={20}
@@ -64,7 +75,12 @@ const Footer = () => {
         </Link>
 
         {/* item 4 */}
-        <Link to="sports">
+        <Link
+          to="sports"
+          onClick={() => {
+            setOpenMenu(false);
+          }}
+        >
           <div className="flex flex-col items-center cursor-pointer justify-center gap-2">
             <FaBasketballBall
               size={20}
@@ -79,7 +95,12 @@ const Footer = () => {
         </Link>
 
         {/* item 5 */}
-        <div className="flex flex-col items-center cursor-pointer justify-center gap-2">
+        <div
+          onClick={() => {
+            setOpenMenu(false);
+          }}
+          className="flex flex-col items-center cursor-pointer justify-center gap-2"
+        >
           <FaBell
             size={20}
             className={
