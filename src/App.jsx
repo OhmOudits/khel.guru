@@ -6,7 +6,6 @@ import Header from "./components/Header/Header";
 import Sidebar from "./components/Header/Sidebar";
 import MainFrame from "./components/MainFrame/MainFrame";
 import Login from "./components/Login/Login";
-import { motion } from "framer-motion";
 import Register from "./components/Login/Register";
 
 function App() {
@@ -34,27 +33,15 @@ function App() {
   return (
     <>
       {showLogin && (
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 50 }}
-          transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-[1000]"
-        >
+        <>
           <Login />
-        </motion.div>
+        </>
       )}
 
       {showRegister && (
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 50 }}
-          transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-[1000]"
-        >
+        <>
           <Register />
-        </motion.div>
+        </>
       )}
 
       <div className="w-full flex min-h-screen bg-primary">
@@ -64,8 +51,8 @@ function App() {
         {/* Header */}
         <div
           className={`bg-primary ${
-            sideOpen ? "lg:pl-[240px]" : "lg:pl-[68px]"
-          } z-[12] fixed max-lg:left-0 right-0 px-6 max-md:px-2 py-2 w-full flex items-center justify-center `}
+            sideOpen ? "lg:pl-[220px]" : "lg:pl-[60px]"
+          } z-[12] fixed max-lg:left-0 right-0 px-6 max-md:px-2 py-1 w-full flex items-center justify-center `}
         >
           <div
             className="w-full max-w-[1200px] flex items-center justify-between"
@@ -78,7 +65,7 @@ function App() {
         {/* Main Frame */}
         <div
           className={`w-full ${
-            sideOpen ? "ml-[230px]" : "ml-[78px]"
+            sideOpen ? "ml-[210px]" : "ml-[68px]"
           } max-lg:ml-0 z-1`}
         >
           <div className="mt-[72px]"></div>

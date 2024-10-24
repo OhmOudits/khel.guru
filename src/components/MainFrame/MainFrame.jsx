@@ -5,7 +5,10 @@ import { Link, useNavigate } from "react-router-dom";
 import GamesLines from "./GamesLines";
 import register from "../../assets/landing/register.jpg";
 
-import { originals } from "../../constants";
+import casinobg from "../../assets/casinobg.png";
+import sportsbg from "../../assets/sportsbg.png";
+
+import { casino, originals } from "../../constants";
 import List from "./List";
 
 const MainFrame = () => {
@@ -62,9 +65,14 @@ const MainFrame = () => {
 
         {/* grids */}
         <div className="w-full grid grid-cols-2 gap-5">
-          <div className="col-span-2 p-6 cursor-pointer bg-primary rounded-xl xl:col-span-1">
+          <div
+            className="col-span-2 p-6 cursor-pointer bg-primary rounded-xl xl:col-span-1 bg-cover bg-no-repeat bg-center"
+            style={{
+              backgroundImage: `url('${casinobg}')`,
+            }}
+          >
             <Link to="/">
-              <div className="mt-8 lg:mt-24 xl:mt-12">
+              <div className="mt-8 lg:mt-24 xl:mt-16">
                 <h1 className="text-4xl max-md:text-2xl xl:text-2xl font-semibold">
                   Casino
                 </h1>
@@ -76,9 +84,14 @@ const MainFrame = () => {
           </div>
 
           {/* Sports Betting */}
-          <div className="col-span-2 cursor-pointer p-6 bg-primary xl:col-span-1 rounded-xl">
+          <div
+            className="col-span-2 cursor-pointer p-6 bg-primary xl:col-span-1 rounded-xl bg-cover bg-no-repeat bg-center"
+            style={{
+              backgroundImage: `url('${sportsbg}')`,
+            }}
+          >
             <Link to="/">
-              <div className="mt-8 lg:mt-24 xl:mt-12">
+              <div className="mt-8 lg:mt-24 xl:mt-16">
                 <h1 className="text-4xl max-md:text-2xl xl:text-2xl font-semibold">
                   Sports Betting
                 </h1>

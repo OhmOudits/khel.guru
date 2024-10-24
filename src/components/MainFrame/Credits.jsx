@@ -15,16 +15,16 @@ const Credits = ({ title, titleSpan, t1, t2, icon, t2Icon, n, c }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="lg:pr-10">
             <h1
-              className="text-4xl font-bold max-md:text-2xl xl:text-3xl max-md:mt-24"
+              className="text-4xl font-bold max-md:text-2xl xl:text-3xl max-md:mt-24 lg:mt-["
               style={{ lineHeight: "1.4" }}
             >
               <span>{titleSpan}</span> <br className="md:hidden" /> {title}
             </h1>
-            <div className="mt-4 p-1.5 bg-secondry rounded-xl w-full xl:max-w-[300px] grid grid-cols-2">
-              <div className="py-3 max-md:py-2 xl:py-1.5 xl:text-xs bg-button rounded-xl flex items-center justify-center">
+            <div className="mt-4 p-1.5 bg-secondry rounded-xl w-full lg:max-w-[250px] grid grid-cols-2 gap-0.5">
+              <div className="py-1.5 max-md:py-2 xl:py-1.5 xl:text-sm font-semibold bg-button rounded-xl flex items-center justify-center">
                 {t1}
               </div>
-              <div className="py-3 xl:py-2 flex items-center justify-center">
+              <div className="py-1.5 xl:py-2 flex items-center ont-semibold text-sm justify-center">
                 <div className="text-[18px] pr-3 xl:text-xs">
                   {React.createElement(t2Icon)}
                 </div>

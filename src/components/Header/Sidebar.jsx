@@ -40,19 +40,19 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
   return (
     <div
       className={`fixed z-[13] h-full bg-primary max-lg:hidden ${
-        sideOpen ? "w-full max-w-[230px]" : "w-[60px]"
+        sideOpen ? "w-full max-w-[215px]" : "w-[60px]"
       }`}
     >
-      <div className="my-5 px-3">
+      <div className="my-3 px-3">
         <div
-          className="p-1 w-[50px] rounded-xl bg-secondry"
+          className="p-1 w-[fit-content] rounded-xl bg-secondry"
           onClick={() => setSideOpen(!sideOpen)}
         >
-          <div className="py-3 px-3 w-full h-full flex items-center justify-center text-white hover:bg-terHover cursor-pointer rounded-xl bg-ter">
+          <div className="p-2.5 w-[fit-content] h-full flex items-center justify-center text-white hover:bg-terHover cursor-pointer rounded-xl bg-ter">
             {!sideOpen ? (
-              <FaAngleDoubleRight size={20} />
+              <FaAngleDoubleRight size={16} />
             ) : (
-              <FaAngleDoubleLeft size={20} />
+              <FaAngleDoubleLeft size={16} />
             )}
           </div>
         </div>
@@ -60,71 +60,71 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
 
       {!sideOpen && (
         <div
-          className="mt-2 pl-4 pr-0 flex flex-col text-white gap-3"
-          style={{ minHeight: "calc(100vh - 100px)" }}
+          className="mt-2 pt-1 pl-4 pr-0 flex flex-col text-white gap-2.5"
+          style={{ minHeight: "calc(100vh)" }}
         >
           <div
-            className={`relative group p-3 py-3.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center justify-center`}
+            className={`relative w-[fit-content] group p-2.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center justify-center`}
           >
-            <FaCoins size={20} className="text-purple-300" />
-            <div className="absolute top-1.5 left-full ml-2 text-white bg-inactive rounded-md opacity-0 hidden group-hover:flex z-[-1] group-hover:z-[12] group-hover:opacity-100 group-hover:translate-x-2 transform transition-all duration-300 flex-col">
+            <FaCoins size={18} className="text-purple-300" />
+            <div className="absolute rounded-xl top-1.5 left-full ml-2 text-white bg-inactive opacity-0 hidden group-hover:flex z-[-1] group-hover:z-[12] group-hover:opacity-100 group-hover:translate-x-2 transform transition-all duration-300 flex-col">
               {casino.map((c) => {
                 return (
                   <div
                     key={c.id}
-                    className="flex whitespace-nowrap gap-2 rounded items-center py-2.5 px-5 bg-inactive hover:bg-activeHover"
+                    className="flex text-sm whitespace-nowrap gap-2 rounded items-center py-1.5 px-3 w-full min-w-[180px] bg-inactive text-textColor hover:bg-activeHover"
                   >
                     {React.createElement(c.icon)}
-                    {c.name}
+                    <span className="pt-0.5 text-purple-300">{c.name}</span>
                   </div>
                 );
               })}
-              <span className="absolute left-[-5px] top-[6px] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
+              <span className="absolute left-[-5px] top-[3px] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
             </div>
           </div>
 
           <div
-            className={`relative group p-3 py-3.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center justify-center`}
+            className={`relative w-[fit-content] group p-2.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center justify-center`}
           >
-            <FaChessBoard size={20} className="text-purple-300" />
-            <div className="absolute top-1.5 left-full ml-2 text-white bg-inactive rounded-md z-[12] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all duration-300 hidden group-hover:flex flex-col">
+            <FaChessBoard size={18} className="text-purple-300" />
+            <div className="absolute rounded-xl top-1.5 left-full ml-2 text-white bg-inactive opacity-0 hidden group-hover:flex z-[-1] group-hover:z-[12] group-hover:opacity-100 group-hover:translate-x-2 transform transition-all duration-300 flex-col">
               {sports.map((c) => {
                 return (
                   <div
                     key={c.id}
-                    className="flex whitespace-nowrap gap-2 rounded items-center py-2.5 px-5 bg-inactive hover:bg-activeHover"
+                    className="flex text-sm whitespace-nowrap gap-2 rounded items-center py-1.5 px-3 w-full min-w-[180px] bg-inactive text-textColor hover:bg-activeHover"
                   >
                     {React.createElement(c.icon)}
-                    {c.name}
+                    <span className="pt-0.5 text-purple-300">{c.name}</span>
                   </div>
                 );
               })}
-              <span className="absolute left-[-5px] top-[6px] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
+              <span className="absolute left-[-5px] top-[3px] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
             </div>
           </div>
 
           <div
-            className={`flex flex-col rounded-xl bg-inactive items-center justify-center`}
+            className={`flex flex-col w-[fit-content] rounded-xl bg-inactive items-center justify-center`}
           >
-            <div className="group relative hover:bg-activeHover cursor-pointer px-3.5 rounded-tr-xl rounded-tl-xl py-3.5 ">
-              <HiSpeakerphone size={20} className="text-purple-300" />
-              <span className="absolute top-1.5 left-full ml-2 py-1.5 px-3 text-white bg-inactive rounded-md z-[-1] group-hover:z-[12] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+            <div className="w-[fit-content] group p-2.5 relative hover:bg-activeHover cursor-pointer rounded-tr-xl rounded-tl-xl py-3.5 ">
+              <HiSpeakerphone size={18} className="text-purple-300" />
+              <span className="absolute text-sm font-semibold text-textColor top-1.5 left-full ml-2 py-1.5 px-3 bg-inactive rounded-md z-[-1] group-hover:z-[12] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
                 Promotions
                 <span className="absolute left-[-5px] top-[8%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
               </span>
             </div>
 
-            <div className="group relative hover:bg-activeHover px-3.5 py-3.5 cursor-pointer">
-              <FaDollarSign size={20} className="text-purple-300" />
-              <span className="absolute top-1.5 left-full ml-2 py-1.5 px-3 text-white bg-inactive rounded-md z-[-1] group-hover:z-[12] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+            <div className="w-[fit-content] group p-2.5 relative hover:bg-activeHover cursor-pointer">
+              <FaDollarSign size={18} className="text-purple-300" />
+              <span className="absolute text-sm font-semibold text-textColor top-1.5 left-full ml-2 py-1.5 px-3 bg-inactive rounded-md z-[-1] group-hover:z-[12] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
                 Refer & Earn
                 <span className="absolute left-[-5px] top-[8%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
               </span>
             </div>
 
-            <div className="group relative hover:bg-activeHover px-3.5 py-3.5 rounded-br-xl rounded-bl-xl cursor-pointer">
-              <FaMoneyBill size={20} className="text-purple-300" />
-              <span className="absolute top-0 left-full ml-2 py-1.5 px-3 text-white bg-inactive rounded-md z-[-1] group-hover:z-[12] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+            <div className="w-[fit-content] group p-2.5 relative hover:bg-activeHover rounded-br-xl rounded-bl-xl cursor-pointer">
+              <FaMoneyBill size={18} className="text-purple-300" />
+              <span className="absolute top-0 left-full ml-2 py-1.5 px-3 text-sm font-semibold text-textColor bg-inactive rounded-md z-[-1] group-hover:z-[12] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
                 Redeem
                 <span className="absolute left-[-5px] top-[8%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
               </span>
@@ -132,20 +132,20 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
           </div>
 
           <div
-            className={`group relative p-3 py-3.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center justify-center`}
+            className={`relative w-[fit-content] group p-2.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center justify-center`}
           >
-            <FaCrown size={20} className="text-purple-300" />
-            <span className="absolute left-full ml-2 py-1.5 px-3 text-white bg-inactive rounded-md z-[-1] group-hover:z-[12] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+            <FaCrown size={18} className="text-purple-300" />
+            <span className="absolute left-full ml-2 py-1.5 px-3 text-sm font-semibold text-textColor bg-inactive rounded-md z-[-1] group-hover:z-[12] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
               VIP Club
               <span className="absolute left-[-5px] top-[15%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
             </span>
           </div>
 
           <div
-            className={`group relative p-3 py-3.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center justify-center `}
+            className={`relative w-[fit-content] group p-2.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center justify-center `}
           >
-            <FaHeadphones size={20} className="text-purple-300" />
-            <span className="absolute left-full ml-2 py-1.5 px-3 text-white bg-inactive rounded-md z-[-10] group-hover:z-[12] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+            <FaHeadphones size={18} className="text-purple-300" />
+            <span className="absolute left-full ml-2 py-1.5 px-3 text-sm font-semibold text-textColor bg-inactive rounded-md z-[-10] group-hover:z-[12] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
               Live Support
               <span className="absolute left-[-5px] top-[15%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
             </span>
@@ -155,25 +155,30 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
 
       {sideOpen && (
         <div
-          className="w-full mb-4 text-[0.9rem] overflow-x-hidden cus-scroll overflow-y-auto"
+          className="w-full text-[0.9rem]"
           style={{
-            minHeight: "calc(100vh - 100px)",
-            maxHeight: "calc(100vh - 100px)",
+            minHeight: "calc(100vh)",
+            maxHeight: "calc(100vh)",
           }}
         >
           <div className="px-3 overflow-y-auto cus-scroll">
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3 py-1 rounded-br-xl rounded-bl-xl overflow-hidden">
               <div
                 className={`${
                   openCasino ? "" : "rounded-b-xl"
-                } w-full px-5 py-1.5 cursor-pointer bg-activeHover hover:bg-hoverActive rounded-t-xl flex items-center justify-between`}
-                onClick={() => setCasino(!openCasino)}
+                } w-full pr-2 pl-3 py-1.5 text-xs font-semibold  cursor-pointer bg-activeHover hover:bg-hoverActive rounded-t-xl flex items-center justify-between`}
+                onClick={() => {
+                  setCasino(!openCasino);
+                  setSports(false);
+                }}
               >
-                <div className="flex items-center gap-2">
-                  <FaCoins size={20} className="text-purple-300" />
-                  <h1 className="text-white font-semibold text-lg">Casino</h1>
+                <div className="flex items-center gap-2.5">
+                  <FaCoins size={16} className="text-white" />
+                  <h1 className="text-white font-bold text-[0.89rem]">
+                    Casino
+                  </h1>
                 </div>
-                <div className="text-white bg-hoverActive p-2 bg-[rgba(151, 137, 205, 0.48)] rounded-lg">
+                <div className="text-white bg-hoverActive p-1.5 bg-[rgba(151, 137, 205, 0.48)] rounded-lg flex items-center justify-center">
                   {openCasino ? (
                     <FaChevronUp size={12} />
                   ) : (
@@ -181,31 +186,38 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
                   )}
                 </div>
               </div>
-              {openCasino && (
-                <div className="mt-[-1rem] text-gray-300 rounded-b-xl">
-                  {casino.map((c) => (
-                    <div
-                      className="px-5 py-2.5 cursor-pointer bg-inactive hover:bg-activeHover flex items-center gap-3"
-                      key={c.id}
-                    >
-                      {React.createElement(c.icon)}
-                      {c.name}
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="mt-[-0.75rem] bg-inactive overflow-hidden w-full rounded-br-xl rounded-bl-xl">
+                {openCasino && (
+                  <div className="text-gray-300 rounded-b-xl">
+                    {casino.map((c) => (
+                      <div
+                        className="px-2.5 py-1.5 flex items-center text-textColor text-[0.835rem] font-semibold cursor-pointer bg-inactive hover:bg-activeHover gap-2.5"
+                        key={c.id}
+                      >
+                        {React.createElement(c.icon, { size: 16 })}
+                        <span className="pt-0.5 text-textColor">{c.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               <div
                 className={`${
                   opensports ? "" : "rounded-b-xl"
-                } w-full px-5 py-1.5 cursor-pointer bg-activeHover hover:bg-hoverActive rounded-t-xl flex items-center justify-between`}
-                onClick={() => setSports(!opensports)}
+                } w-full pr-2 pl-3 py-1.5 text-xs font-semibold  cursor-pointer bg-activeHover hover:bg-hoverActive rounded-t-xl flex items-center justify-between`}
+                onClick={() => {
+                  setSports(!opensports);
+                  setCasino(false);
+                }}
               >
                 <div className="flex items-center gap-2">
-                  <FaChessBoard size={20} className="text-purple-300" />
-                  <h1 className="text-white font-semibold text-lg">Sports</h1>
+                  <FaChessBoard size={16} className="text-white" />
+                  <h1 className="text-white font-bold text-[0.89rem]">
+                    Sports
+                  </h1>
                 </div>
-                <div className="text-white bg-hoverActive p-2 bg-[rgba(151, 137, 205, 0.48)] rounded-lg">
+                <div className="text-white bg-hoverActive p-1.5 bg-[rgba(151, 137, 205, 0.48)] rounded-lg flex items-center justify-center">
                   {opensports ? (
                     <FaChevronUp size={12} />
                   ) : (
@@ -213,52 +225,58 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
                   )}
                 </div>
               </div>
-              {opensports && (
-                <div className="mt-[-1rem] text-gray-300 rounded-b-xl">
-                  {sports.map((c) => (
-                    <div
-                      className="px-5 py-2.5 cursor-pointer bg-inactive hover:bg-activeHover flex items-center gap-3"
-                      key={c.id}
-                    >
-                      {React.createElement(c.icon)}
-                      {c.name}
-                    </div>
-                  ))}
-                </div>
-              )}
+
+              <div className="mt-[-0.75rem] bg-inactive overflow-hidden w-full rounded-br-xl rounded-bl-xl">
+                {opensports && (
+                  <div className="text-gray-300 rounded-b-xl">
+                    {sports.map((c) => (
+                      <div
+                        className="px-2.5 py-1.5 flex items-center text-textColor text-[0.835rem] font-semibold cursor-pointer bg-inactive hover:bg-activeHover gap-2.5"
+                        key={c.id}
+                      >
+                        {React.createElement(c.icon, { size: 16 })}
+                        <span className="pt-0.5 text-textColor">{c.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {/* three sections */}
               <div className={`w-full bg-inactive flex flex-col rounded-xl`}>
-                <div className="px-5 py-2.5 cursor-pointer hover:bg-activeHover rounded-xl flex items-center gap-3 ">
-                  <HiSpeakerphone size={20} className="text-purple-300" />
-                  <h1 className="text-gray-200 font-semibold text-base">
+                <div className="px-2.5 py-2.5 cursor-pointer hover:bg-activeHover rounded-xl flex items-center gap-3 ">
+                  <HiSpeakerphone size={18} className="text-purple-300" />
+                  <h1 className="text-textColor font-bold text-[0.89rem]">
                     Promotions
                   </h1>
                 </div>
-                <div className="px-5 py-2.5 cursor-pointer hover:bg-activeHover rounded-xl flex items-center gap-3 ">
-                  <FaDollarSign size={20} className="text-purple-300" />
-                  <h1 className="text-gray-200 font-semibold text-base">
+                <div className="px-2.5 py-2.5 cursor-pointer hover:bg-activeHover rounded-xl flex items-center gap-3 ">
+                  <FaDollarSign size={18} className="text-purple-300" />
+                  <h1 className="text-textColor font-bold text-[0.89rem]">
                     Refer & Win
                   </h1>
                 </div>
-                <div className="px-5 py-2.5 cursor-pointer hover:bg-activeHover rounded-xl flex items-center gap-3 ">
-                  <FaMoneyBill size={20} className="text-purple-300" />
-                  <h1 className="text-gray-200 font-semibold text-base">
+                <div className="px-2.5 py-2.5 cursor-pointer hover:bg-activeHover rounded-xl flex items-center gap-3 ">
+                  <FaMoneyBill size={18} className="text-purple-300" />
+                  <h1 className="text-textColor font-bold text-[0.9rem]">
                     Redeem
                   </h1>
                 </div>
               </div>
+
               <div
-                className={`w-full px-5 py-2.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center gap-3`}
+                className={`w-full px-5 py-2 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center gap-3`}
               >
-                <FaCrown size={20} className="text-purple-300" />
-                <h1 className="text-white font-semibold text-lg">VIP Club</h1>
+                <FaCrown size={18} className="text-purple-300" />
+                <h1 className="text-textColor font-bold text-[0.89rem]">
+                  VIP Club
+                </h1>
               </div>
               <div
                 className={`w-full px-5 py-2.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center gap-3`}
               >
-                <FaHeadphones size={20} className="text-purple-300" />
-                <h1 className="text-white font-semibold text-lg">
+                <FaHeadphones size={18} className="text-purple-300" />
+                <h1 className="text-textColor font-bold text-[0.89rem]">
                   Live Support
                 </h1>
               </div>

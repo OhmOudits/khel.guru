@@ -89,9 +89,9 @@ const List = () => {
             <motion.div
               key={w.id}
               className="w-full py-1.5 bg-primary grid grid-cols-12 gap-2 px-4 text-left font-semibold xl:grid-cols-[14]"
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.5 }}
             >
               <div className="max-md:text-sm col-span-6 md:col-span-5 xl:col-span-2 flex items-center gap-2">
