@@ -20,7 +20,7 @@ const Chances = ({ risk, segment }) => {
                 animate="visible"
                 variants={fadeUpVariants}
                 transition={{ duration: 0.5 }}
-                className="absolute  w-full text-[0.9rem] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
+                className="absolute  w-full text-[0.9rem] z-[3] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
               >
                 <div className="w-full">
                   <div className="flex items-center justify-between w-full mb-[-5px] font-semibold text-label">
@@ -61,7 +61,7 @@ const Chances = ({ risk, segment }) => {
                 animate="visible"
                 variants={fadeUpVariants}
                 transition={{ duration: 0.5 }}
-                className="absolute  w-full text-[0.9rem] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
+                className="absolute  w-full text-[0.9rem] z-[3] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
               >
                 <div className="w-full">
                   <div className="flex items-center justify-between w-full mb-[-5px] font-semibold text-label">
@@ -102,7 +102,7 @@ const Chances = ({ risk, segment }) => {
                 animate="visible"
                 variants={fadeUpVariants}
                 transition={{ duration: 0.5 }}
-                className="absolute  w-full text-[0.9rem] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
+                className="absolute  w-full text-[0.9rem] z-[3] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
               >
                 <div className="w-full">
                   <div className="flex items-center justify-between w-full mb-[-5px] font-semibold text-label">
@@ -148,7 +148,7 @@ const Chances = ({ risk, segment }) => {
                 animate="visible"
                 variants={fadeUpVariants}
                 transition={{ duration: 0.5 }}
-                className="absolute  w-full text-[0.9rem] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
+                className="absolute  w-full text-[0.9rem] z-[3] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
               >
                 <div className="w-full">
                   <div className="flex items-center justify-between w-full mb-[-5px] font-semibold text-label">
@@ -190,7 +190,7 @@ const Chances = ({ risk, segment }) => {
                 animate="visible"
                 variants={fadeUpVariants}
                 transition={{ duration: 0.5 }}
-                className="absolute  w-full text-[0.9rem] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
+                className="absolute  w-full text-[0.9rem] z-[3] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
               >
                 <div className="w-full">
                   <div className="flex items-center justify-between w-full mb-[-5px] font-semibold text-label">
@@ -238,7 +238,7 @@ const Chances = ({ risk, segment }) => {
                 animate="visible"
                 variants={fadeUpVariants}
                 transition={{ duration: 0.5 }}
-                className="absolute  w-full text-[0.9rem] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
+                className="absolute  w-full text-[0.9rem] z-[3] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
               >
                 <div className="w-full">
                   <div className="flex items-center justify-between w-full mb-[-5px] font-semibold text-label">
@@ -280,7 +280,7 @@ const Chances = ({ risk, segment }) => {
                 animate="visible"
                 variants={fadeUpVariants}
                 transition={{ duration: 0.5 }}
-                className="absolute  w-full text-[0.9rem] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
+                className="absolute  w-full text-[0.9rem] z-[3] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
               >
                 <div className="w-full">
                   <div className="flex items-center justify-between w-full mb-[-5px] font-semibold text-label">
@@ -332,7 +332,7 @@ const Chances = ({ risk, segment }) => {
                 animate="visible"
                 variants={fadeUpVariants}
                 transition={{ duration: 0.5 }}
-                className="absolute  w-full text-[0.9rem] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
+                className="absolute  w-full text-[0.9rem] z-[3] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
               >
                 <div className="w-full">
                   <div className="flex items-center justify-between w-full mb-[-5px] font-semibold text-label">
@@ -375,7 +375,7 @@ const Chances = ({ risk, segment }) => {
                   animate="visible"
                   variants={fadeUpVariants}
                   transition={{ duration: 0.5 }}
-                  className="absolute  w-full text-[0.9rem] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
+                  className="absolute  w-full text-[0.9rem] z-[3] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
                 >
                   <div className="w-full">
                     <div className="flex items-center justify-between w-full mb-[-5px] font-semibold text-label">
@@ -422,7 +422,7 @@ const Chances = ({ risk, segment }) => {
                 animate="visible"
                 variants={fadeUpVariants}
                 transition={{ duration: 0.5 }}
-                className="absolute  w-full text-[0.9rem] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
+                className="absolute  w-full text-[0.9rem] z-[3] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
               >
                 <div className="w-full">
                   <div className="flex items-center justify-between w-full mb-[-5px] font-semibold text-label">
@@ -464,7 +464,7 @@ const Chances = ({ risk, segment }) => {
                 animate="visible"
                 variants={fadeUpVariants}
                 transition={{ duration: 0.5 }}
-                className="absolute  w-full text-[0.9rem] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
+                className="absolute  w-full text-[0.9rem] z-[3] bottom-[125%] rounded-md left-0 right-0 py-2 px-4 bg-inactive opacity-0 group-hover:opacity-100 hidden group-hover:flex items-center justify-center gap-4"
               >
                 <div className="w-full">
                   <div className="flex items-center justify-between w-full mb-[-5px] font-semibold text-label">
