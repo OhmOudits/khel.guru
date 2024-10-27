@@ -1,17 +1,20 @@
 import { useState } from "react";
 import "../../styles/Frame.css";
-import FairnessModal from "./FairnessModal";
-import FrameFooter from "./FrameFooter";
-import HotKeysModal from "./HotKeysModal";
-import GameInfoModal from "./GameInfoModal";
-import MaxBetModal from "./MaxBetModal";
-import LeftSection from "./LeftSection";
-import History from "./History";
+import "../../styles/Wheel.css";
+import FairnessModal from "../Frame/FairnessModal";
+import FrameFooter from "../Frame/FrameFooter";
+import HotKeysModal from "../Frame/HotKeysModal";
+import GameInfoModal from "../Frame/GameInfoModal";
+import MaxBetModal from "../Frame/MaxBetModal";
+import LeftSection from "../Frame/LeftSection";
+import History from "../Frame/History";
+import Chances from "./Chances";
+import Game from "./Game";
 
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
-  const [nbets, setNBets] = useState("");
+  const [nbets, setNBets] = useState(0);
   const [onWin, setOnWin] = useState(0);
   const [onLoss, setOnLoss] = useState(0);
   const [onWinReset, setOnWinReset] = useState(false);
@@ -19,6 +22,8 @@ const Frame = () => {
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
+  const [risk, setRisk] = useState("Medium");
+  const [segment, setSegment] = useState(30);
 
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
@@ -50,20 +55,18 @@ const Frame = () => {
             <div className="grid grid-cols-12 lg:min-h-[600px]">
               {/* Left Section */}
               <LeftSection
-                profitWin
-                nbetsSection
                 theatreMode={theatreMode}
                 setTheatreMode={setTheatreMode}
                 setBet={setBet}
                 setBetMode={setBetMode}
+                profit={profit}
+                setProfit={setProfit}
                 setLoss={setLoss}
                 nbets={nbets}
                 setNBets={setNBets}
                 betMode={betMode}
                 bet={bet}
                 maxBetEnable={maxBetEnable}
-                profit={profit}
-                setProfit={setProfit}
                 loss={loss}
                 setOnLoss={setOnLoss}
                 setOnWin={setOnWin}
@@ -73,6 +76,12 @@ const Frame = () => {
                 onLossReset={onLossReset}
                 setOnLossReset={setOnLossReset}
                 setOnWinReset={setOnWinReset}
+                riskSection
+                segmentSection
+                risk={risk}
+                setRisk={setRisk}
+                segment={segment}
+                setSegment={setSegment}
               />
 
               {/* Right Section */}
@@ -85,7 +94,8 @@ const Frame = () => {
               >
                 <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
                   <History />
-                  Game
+                  <Game risk={risk} segment={segment} />
+                  <Chances risk={risk} segment={segment} />
                 </div>
               </div>
             </div>

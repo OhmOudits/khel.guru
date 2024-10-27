@@ -24,15 +24,15 @@ const Header = () => {
             <FaSearch size={12} />
           </div>
         </div>
-        <div className="p-1 text-[0.85rem] rounded-xl bg-secondry flex gap-1 text-white">
+        <div className="p-1 text-[0.8rem] rounded-xl bg-secondry flex gap-1 text-white">
           <div
-            className="cursor-pointer login py-2 px-4 bg-ter flex items-center justify-center hover:bg-terHover rounded-xl font-semibold"
+            className="cursor-pointer login py-2 px-4 bg-ter flex items-center justify-center hover:bg-terHover rounded-xl font-bold"
             onClick={() => handleTabNavigation("login")}
           >
             Login
           </div>
           <div
-            className="cursor-pointer register py-2 px-4 rounded-xl bg-button font-semibold"
+            className="cursor-pointer register py-2 px-4 rounded-xl bg-button font-bold"
             onClick={() => handleTabNavigation("register")}
           >
             Register

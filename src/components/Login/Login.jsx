@@ -10,10 +10,14 @@ import {
   FaTelegram,
 } from "react-icons/fa";
 import { GoogleLogin } from "@react-oauth/google";
+import LoadingComponent from "../LoadingComponent";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const [forgotPassword, setForgotPassword] = useState(false);
+  const [restore, setRestore] = useState(false);
+  const [sendingRestore, setSendingRestore] = useState(false);
 
   const handleTabNavigation = (tab) => {
     navigate(`?tab=${tab}`, { replace: true });
@@ -79,26 +83,77 @@ const Login = () => {
   }, []);
 
   return (
-    <div
-      className="bg-[rgba(0,0,0,0.7)]  cursor-pointer backdrop-blur-sm w-full h-screen fixed top-0 left-0 z-[120] overflow-y-auto flex items-center justify-center"
-      onClick={handleClose}
-    >
+    <>
+      {forgotPassword && (
+        <div
+          onClick={() => setForgotPassword(false)}
+          style={{ position: "fixed" }}
+          className="w-full h-screen absolute rounded top-0 left-0 flex items-center justify-center z-[121] bg-[rgba(0,0,0,0.6)] transition-opacity duration-300 ease-in-out opacity-100"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-primary rounded w-[90%] max-w-[500px] text-white px-4 py-5 animate-fadeUp relative"
+          >
+            {!restore && (
+              <h1 className="text-textColor text-center text-xl font-semibold mb-3">
+                Forgot Password ?
+              </h1>
+            )}
+            <div className="flex flex-col gap-2">
+              {!restore && (
+                <input
+                  id="femail"
+                  disabled={restore}
+                  className="px-3 w-full py-1.5 mt-1 rounded-md bg-inactive text-lg border-[3px] border-activeHover hover:border-active outline-none"
+                  placeholder="Enter your Email Address"
+                />
+              )}
+              {!restore && (
+                <button
+                  onClick={() => {
+                    setSendingRestore(true);
+                    setTimeout(() => {
+                      setSendingRestore(false);
+                      setRestore(true);
+                    }, 1000);
+                  }}
+                  className="mt-2 bg-inactive hover:bg-activeHover py-2 rounded-md"
+                >
+                  {sendingRestore ? <LoadingComponent /> : "Restore Password"}
+                </button>
+              )}
+
+              {restore && (
+                <h1 className="text-textColor text-xl py-1 mt-1 text-center font-semibold">
+                  Recovery url to reset password is sent to email change the
+                  password using it
+                </h1>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div
-        className="flex absolute top-3 right-1 max-sm:right-0 cursor-pointer py-1 px-3 items-stretch gap-3 text-white"
+        className="bg-[rgba(0,0,0,0.7)]  cursor-pointer backdrop-blur-sm w-full h-screen fixed top-0 left-0 z-[120] overflow-y-auto flex items-center justify-center"
         onClick={handleClose}
-        style={{ position: "fixed" }}
       >
-        <IoClose size={30} />
-      </div>
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 50 }}
-        transition={{ duration: 0.5 }}
-        className="my-3 relative overflow-y-auto max-w-[600px] max-h-[84vh] rounded-md bg-primary inset-0 z-[1000] w-[95%]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* <div
+        <div
+          className="flex absolute top-3 right-1 max-sm:right-0 cursor-pointer py-1 px-3 items-stretch gap-3 text-white"
+          onClick={handleClose}
+          style={{ position: "fixed" }}
+        >
+          <IoClose size={30} />
+        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 50 }}
+          transition={{ duration: 0.5 }}
+          className="my-3 relative overflow-y-auto max-w-[600px] max-h-[84vh] rounded-md bg-primary inset-0 z-[1000] w-[95%]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* <div
           className="flex absolute top-3 right-3 cursor-pointer py-1 px-3 items-stretch gap-3 text-white"
           onClick={handleClose}
           style={{ position: "fixed" }}
@@ -106,130 +161,134 @@ const Login = () => {
           <IoClose size={30} />
         </div> */}
 
-        <div className="my-6">
-          <div className="w-full flex items-center justify-center px-3 text-white">
-            <div className="w-full lg:w-[85%]">
-              <h1 className="font-bold text-3xl max-md:text-2xl">
-                Login to your account
-              </h1>
-              <h2 className="pt-1 font-semibold text-lg max-md:text-base">
-                Dont have an account?{" "}
-                <span
-                  onClick={() => handleTabNavigation("register")}
-                  className="text-textColor hover:text-white hover:underline cursor-pointer"
-                >
-                  Register
-                </span>
-              </h2>
-              <div className="mt-8">
-                <div className="flex flex-col gap-2 mt-4">
-                  <label
-                    htmlFor="username"
-                    className="text-textColor w-full font-semibold text-lg max-md:text-base"
+          <div className="my-6">
+            <div className="w-full flex items-center justify-center px-3 text-white">
+              <div className="w-full lg:w-[85%]">
+                <h1 className="font-bold text-3xl max-md:text-2xl">
+                  Login to your account
+                </h1>
+                <h2 className="pt-1 font-semibold text-lg max-md:text-base">
+                  Dont have an account?{" "}
+                  <span
+                    onClick={() => handleTabNavigation("register")}
+                    className="text-textColor hover:text-white hover:underline cursor-pointer"
                   >
-                    Username or Email
-                  </label>
-                  <input
-                    id="username"
-                    className="px-3 py-3 rounded-lg bg-inactive font-semibold text-xl max-md:text-base border-[3px] border-activeHover hover:border-active outline-none"
-                    placeholder="Username or Email"
-                  />
-                </div>
-                <div className="flex flex-col gap-2 mt-4">
-                  <label
-                    htmlFor="password"
-                    className="text-textColor font-semibold text-lg max-md:text-base"
-                  >
-                    Password
-                  </label>
-                  <div className="relative z-[-1] w-full">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      id="password"
-                      className="px-3 w-full py-3 rounded-lg bg-inactive font-semibold text-xl max-md:text-base border-[3px] border-activeHover hover:border-active outline-none"
-                      placeholder="Password"
-                    />
-                    <div
-                      className="absolute top-4 right-4 cursor-pointer"
-                      onClick={() => setShowPassword(!showPassword)}
+                    Register
+                  </span>
+                </h2>
+                <div className="mt-8">
+                  <div className="flex flex-col gap-2 mt-4">
+                    <label
+                      htmlFor="username"
+                      className="text-textColor w-full font-semibold text-lg max-md:text-base"
                     >
-                      {!showPassword ? (
-                        <FaEyeSlash size={24} />
-                      ) : (
-                        <FaEye size={24} />
-                      )}
+                      Username or Email
+                    </label>
+                    <input
+                      id="username"
+                      className="px-3 py-3 rounded-lg bg-inactive font-semibold text-xl max-md:text-base border-[3px] border-activeHover hover:border-active outline-none"
+                      placeholder="Username or Email"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2 mt-4">
+                    <label
+                      htmlFor="password"
+                      className="text-textColor font-semibold text-lg max-md:text-base"
+                    >
+                      Password
+                    </label>
+                    <div className="relative w-full">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        id="password"
+                        className="px-3 w-full py-3 rounded-lg bg-inactive font-semibold text-xl max-md:text-base border-[3px] border-activeHover hover:border-active outline-none"
+                        placeholder="Password"
+                      />
+                      <div
+                        className="absolute top-4 right-4 cursor-pointer"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {!showPassword ? (
+                          <FaEyeSlash size={24} />
+                        ) : (
+                          <FaEye size={24} />
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="my-3 text-textColor font-semibold hover:text-white hover:underline cursor-pointer">
-                Forgot Password?
-              </div>
-              <div className="w-full py-3.5 bg-button rounded-xl flex items-center justify-center text-lg font-semibold cursor-pointer">
-                Play Now
-              </div>
-              <div className="mt-7 mb-2 flex items-center">
-                <div className="w-full h-1 mt-1 bg-inactive"></div>
-                <h1 className="middleText px-2 text-white font-semibold text-base text-center whitespace-nowrap">
-                  Or continue with
-                </h1>
-                <div className="w-full h-1 mt-1 bg-inactive"></div>
-              </div>
-              <div className="flex items-center w-full justify-between gap-3 mt-6">
-                {/* Google login button */}
-                <div className="flex items-center relative justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer">
-                  <div className="w-full absolute top-0 left-0 z-[2] opacity-0">
-                    <GoogleLogin
-                      onSuccess={handleGoogleSuccess}
-                      onError={handleGoogleFailure}
-                      render={(renderProps) => (
-                        <div
-                          onClick={renderProps.onClick}
-                          className="flex items-center gap-2"
-                        >
-                          <FaGoogle />
-                          Google
-                        </div>
-                      )}
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FaGoogle />
-                    Google
-                  </div>
+                <div
+                  onClick={() => setForgotPassword(true)}
+                  className="my-3 text-textColor font-semibold hover:text-white hover:underline cursor-pointer"
+                >
+                  Forgot Password?
                 </div>
-                {/* Telegram login button */}
-                <a
-                  href={telegramLoginUrl}
-                  target="_blank"
-                  className="flex items-center justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-2">
-                    <FaTelegram />
-                    Telegram
+                <div className="w-full py-2 bg-button rounded-xl flex items-center justify-center text-lg font-semibold cursor-pointer">
+                  Play Now
+                </div>
+                <div className="mt-5 mb-2 flex items-center">
+                  <div className="w-full h-1 mt-1 bg-inactive"></div>
+                  <h1 className="middleText px-2 text-white font-semibold text-base text-center whitespace-nowrap">
+                    Or continue with
+                  </h1>
+                  <div className="w-full h-1 mt-1 bg-inactive"></div>
+                </div>
+                <div className="flex items-center w-full justify-between gap-3 mt-6">
+                  {/* Google login button */}
+                  <div className="flex items-center relative justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer">
+                    <div className="w-full absolute top-0 left-0 z-[2] opacity-0">
+                      <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={handleGoogleFailure}
+                        render={(renderProps) => (
+                          <div
+                            onClick={renderProps.onClick}
+                            className="flex items-center gap-2"
+                          >
+                            <FaGoogle />
+                            Google
+                          </div>
+                        )}
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FaGoogle />
+                      Google
+                    </div>
                   </div>
-                </a>
-                <a
-                  href={discordLoginUrl}
-                  className="flex items-center justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-2">
-                    <FaDiscord />
-                    Discord
-                  </div>
-                </a>
-              </div>
-              <div className="mt-12 text-sm text-textColor w-full text-center">
-                <p>
-                  This site is protected by reCAPTCHA and the Google Privacy
-                  Policy and Terms of Service apply.
-                </p>
+                  {/* Telegram login button */}
+                  <a
+                    href={telegramLoginUrl}
+                    target="_blank"
+                    className="flex items-center justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <FaTelegram />
+                      Telegram
+                    </div>
+                  </a>
+                  <a
+                    href={discordLoginUrl}
+                    className="flex items-center justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <FaDiscord />
+                      Discord
+                    </div>
+                  </a>
+                </div>
+                <div className="mt-8 text-sm text-textColor w-full text-center">
+                  <p>
+                    This site is protected by reCAPTCHA and the Google Privacy
+                    Policy and Terms of Service apply.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </motion.div>
-    </div>
+        </motion.div>
+      </div>
+    </>
   );
 };
 

@@ -84,7 +84,7 @@ const GamesLines = ({ title, link, games }) => {
         {/* Overlay for the right side */}
         {!canScrollLeft && (
           <div
-            className="absolute z-[6] top-0 h-full w-[15%] bg-gradient-to-l from-black/75 to-transparent rounded-xl pointer-events-none"
+            className="absolute z-[1] top-0 h-full w-[15%] bg-gradient-to-l from-black/75 to-transparent rounded-xl pointer-events-none"
             style={{
               right: "0",
             }}
@@ -97,10 +97,10 @@ const GamesLines = ({ title, link, games }) => {
             <Link
               to={g.link}
               key={g.id}
-              className="flex-none p-2 max-md:p-1 min-w-[40%] sm:min-w-[25%] lg:min-w-[20%] xl:min-w-[15%] 2xl:min-w-[15%]"
+              className="flex-none p-2 max-md:p-1 min-w-[40%] sm:min-w-[25%] lg:min-w-[20%] rounded-[1rem] overflow-hidden xl:min-w-[15%] 2xl:min-w-[15%]"
             >
               <div
-                className={`cursor-pointer border-2 border-transparent hover:border-white rounded-xl aspect-[8/10] relative bg-bottom bg-cover bg-no-repeat`}
+                className={`cursor-pointer border-2 border-transparent hover:border-white rounded-[1rem] overflow-hidden aspect-[8/10] xl:aspect-[8/10.5] relative bg-bottom bg-cover bg-no-repeat`}
                 style={{ backgroundImage: `url(${g.img})` }}
               >
                 {g.exclusive && (

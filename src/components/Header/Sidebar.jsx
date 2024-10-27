@@ -45,10 +45,10 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
     >
       <div className="my-3 px-3">
         <div
-          className="p-1 w-[fit-content] rounded-xl bg-secondry"
+          className="p-1 w-fit rounded-xl bg-secondry"
           onClick={() => setSideOpen(!sideOpen)}
         >
-          <div className="p-2.5 w-[fit-content] h-full flex items-center justify-center text-white hover:bg-terHover cursor-pointer rounded-xl bg-ter">
+          <div className="p-2.5 w-fit h-full flex items-center justify-center text-white hover:bg-terHover cursor-pointer rounded-xl bg-ter">
             {!sideOpen ? (
               <FaAngleDoubleRight size={16} />
             ) : (
@@ -64,7 +64,7 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
           style={{ minHeight: "calc(100vh)" }}
         >
           <div
-            className={`relative w-[fit-content] group p-2.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center justify-center`}
+            className={`relative w-fit bg-inactive group p-2.5 cursor-pointer hover:bg-activeHover rounded-xl flex items-center justify-center`}
           >
             <FaCoins size={18} className="text-purple-300" />
             <div className="absolute rounded-xl top-1.5 left-full ml-2 text-white bg-inactive opacity-0 hidden group-hover:flex z-[-1] group-hover:z-[12] group-hover:opacity-100 group-hover:translate-x-2 transform transition-all duration-300 flex-col">
@@ -80,11 +80,12 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
                 );
               })}
               <span className="absolute left-[-5px] top-[3px] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
+              <span className="absolute w-14 z-[-1] opacity-0 h-10 bg-primary top-[-45px] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
             </div>
           </div>
 
           <div
-            className={`relative w-[fit-content] group p-2.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center justify-center`}
+            className={`relative w-fit group p-2.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center justify-center`}
           >
             <FaChessBoard size={18} className="text-purple-300" />
             <div className="absolute rounded-xl top-1.5 left-full ml-2 text-white bg-inactive opacity-0 hidden group-hover:flex z-[-1] group-hover:z-[12] group-hover:opacity-100 group-hover:translate-x-2 transform transition-all duration-300 flex-col">
@@ -100,31 +101,32 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
                 );
               })}
               <span className="absolute left-[-5px] top-[3px] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
+              <span className="absolute w-14 z-[-1] opacity-0 h-10 bg-primary top-[-45px] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
             </div>
           </div>
 
           <div
-            className={`flex flex-col w-[fit-content] rounded-xl bg-inactive items-center justify-center`}
+            className={`flex flex-col w-fit rounded-xl bg-inactive items-center justify-center`}
           >
-            <div className="w-[fit-content] group p-2.5 relative hover:bg-activeHover cursor-pointer rounded-tr-xl rounded-tl-xl py-3.5 ">
+            <div className="w-fit group p-2.5 relative hover:bg-activeHover cursor-pointer rounded-tr-xl rounded-tl-xl py-3.5 ">
               <HiSpeakerphone size={18} className="text-purple-300" />
-              <span className="absolute text-sm font-semibold text-textColor top-1.5 left-full ml-2 py-1.5 px-3 bg-inactive rounded-md z-[-1] group-hover:z-[12] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+              <span className="absolute text-sm font-semibold text-textColor top-1.5 left-full ml-2 py-1.5 px-3 bg-inactive rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
                 Promotions
                 <span className="absolute left-[-5px] top-[8%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
               </span>
             </div>
 
-            <div className="w-[fit-content] group p-2.5 relative hover:bg-activeHover cursor-pointer">
+            <div className="w-fit group p-2.5 relative hover:bg-activeHover cursor-pointer">
               <FaDollarSign size={18} className="text-purple-300" />
-              <span className="absolute text-sm font-semibold text-textColor top-1.5 left-full ml-2 py-1.5 px-3 bg-inactive rounded-md z-[-1] group-hover:z-[12] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+              <span className="absolute text-sm font-semibold text-textColor top-1.5 left-full ml-2 py-1.5 px-3 bg-inactive rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
                 Refer & Earn
                 <span className="absolute left-[-5px] top-[8%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
               </span>
             </div>
 
-            <div className="w-[fit-content] group p-2.5 relative hover:bg-activeHover rounded-br-xl rounded-bl-xl cursor-pointer">
+            <div className="w-fit group p-2.5 relative hover:bg-activeHover rounded-br-xl rounded-bl-xl cursor-pointer">
               <FaMoneyBill size={18} className="text-purple-300" />
-              <span className="absolute top-0 left-full ml-2 py-1.5 px-3 text-sm font-semibold text-textColor bg-inactive rounded-md z-[-1] group-hover:z-[12] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+              <span className="absolute top-0 left-full ml-2 py-1.5 px-3 text-sm font-semibold text-textColor bg-inactive rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
                 Redeem
                 <span className="absolute left-[-5px] top-[8%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
               </span>
@@ -132,20 +134,20 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
           </div>
 
           <div
-            className={`relative w-[fit-content] group p-2.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center justify-center`}
+            className={`relative w-fit group p-2.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center justify-center`}
           >
             <FaCrown size={18} className="text-purple-300" />
-            <span className="absolute left-full ml-2 py-1.5 px-3 text-sm font-semibold text-textColor bg-inactive rounded-md z-[-1] group-hover:z-[12] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+            <span className="absolute left-full ml-2 py-1.5 px-3 text-sm font-semibold text-textColor bg-inactive rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
               VIP Club
               <span className="absolute left-[-5px] top-[15%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
             </span>
           </div>
 
           <div
-            className={`relative w-[fit-content] group p-2.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center justify-center `}
+            className={`relative w-fit group p-2.5 cursor-pointer hover:bg-activeHover rounded-xl bg-inactive flex items-center justify-center `}
           >
             <FaHeadphones size={18} className="text-purple-300" />
-            <span className="absolute left-full ml-2 py-1.5 px-3 text-sm font-semibold text-textColor bg-inactive rounded-md z-[-10] group-hover:z-[12] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+            <span className="absolute left-full ml-2 py-1.5 px-3 text-sm font-semibold text-textColor bg-inactive rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
               Live Support
               <span className="absolute left-[-5px] top-[15%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
             </span>
@@ -165,8 +167,8 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
             <div className="flex flex-col gap-3 py-1 rounded-br-xl rounded-bl-xl overflow-hidden">
               <div
                 className={`${
-                  openCasino ? "" : "rounded-b-xl"
-                } w-full pr-2 pl-3 py-1.5 text-xs font-semibold  cursor-pointer bg-activeHover hover:bg-hoverActive rounded-t-xl flex items-center justify-between`}
+                  openCasino ? "bg-hoverActive" : "rounded-b-xl bg-activeHover"
+                } w-full pr-2 pl-3 py-1.5 text-xs font-semibold  cursor-pointer hover:bg-hoverActive rounded-t-xl flex items-center justify-between`}
                 onClick={() => {
                   setCasino(!openCasino);
                   setSports(false);
@@ -204,8 +206,8 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
 
               <div
                 className={`${
-                  opensports ? "" : "rounded-b-xl"
-                } w-full pr-2 pl-3 py-1.5 text-xs font-semibold  cursor-pointer bg-activeHover hover:bg-hoverActive rounded-t-xl flex items-center justify-between`}
+                  opensports ? "bg-hoverActive" : "rounded-b-xl bg-activeHover"
+                } w-full pr-2 pl-3 py-1.5 text-xs font-semibold  cursor-pointer hover:bg-hoverActive rounded-t-xl flex items-center justify-between`}
                 onClick={() => {
                   setSports(!opensports);
                   setCasino(false);

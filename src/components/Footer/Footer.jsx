@@ -1,8 +1,9 @@
-import { FaCoins, FaSearch, FaBasketballBall, FaBell } from "react-icons/fa";
+import { FaCoins, FaSearch, FaBasketballBall } from "react-icons/fa";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { Link, useLocation } from "react-router-dom";
 import BigSideBar from "../Header/BigSideBar";
 import { useState } from "react";
+import { MdContactSupport } from "react-icons/md";
 
 const Footer = () => {
   const location = useLocation();
@@ -36,26 +37,6 @@ const Footer = () => {
 
         {/* item 2 */}
         <Link
-          to="/search"
-          onClick={() => {
-            setOpenMenu(false);
-          }}
-        >
-          <div className="flex flex-col items-center cursor-pointer justify-center gap-2">
-            <FaSearch
-              className={
-                location.pathname === "/search"
-                  ? "text-yellow-400"
-                  : "text-purple-300"
-              }
-              size={20}
-            />
-            <h1 className="text-xs font-semibold uppercase">Search</h1>
-          </div>
-        </Link>
-
-        {/* item 3 */}
-        <Link
           to="/casino"
           onClick={() => {
             setOpenMenu(false);
@@ -74,9 +55,29 @@ const Footer = () => {
           </div>
         </Link>
 
+        {/* item 3 */}
+        <Link
+          to="/search"
+          onClick={() => {
+            setOpenMenu(false);
+          }}
+        >
+          <div className="flex flex-col items-center cursor-pointer justify-center gap-2">
+            <FaSearch
+              className={
+                location.pathname === "/search"
+                  ? "text-yellow-400"
+                  : "text-purple-300"
+              }
+              size={20}
+            />
+            <h1 className="text-xs font-semibold uppercase">Search</h1>
+          </div>
+        </Link>
+
         {/* item 4 */}
         <Link
-          to="sports"
+          to="/sports"
           onClick={() => {
             setOpenMenu(false);
           }}
@@ -95,13 +96,14 @@ const Footer = () => {
         </Link>
 
         {/* item 5 */}
-        <div
+        <Link
+          to="/chat"
           onClick={() => {
             setOpenMenu(false);
           }}
           className="flex flex-col items-center cursor-pointer justify-center gap-2"
         >
-          <FaBell
+          <MdContactSupport
             size={20}
             className={
               location.pathname === "/chat"
@@ -109,8 +111,8 @@ const Footer = () => {
                 : "text-purple-300"
             }
           />
-          <h1 className="text-xs font-semibold uppercase">Alerts</h1>
-        </div>
+          <h1 className="text-xs font-semibold uppercase">Support</h1>
+        </Link>
       </div>
     </>
   );

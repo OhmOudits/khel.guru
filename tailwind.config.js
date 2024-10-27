@@ -4,12 +4,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        "primary-1": "#0f212e",
-        "primary-2": "#1a2c38",
-        "primary-3": "#213743",
-        "primary-4": "#557086",
+        "primary-1": "rgb(25, 25, 57)",
+        "primary-2": "rgb(9, 12, 29)",
+        "primary-3": "rgb(9, 12, 29)",
+        "primary-4": "rgb(9, 12, 29)",
         "button-primary": "#00e701",
-        input: "#2f4553",
+        input: "#2C2852",
         label: "#b1bad3",
         primary: "rgb(25, 25, 57)",
         secondry: "rgb(9, 12, 29)",

@@ -11,6 +11,7 @@ import {
 import { GoogleLogin } from "@react-oauth/google";
 import { FaBoltLightning } from "react-icons/fa6";
 import { motion } from "framer-motion";
+import LoadingComponent from "../LoadingComponent";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -115,6 +116,7 @@ const Register = () => {
     <>
       {instant && !close && (
         <div
+          style={{ position: "fixed" }}
           onClick={() => setInstant(false)}
           className="w-full h-screen absolute top-0 left-0 flex items-center justify-center z-[121] bg-[rgba(0,0,0,0.6)] transition-opacity duration-300 ease-in-out opacity-100"
         >
@@ -128,28 +130,7 @@ const Register = () => {
             </h1>
             <div className="mt-5 mb-2 flex items-center justify-around">
               {instantLoading ? (
-                <div
-                  role="status"
-                  className="px-10 py-1.5 rounded bg-inactive hover:bg-activeHover cursor-pointer"
-                >
-                  <svg
-                    aria-hidden="true"
-                    className="inline w-4 h-4 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
-                    viewBox="0 0 100 101"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                      fill="currentColor"
-                    />
-                    <path
-                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                      fill="currentFill"
-                    />
-                  </svg>
-                  <span className="sr-only">Loading...</span>
-                </div>
+                <LoadingComponent />
               ) : (
                 <h1
                   onClick={handleInstantRegister}
@@ -170,7 +151,10 @@ const Register = () => {
       )}
 
       {details && (
-        <div className="w-full h-screen absolute rounded top-0 left-0 flex items-center justify-center z-[121] bg-[rgba(0,0,0,0.6)] transition-opacity duration-300 ease-in-out opacity-100">
+        <div
+          style={{ position: "fixed" }}
+          className="w-full h-screen absolute rounded top-0 left-0 flex items-center justify-center z-[121] bg-[rgba(0,0,0,0.6)] transition-opacity duration-300 ease-in-out opacity-100"
+        >
           <div
             onClick={(e) => e.stopPropagation()}
             className="bg-primary rounded flex items-center justify-center flex-col w-[90%] max-w-[400px] px-4 py-5 animate-fadeUp relative"
@@ -239,7 +223,7 @@ const Register = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 50 }}
           transition={{ duration: 0.5 }}
-          className="my-3 relative overflow-y-auto max-w-[800px] max-h-[84vh] rounded-md bg-primary inset-0 z-[1000] w-[95%]"
+          className="my-3 relative overflow-y-auto max-w-[1200px] max-h-[84vh] rounded-md bg-primary inset-0 z-[1000] w-[95%]"
           onClick={(e) => e.stopPropagation()}
         >
           {/* <div
@@ -250,13 +234,11 @@ const Register = () => {
             <IoClose size={30} />
           </div> */}
 
-          <div className="my-6">
-            <div className="w-full flex items-center justify-center px-3 text-white">
-              <div className="w-full lg:w-[95%]">
-                <h1 className="font-bold text-3xl max-md:2xl">
-                  Create your account
-                </h1>
-                <h2 className="pt-1 font-semibold text-lg max-md:text-base">
+          <div className="my-3">
+            <div className="w-full h-full flex items-center max-lg:flex-col justify-center px-5 text-white">
+              <div className="w-full">
+                <h1 className="font-bold text-2xl">Create your account</h1>
+                <h2 className="pt-1 font-semibold text-base">
                   Already have an account?{" "}
                   <span
                     onClick={() => handleTabNavigation("login")}
@@ -266,17 +248,17 @@ const Register = () => {
                   </span>
                 </h2>
 
-                <div className="mt-8">
+                <div className="mt-4">
                   <div className="flex flex-col gap-2">
                     <label
                       htmlFor="username"
-                      className="text-textColor w-full font-semibold text-lg max-md:text-base"
+                      className="text-textColor w-full font-semibold text-base"
                     >
                       Username
                     </label>
                     <input
                       id="username"
-                      className="px-3 py-3 rounded-lg bg-inactive font-semibold text-xl max-md:text-base border-[3px] border-activeHover hover:border-active outline-none"
+                      className="px-3 py-3 rounded-lg bg-inactive font-semibold text-base border-[3px] border-activeHover hover:border-active outline-none"
                       placeholder="Username"
                     />
                   </div>
@@ -284,14 +266,14 @@ const Register = () => {
                   <div className="flex flex-col gap-2 mt-4">
                     <label
                       htmlFor="email"
-                      className="text-textColor w-full font-semibold text-lg max-md:text-base"
+                      className="text-textColor w-full font-semibold text-base"
                     >
                       Email Address
                     </label>
                     <input
                       id="email"
                       type="email"
-                      className="px-3 py-3 rounded-lg bg-inactive font-semibold text-xl max-md:text-base border-[3px] border-activeHover hover:border-active outline-none"
+                      className="px-3 py-3 rounded-lg bg-inactive font-semibold text-base border-[3px] border-activeHover hover:border-active outline-none"
                       placeholder="Email Address"
                     />
                   </div>
@@ -299,15 +281,15 @@ const Register = () => {
                   <div className="flex flex-col gap-2 mt-4">
                     <label
                       htmlFor="password"
-                      className="text-textColor font-semibold text-lg max-md:text-base"
+                      className="text-textColor font-semibold text-base"
                     >
                       Password
                     </label>
-                    <div className="relative z-[-1] w-full">
+                    <div className="relative w-full">
                       <input
                         type={showPassword ? "text" : "password"}
                         id="password"
-                        className="px-3 w-full py-3 rounded-lg bg-inactive font-semibold text-xl max-md:text-base border-[3px] border-activeHover hover:border-active outline-none"
+                        className="px-3 w-full py-3 rounded-lg bg-inactive font-semibold text-base border-[3px] border-activeHover hover:border-active outline-none"
                         placeholder="Password"
                       />
                       <div
@@ -324,11 +306,11 @@ const Register = () => {
                   </div>
                 </div>
 
-                <div className="my-3 text-textColor font-semibold cursor-pointer">
+                <div className="mt-2 mb-3 text-textColor font-semibold cursor-pointer">
                   Password must be at least 7 characters
                 </div>
 
-                <div className="my-1 flex items-center gap-4">
+                <div className="flex items-center gap-4">
                   <div className="flex items-center">
                     <input
                       type="checkbox"
@@ -354,7 +336,7 @@ const Register = () => {
                     onClick={() => setCode(!code)}
                     className="text-textColor font-semibold cursor-pointer bg-transparent"
                   >
-                    Code (Optional)
+                    Refferal Code (Optional)
                   </label>
                 </div>
 
@@ -363,15 +345,15 @@ const Register = () => {
                     <input
                       id="code"
                       type="text"
-                      className="px-3 py-3 rounded-lg bg-inactive font-semibold text-xl max-md:text-base border-[3px] border-activeHover hover:border-active outline-none"
+                      className="px-3 py-3 rounded-lg bg-inactive font-semibold text-base border-[3px] border-activeHover hover:border-active outline-none"
                       placeholder="Refferal Code (optional)"
                     />
                   </div>
                 )}
 
-                <div className="my-8 h-0.5 bg-inactive w-full"></div>
+                <div className="my-4 h-0.5 bg-inactive w-full"></div>
 
-                <div className="my-1 flex items-center gap-4">
+                <div className="flex items-center gap-4">
                   <div className="flex items-center max-md:text-sm">
                     <input
                       type="checkbox"
@@ -403,7 +385,7 @@ const Register = () => {
                   </label>
                 </div>
 
-                <div className="my-1 flex items-center gap-4 mb-8">
+                <div className="flex my-1 items-center gap-4 mb-4">
                   <div className="flex items-center max-md:text-sm">
                     <input
                       type="checkbox"
@@ -433,96 +415,92 @@ const Register = () => {
                   </label>
                 </div>
 
-                <div className="w-full mt-4 py-3.5 bg-button rounded-xl flex items-center justify-center text-lg font-semibold cursor-pointer">
+                <div className="w-full py-2 bg-button rounded-xl flex items-center justify-center text-lg font-semibold cursor-pointer">
                   Play Now
                 </div>
+              </div>
 
-                <div className="mt-7 mb-2 flex items-center">
-                  <div className="w-full h-1 mt-1 bg-inactive"></div>
-                  <h1 className="middleText px-2 text-white font-semibold text-base text-center whitespace-nowrap">
+              <div className="flex w-[60%] lg:min-h-[500px] max-lg:w-full pl-6 max-lg:pl-0">
+                <div className="max-lg:hidden max-lg:mt-[-100px] flex items-center pr-3 gap-8 justify-around flex-col relative w-[10px]">
+                  <div className="h-[30%] w-1 bg-inactive mb-2"></div>
+                  <h1 className="middleText px-4 text-white font-semibold text-base text-center whitespace-nowrap transform rotate-[270deg] bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent shadow-lg">
                     Or continue with
                   </h1>
-                  <div className="w-full h-1 mt-1 bg-inactive"></div>
-                </div>
-                <div className="flex items-center w-full justify-between gap-3 mt-6 max-sm:flex-col ">
-                  <div className="flex items-center relative justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer">
-                    <div className="w-full absolute top-0 left-0 z-[2] opacity-0">
-                      <GoogleLogin
-                        onSuccess={handleGoogleSuccess}
-                        onError={handleGoogleFailure}
-                        render={(renderProps) => (
-                          <div
-                            onClick={renderProps.onClick}
-                            className="flex items-center gap-2"
-                          >
-                            <FaGoogle />
-                            Google
-                          </div>
-                        )}
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FaGoogle />
-                      Google
-                    </div>
-                  </div>
-                  <a
-                    href={telegramLoginUrl}
-                    target="_blank"
-                    className="flex items-center justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <FaTelegram />
-                      Telegram
-                    </div>
-                  </a>
-                  <a
-                    href={discordLoginUrl}
-                    className="flex items-center justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <FaDiscord />
-                      Discord
-                    </div>
-                  </a>
-                  <div
-                    onClick={() => setInstant(!instant)}
-                    className="flex items-center justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer"
-                  >
-                    {instantLoading ? (
-                      <div role="status">
-                        <svg
-                          aria-hidden="true"
-                          className="inline w-4 h-4 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
-                          viewBox="0 0 100 101"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                            fill="currentColor"
-                          />
-                          <path
-                            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                            fill="currentFill"
-                          />
-                        </svg>
-                        <span className="sr-only">Loading...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <FaBoltLightning />
-                        Instant
-                      </div>
-                    )}
-                  </div>
+                  <div className="h-[30%] w-1 bg-inactive mt-2"></div>
                 </div>
 
-                <div className="mt-8 mb-6 text-sm text-textColor w-full text-center">
-                  <p>
-                    This site is protected by reCAPTCHA and the Google Privacy
-                    Policy and Terms of Service apply.
-                  </p>
+                <div className="w-full flex items-center justify-center flex-col pl-3">
+                  <div className="mt-5 lg:hidden mb-2 flex items-center">
+                    <div className="w-full h-1 mt-1 bg-inactive"></div>
+                    <h1 className="middleText px-2 text-white font-semibold text-base text-center whitespace-nowrap">
+                      Or continue with
+                    </h1>
+                    <div className="w-full h-1 mt-1 bg-inactive"></div>
+                  </div>
+
+                  <div className="flex items-center w-full justify-between gap-3 mt-6 lg:flex-col max-sm:flex-col ">
+                    <div className="flex items-center relative justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer">
+                      <div className="w-full absolute top-0 left-0 z-[2] opacity-0">
+                        <GoogleLogin
+                          onSuccess={handleGoogleSuccess}
+                          onError={handleGoogleFailure}
+                          render={(renderProps) => (
+                            <div
+                              onClick={renderProps.onClick}
+                              className="flex items-center gap-2"
+                            >
+                              <FaGoogle />
+                              Google
+                            </div>
+                          )}
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <FaGoogle />
+                        Google
+                      </div>
+                    </div>
+                    <a
+                      href={telegramLoginUrl}
+                      target="_blank"
+                      className="flex items-center justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <FaTelegram />
+                        Telegram
+                      </div>
+                    </a>
+                    <a
+                      href={discordLoginUrl}
+                      target="_blank"
+                      className="flex items-center justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <FaDiscord />
+                        Discord
+                      </div>
+                    </a>
+                    <div
+                      onClick={() => setInstant(!instant)}
+                      className="flex items-center justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer"
+                    >
+                      {instantLoading ? (
+                        <LoadingComponent />
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <FaBoltLightning />
+                          Instant
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-10 max-lg:mt-6 mb-6 text-sm text-textColor w-full text-center">
+                    <p>
+                      This site is protected by reCAPTCHA and the Google Privacy
+                      Policy and Terms of Service apply.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

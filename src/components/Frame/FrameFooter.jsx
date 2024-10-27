@@ -54,7 +54,7 @@ const FrameFooter = ({
   return (
     <>
       {/* Footer */}
-      <div className="relative px-4 py-5 bg-primary-1 rounded-b flex justify-between items-center">
+      <div className="relative px-4 py-5 bg-inactive rounded-b flex justify-between items-center">
         {isGameSettings && (
           <div
             className={`absolute z-[4] font-semibold pt-1 bottom-[80%] left-2 transform text-sm text-black bg-white rounded shadow-lg transition-opacity duration-300`}
@@ -173,7 +173,7 @@ const FrameFooter = ({
           </div>
 
           {/* Live stats */}
-          <div className="relative group flex items-center justify-center text-gray-300 cursor-pointer hover:text-white">
+          {/* <div className="relative group flex items-center justify-center text-gray-300 cursor-pointer hover:text-white">
             <svg fill="currentColor" viewBox="0 0 64 64" className="svg-icon">
               {" "}
               <title></title>{" "}
@@ -189,7 +189,7 @@ const FrameFooter = ({
                 <span className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-t-white"></span>
               </span>
             )}
-          </div>
+          </div> */}
 
           {/* Fav Game */}
           <div

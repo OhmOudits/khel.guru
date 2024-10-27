@@ -98,7 +98,7 @@ const FairnessModal = ({ setIsFairness }) => {
 
         {/* Switching */}
         <div className="w-full flex items-center justify-center">
-          <div className="switch mt-6 w-full max-w-[200px]  bg-primary-1 rounded-full p-1.5 pb-[0.45rem] grid grid-cols-2 gap-1">
+          <div className="switch mt-6 w-full max-w-[200px]  bg-inactive rounded-full p-0.5 grid grid-cols-2 gap-1">
             <div
               onClick={() => setField("seeds")}
               className={`${

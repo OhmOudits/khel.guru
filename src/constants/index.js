@@ -3,12 +3,12 @@ import { FaFire } from "react-icons/fa";
 export const originals = [
   {
     id: 1,
-    name: "Crash",
+    name: "Wheel",
     creator: "Roobet",
     img: "/games/img2.png",
     exclusive: true,
     new: false,
-    link: "/",
+    link: "/game/wheel",
   },
   {
     id: 2,
@@ -17,7 +17,7 @@ export const originals = [
     img: "/games/img2.png",
     exclusive: false,
     new: true,
-    link: "/",
+    link: "/game",
   },
   {
     id: 3,
@@ -26,7 +26,7 @@ export const originals = [
     img: "/games/test.jpeg",
     exclusive: true,
     new: false,
-    link: "/",
+    link: "/game",
   },
   {
     id: 4,
@@ -35,7 +35,7 @@ export const originals = [
     img: "/games/img2.png",
     exclusive: false,
     new: false,
-    link: "/",
+    link: "/game",
   },
   {
     id: 5,
@@ -44,7 +44,7 @@ export const originals = [
     img: "/games/img2.png",
     exclusive: false,
     new: false,
-    link: "/",
+    link: "/game",
   },
   {
     id: 6,
@@ -53,7 +53,7 @@ export const originals = [
     img: "/games/img2.png",
     exclusive: false,
     new: false,
-    link: "/",
+    link: "/game",
   },
   {
     id: 7,
@@ -62,7 +62,7 @@ export const originals = [
     img: "/games/img2.png",
     exclusive: false,
     new: false,
-    link: "/",
+    link: "/game",
   },
   {
     id: 8,
@@ -71,7 +71,7 @@ export const originals = [
     img: "/games/img2.png",
     exclusive: false,
     new: false,
-    link: "/",
+    link: "/game",
   },
   {
     id: 9,
@@ -80,7 +80,7 @@ export const originals = [
     img: "/games/img2.png",
     exclusive: false,
     new: false,
-    link: "/",
+    link: "/game",
   },
   {
     id: 10,
@@ -89,7 +89,7 @@ export const originals = [
     img: "/games/img2.png",
     exclusive: false,
     new: false,
-    link: "/",
+    link: "/game",
   },
 ];
 
@@ -381,4 +381,166 @@ export const sports = [
   { id: 9, name: "MMA", icon: FaFire },
   { id: 10, name: "Table Tennis", icon: FaFire },
   { id: 11, name: "Horse Racing", icon: FaFire },
+];
+
+export const segments = [
+  {
+    id: 1,
+    risk: "Low",
+    segment: [
+      {
+        id: 1,
+        segments: 10,
+        sections: [
+          { id: 1, multiplier: "0.00", terms: 2, color: "#406c82" },
+          { id: 2, multiplier: "1.20", terms: 7, color: "#d5e8f2" },
+          { id: 3, multiplier: "1.50", terms: 1, color: "#00e403" },
+        ],
+      },
+      {
+        id: 2,
+        segments: 20,
+        sections: [
+          { id: 1, multiplier: "0.00", terms: 4, color: "#406c82" },
+          { id: 2, multiplier: "1.20", terms: 14, color: "#d5e8f2" },
+          { id: 3, multiplier: "1.50", terms: 2, color: "#00e403" },
+        ],
+      },
+      {
+        id: 3,
+        segments: 30,
+        sections: [
+          { id: 1, multiplier: "0.00", terms: 6, color: "#406c82" },
+          { id: 2, multiplier: "1.20", terms: 21, color: "#d5e8f2" },
+          { id: 3, multiplier: "1.50", terms: 3, color: "#00e403" },
+        ],
+      },
+      {
+        id: 4,
+        segments: 40,
+        sections: [
+          { id: 1, multiplier: "0.00", terms: 8, color: "#406c82" },
+          { id: 2, multiplier: "1.20", terms: 28, color: "#d5e8f2" },
+          { id: 3, multiplier: "1.50", terms: 4, color: "#00e403" },
+        ],
+      },
+      {
+        id: 5,
+        segments: 50,
+        sections: [
+          { id: 1, multiplier: "0.00", terms: 10, color: "#406c82" },
+          { id: 2, multiplier: "1.20", terms: 35, color: "#d5e8f2" },
+          { id: 3, multiplier: "1.50", terms: 5, color: "#00e403" },
+        ],
+      },
+    ],
+  },
+  {
+    id: 2,
+    risk: "High",
+    segment: [
+      {
+        id: 1,
+        segments: 10,
+        sections: [
+          { id: 1, multiplier: "0.00", terms: 9, color: "#406c82" },
+          { id: 2, multiplier: "9.9", terms: 1, color: "#fc1144" },
+        ],
+      },
+      {
+        id: 2,
+        segments: 20,
+        sections: [
+          { id: 1, multiplier: "0.00", terms: 19, color: "#406c82" },
+          { id: 2, multiplier: "19.8", terms: 1, color: "#fc1144" },
+        ],
+      },
+      {
+        id: 3,
+        segments: 30,
+        sections: [
+          { id: 1, multiplier: "0.00", terms: 29, color: "#406c82" },
+          { id: 2, multiplier: "29.7", terms: 1, color: "#fc1144" },
+        ],
+      },
+      {
+        id: 4,
+        segments: 40,
+        sections: [
+          { id: 1, multiplier: "0.00", terms: 39, color: "#406c82" },
+          { id: 2, multiplier: "39.6", terms: 1, color: "#fc1144" },
+        ],
+      },
+      {
+        id: 5,
+        segments: 50,
+        sections: [
+          { id: 1, multiplier: "0.00", terms: 49, color: "#406c82" },
+          { id: 2, multiplier: "49.5", terms: 1, color: "#fc1144" },
+        ],
+      },
+    ],
+  },
+  {
+    id: 3,
+    risk: "Medium",
+    segment: [
+      {
+        id: 1,
+        segments: 10,
+        sections: [
+          { id: 1, multiplier: "0.00", terms: 5, color: "#406c82" },
+          { id: 2, multiplier: "1.50", terms: 2, color: "00e403" },
+          { id: 3, multiplier: "1.70", terms: 1, color: "#d5e8f2" },
+          { id: 4, multiplier: "2.00", terms: 1, color: "fde905" },
+          { id: 5, multiplier: "3.00", terms: 1, color: "#7f46fd" },
+        ],
+      },
+      {
+        id: 2,
+        segments: 20,
+        sections: [
+          { id: 1, multiplier: "0.00", terms: 10, color: "#406c82" },
+          { id: 2, multiplier: "1.50", terms: 2, color: "00e403" },
+          { id: 3, multiplier: "1.70", terms: 1, color: "#d5e8f2" },
+          { id: 4, multiplier: "2.00", terms: 6, color: "fde905" },
+          { id: 5, multiplier: "3.00", terms: 1, color: "#7f46fd" },
+        ],
+      },
+      {
+        id: 3,
+        segments: 30,
+        sections: [
+          { id: 1, multiplier: "0.00", terms: 15, color: "#406c82" },
+          { id: 2, multiplier: "1.50", terms: 6, color: "00e403" },
+          { id: 3, multiplier: "1.70", terms: 1, color: "#d5e8f2" },
+          { id: 4, multiplier: "2.00", terms: 6, color: "fde905" },
+          { id: 5, multiplier: "3.00", terms: 1, color: "#7f46fd" },
+          { id: 6, multiplier: "4.00", terms: 1, color: "#fca32f" },
+        ],
+      },
+      {
+        id: 4,
+        segments: 40,
+        sections: [
+          { id: 1, multiplier: "0.00", terms: 20, color: "#406c82" },
+          { id: 2, multiplier: "1.50", terms: 8, color: "00e403" },
+          { id: 3, multiplier: "1.70", terms: 1, color: "#d5e8f2" },
+          { id: 4, multiplier: "2.00", terms: 7, color: "fde905" },
+          { id: 5, multiplier: "3.00", terms: 4, color: "#7f46fd" },
+        ],
+      },
+      {
+        id: 5,
+        segments: 50,
+        sections: [
+          { id: 1, multiplier: "0.00", terms: 25, color: "#406c82" },
+          { id: 2, multiplier: "1.50", terms: 13, color: "00e403" },
+          { id: 3, multiplier: "1.70", terms: 8, color: "#d5e8f2" },
+          { id: 4, multiplier: "2.00", terms: 3, color: "fde905" },
+          { id: 5, multiplier: "3.00", terms: 1, color: "#7f46fd" },
+        ],
+      },
+    ],
+  },
 ];

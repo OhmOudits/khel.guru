@@ -8,7 +8,7 @@ import register from "../../assets/landing/register.jpg";
 import casinobg from "../../assets/casinobg.png";
 import sportsbg from "../../assets/sportsbg.png";
 
-import { casino, originals } from "../../constants";
+import { originals } from "../../constants";
 import List from "./List";
 
 const MainFrame = () => {
@@ -72,7 +72,7 @@ const MainFrame = () => {
             }}
           >
             <Link to="/">
-              <div className="mt-8 lg:mt-24 xl:mt-16">
+              <div className="mt-8 lg:mt-12 xl:mt-16">
                 <h1 className="text-4xl max-md:text-2xl xl:text-2xl font-semibold">
                   Casino
                 </h1>
@@ -91,7 +91,7 @@ const MainFrame = () => {
             }}
           >
             <Link to="/">
-              <div className="mt-8 lg:mt-24 xl:mt-16">
+              <div className="mt-8 lg:mt-12  xl:mt-16">
                 <h1 className="text-4xl max-md:text-2xl xl:text-2xl font-semibold">
                   Sports Betting
                 </h1>
