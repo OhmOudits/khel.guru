@@ -1,0 +1,95 @@
+@keyframes moveUp {
+  0% {
+    bottom: 0;
+  }
+  100% {
+    bottom: -100%;
+  }
+}
+
+@keyframes moveBalloon {
+  0% {
+    top: 50%;
+  }
+  100% {
+    top: -100%;
+  }
+}
+
+@keyframes zoomText {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    background: radial-gradient(
+      circle,
+      rgba(0, 0, 0, 0.1) 0%,
+      transparent 100%
+    );
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+    background: radial-gradient(
+      circle,
+      rgba(0, 0, 0, 0.1) 0%,
+      transparent 100%
+    );
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.2);
+    background: radial-gradient(
+      circle,
+      rgba(0, 0, 0, 0.05) 0%,
+      transparent 100%
+    );
+  }
+}
+
+@keyframes zoom-in-out {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.3);
+  }
+}
+
+.zoom-countdown {
+  animation: zoom-in-out 0.5s ease-in-out infinite;
+}
+
+.moving-up {
+  animation: moveUp 10s infinite;
+}
+
+.moving-up.pause {
+  animation-play-state: paused;
+}
+
+.animate-balloon {
+  animation: moveBalloon 2s ease forwards;
+}
+
+.zoom-text {
+  animation: zoomText 0.5s ease forwards;
+  color: white;
+  animation-delay: 800ms;
+  transition: all 0.1s ease;
+}
+
+/* svg {
+  display: block;
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+} */
+
+.scrollElement {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}

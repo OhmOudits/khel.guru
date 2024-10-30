@@ -1,0 +1,19 @@
+[[redirects]]
+  from = "/game"
+  to = "/game"
+  status = 200
+
+[[redirects]]
+  from = "/game/wheel"
+  to = "/game/wheel"
+  status = 200
+
+[[redirects]]
+  from = "/game/diamond"
+  to = "/game/diamond"
+  status = 200
+
+[[redirects]]
+  from = "/game/balloon"
+  to = "/game/balloon"
+  status = 200

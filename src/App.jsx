@@ -10,12 +10,15 @@ import Register from "./components/Login/Register";
 import { Routes, Route } from "react-router-dom";
 import Frame from "./components/Frame/Frame";
 import WheelPage from "./components/WheelGame/WheelPage";
+import DiamondPage from "./components/DiamondGame/Diamond";
+import BalloonPage from "./components/BalloonPage/Balloon";
+import CrashPage from "./components/CrashGame/Crash";
 
 function App() {
   const [sideOpen, setSideOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -37,6 +40,11 @@ function App() {
     }, 1000);
   }, [location]);
 
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   return (
     <>
       {loading && (
@@ -47,17 +55,8 @@ function App() {
 
       {!loading && (
         <>
-          {showLogin && (
-            <>
-              <Login />
-            </>
-          )}
-
-          {showRegister && (
-            <>
-              <Register />
-            </>
-          )}
+          {showLogin && <Login />}
+          {showRegister && <Register />}
 
           <div className="w-full flex min-h-screen bg-primary">
             {/* Sidebar */}
@@ -92,6 +91,9 @@ function App() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/game" element={<Frame />} />
                 <Route path="/game/wheel" element={<WheelPage />} />
+                <Route path="/game/diamond" element={<DiamondPage />} />
+                <Route path="/game/balloon" element={<BalloonPage />} />
+                <Route path="/game/crash" element={<CrashPage />} />
                 <Route path="*" element={<LandingPage />} />
               </Routes>
             </div>

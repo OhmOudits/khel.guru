@@ -64,7 +64,7 @@ const Game = ({ risk, segment }) => {
 
       <div className="relative w-72 h-72 max-lg:w-64 max-lg:h-64 rounded-full overflow-hidden">
         {/* Inner Section */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[20%] aspect-square rounded-full bg-primary z-[200] border border-activeHover"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[40%] aspect-square rounded-full bg-primary z-[200] border border-activeHover"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] aspect-square rounded-full bg-primary z-[100] border border-activeHover"></div>
 
         {/* Background circle */}
