@@ -1,5 +1,6 @@
-import { useNavigate } from "react-router-dom";
-import { IoClose } from "react-icons/io5";
+import { GoogleLogin } from "@react-oauth/google";
+import axios from 'axios';
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
   FaDiscord,
@@ -8,9 +9,9 @@ import {
   FaGoogle,
   FaTelegram,
 } from "react-icons/fa";
-import { GoogleLogin } from "@react-oauth/google";
 import { FaBoltLightning } from "react-icons/fa6";
-import { motion } from "framer-motion";
+import { IoClose } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 import LoadingComponent from "../LoadingComponent";
 
 const Register = () => {
@@ -24,7 +25,10 @@ const Register = () => {
   const [details, setDetails] = useState(false);
   const [usernameDetails, setUsernameDetails] = useState("");
   const [passwordDetails, setPasswordDetails] = useState("");
+  const [email,setEmail] = useState("")
   const [isCopied, setIsCopied] = useState(false);
+  const [error,setError] = useState(null)
+  const [success,setSuccess] = useState(false)
   const [close, setClose] = useState(false);
 
   const handleTabNavigation = (tab) => {
@@ -91,15 +95,39 @@ const Register = () => {
     }
   }, []);
 
-  const handleInstantRegister = () => {
-    setInstantLoading(true);
-    setTimeout(() => {
-      setInstant(false);
-      setDetails(true);
-      setUsernameDetails("Yash210984");
-      setPasswordDetails("i9uy78k90@12");
-      setInstantLoading(false);
-    }, 2000);
+  // const handleInstantRegister = () => {
+  //   setInstantLoading(true);
+  //   setTimeout(() => {
+  //     setInstant(false);
+  //     setDetails(true);
+  //     setUsernameDetails("Yash210984");
+  //     setPasswordDetails("i9uy78k90@12");
+  //     setInstantLoading(false);
+  //   }, 2000);
+  // };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(false);
+    console.log("register")
+
+    try {
+      const response = await axios.post("https://lossers-world-backend.onrender.com/api/users", {
+        email,
+        username: usernameDetails,
+        password: passwordDetails,
+      });
+
+      if (response.status === 201) {
+        setSuccess(true);
+        alert("registration successful")
+        navigate("/?tab=login"); // Redirect to login on success
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
+      console.log(err)
+    }
   };
 
   const saveToFile = (data) => {
@@ -258,6 +286,7 @@ const Register = () => {
                     </label>
                     <input
                       id="username"
+                      onChange={(e) => setUsernameDetails(e.target.value)}
                       className="px-3 py-3 rounded-lg bg-inactive font-semibold text-base border-[3px] border-activeHover hover:border-active outline-none"
                       placeholder="Username"
                     />
@@ -273,6 +302,7 @@ const Register = () => {
                     <input
                       id="email"
                       type="email"
+                      onChange={(e) => setEmail(e.target.value)}
                       className="px-3 py-3 rounded-lg bg-inactive font-semibold text-base border-[3px] border-activeHover hover:border-active outline-none"
                       placeholder="Email Address"
                     />
@@ -289,6 +319,7 @@ const Register = () => {
                       <input
                         type={showPassword ? "text" : "password"}
                         id="password"
+                        onChange={(e) => setPasswordDetails(e.target.value)}
                         className="px-3 w-full py-3 rounded-lg bg-inactive font-semibold text-base border-[3px] border-activeHover hover:border-active outline-none"
                         placeholder="Password"
                       />
@@ -415,7 +446,7 @@ const Register = () => {
                   </label>
                 </div>
 
-                <div className="w-full py-2 bg-button rounded-xl flex items-center justify-center text-lg font-semibold cursor-pointer">
+                <div type="submit" className="w-full py-2 bg-button rounded-xl flex items-center justify-center text-lg font-semibold cursor-pointer" onClick={handleRegister}>
                   Play Now
                 </div>
               </div>
