@@ -3,6 +3,7 @@ import clouds from "../../assets/Balloon/clouds.png";
 import mountain from "../../assets/Balloon/mountain.png";
 import balloon from "../../assets/Balloon/balloon.png";
 import "../../styles/Balloon.css";
+import Background from "./Background";
 
 const Game = ({
   // eslint-disable-next-line
@@ -127,6 +128,10 @@ const Game = ({
 
         <img src={mountain} className="w-full" alt="mountain" />
       </div>
+
+      {/* <div className="absolute top-0 left-0 w-full h-full">
+        <Background />
+      </div> */}
 
       <div
         className={`absolute flex items-center justify-center w-1/2 h-1/2 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${

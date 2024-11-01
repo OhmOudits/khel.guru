@@ -1,0 +1,28 @@
+.zoom-in {
+  animation: zoomIn 1s;
+  transition: all 1s ease;
+}
+
+.blink {
+  animation: blink-animation 1s infinite;
+}
+
+@keyframes zoomIn {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+}
+
+@keyframes blink-animation {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
