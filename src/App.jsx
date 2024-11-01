@@ -13,13 +13,20 @@ import WheelPage from "./components/WheelGame/WheelPage";
 import DiamondPage from "./components/DiamondGame/Diamond";
 import BalloonPage from "./components/BalloonPage/Balloon";
 import CrashPage from "./components/CrashGame/Crash";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 function App() {
+  const user = useSelector((state) => state.auth?.user?.user)
+  console.log(user)
+  const dispatch = useDispatch();
   const [sideOpen, setSideOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const location = useLocation();
+  // const user = useState((state) => state.auth.user)
+  // console.log(user)
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -39,6 +46,14 @@ function App() {
       setLoading(false);
     }, 1000);
   }, [location]);
+
+
+  // useEffect(() => {
+  //   // Fetch user profile when the app loads
+  //   dispatch(fetchUserProfile());
+  // }, [dispatch]);
+
+  
 
   // Scroll to top on route change
   useEffect(() => {

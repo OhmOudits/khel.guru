@@ -1,9 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.svg";
 import { FaSearch } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 const Header = () => {
   const navigate = useNavigate();
+  const user  = useSelector((state) => state.auth?.user?.user)
 
   const handleTabNavigation = (tab) => {
     navigate(`?tab=${tab}`, { replace: true });
@@ -25,7 +27,13 @@ const Header = () => {
           </div>
         </div>
         <div className="p-1 text-[0.8rem] rounded-xl bg-secondry flex gap-1 text-white">
-          <div
+          {user && (
+            <div className="font-semibold px-2 py-1 text-2xl text-purple-600">{user.username}</div>
+          )}
+          {
+            !user && (
+              <>
+                <div
             className="cursor-pointer login py-2 px-4 bg-ter flex items-center justify-center hover:bg-terHover rounded-xl font-bold"
             onClick={() => handleTabNavigation("login")}
           >
@@ -37,6 +45,9 @@ const Header = () => {
           >
             Register
           </div>
+              </>
+            )
+          }
         </div>
       </div>
     </>
