@@ -1,181 +1,187 @@
 import { useState, useEffect } from "react";
-import { Line } from "react-chartjs-2";
-import "../../styles/Crash.css";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
   Tooltip,
-  Legend,
-} from "chart.js";
+  CartesianGrid,
+} from "recharts";
 import "tailwindcss/tailwind.css";
+import { motion, AnimatePresence } from "framer-motion";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+const CustomModal = ({ showModal, closeModal, modalColor, modalMessage }) => {
+  return (
+    <AnimatePresence>
+      {showModal && (
+        <motion.div
+          className="fixed inset-0 flex items-center justify-center z-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-50"
+            onClick={closeModal}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          />
+          <motion.div
+            className={`relative p-6 rounded-lg shadow-lg text-center bg-${modalColor}-500`}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h2 className="text-2xl font-bold mb-4">{modalMessage}</h2>
+            <button
+              onClick={closeModal}
+              className="bg-white text-black font-bold py-2 px-4 rounded-lg"
+            >
+              Close
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
 
 const Game = () => {
   const [multiplier, setMultiplier] = useState(1.0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [data, setData] = useState([{ time: 0, multiplier: 1.0 }]);
   const [time, setTime] = useState(0);
-  const [countdown, setCountdown] = useState(5);
+  const [xMax, setXMax] = useState(12);
+  const [yMax, setYMax] = useState(2.0);
   const [isCrashed, setIsCrashed] = useState(false);
-  const [xMax, setXMax] = useState(16);
-  const [yMax, setYMax] = useState(3.0);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalColor, setModalColor] = useState("");
 
-  useEffect(() => {
-    if (countdown !== 0) {
-      const timer = setTimeout(() => {
-        setCountdown(countdown - 1);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-    if (countdown === 0) {
-      startGame();
-    }
-  }, [countdown]);
+  const maxMultiplier = 5;
+  const [crashPoint, setCrashPoint] = useState(
+    Math.random() * (maxMultiplier - 1) + 1
+  );
 
   useEffect(() => {
     let interval;
-    if (isPlaying && !isCrashed) {
+    if (isPlaying) {
       interval = setInterval(() => {
         setTime((prev) => prev + 0.1);
         setMultiplier(Math.exp(time / 18));
-
-        if (Math.random() < 0.01) {
-          setIsCrashed(true);
-          setIsPlaying(false);
-          setTimeout(() => {
-            setCountdown(5);
-            resetGame();
-          }, 3000);
-        }
       }, 100);
     } else if (!isPlaying && multiplier !== 1.0) {
       clearInterval(interval);
     }
 
     return () => clearInterval(interval);
-  }, [isPlaying, time, isCrashed, multiplier]);
+  }, [isPlaying, time, xMax, yMax]);
+
+  useEffect(() => {
+    let interval;
+    if (!isCrashed) {
+      interval = setInterval(() => {
+        if (multiplier < crashPoint) {
+          const newMultiplier = multiplier === 0 ? 0.1 : multiplier * 1.15;
+          setMultiplier(newMultiplier);
+
+          setData((prevData) => ({
+            ...prevData,
+            datasets: [
+              {
+                ...prevData.datasets[0],
+                data: [
+                  ...prevData.datasets[0].data,
+                  { x: newMultiplier, y: Math.pow(newMultiplier, 2) },
+                ],
+              },
+            ],
+          }));
+        } else {
+          setIsCrashed(true);
+          setShowModal(true);
+          setModalMessage(
+            `Oops! Crash point reached at ${crashPoint.toFixed(2)}`
+          );
+          setModalColor("red");
+
+          setData((prevData) => ({
+            ...prevData,
+            datasets: [
+              {
+                ...prevData.datasets[0],
+                backgroundColor: "rgba(255, 0, 0, 0.3)",
+              },
+            ],
+          }));
+
+          document.body.style.background =
+            "linear-gradient(to bottom, red 20%, black 80%)";
+          clearInterval(interval);
+        }
+      }, 200);
+    }
+
+    return () => clearInterval(interval);
+  }, [multiplier, isCrashed, crashPoint]);
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
 
   useEffect(() => {
     if (isPlaying) {
-      setData((prevData) => [
-        ...prevData,
-        { time: time.toFixed(1), multiplier },
-      ]);
+      setData((prevData) => [...prevData, { time, multiplier }]);
     }
   }, [multiplier, time, isPlaying]);
 
-  useEffect(() => {
-    if (time > xMax) {
-      setXMax(time + 1);
-    }
-
-    if (multiplier > yMax) {
-      setYMax(multiplier);
-    }
-  }, [time, multiplier, yMax, xMax]);
-
-  const startGame = () => {
-    setXMax(16);
-    setYMax(3.0);
-    setIsPlaying(true);
-    setIsCrashed(false);
-  };
-
-  const resetGame = () => {
-    setMultiplier(1.0);
-    setData([{ time: 0, multiplier: 1.0 }]);
-    setTime(0);
-    setIsCrashed(false);
-  };
-
-  const chartData = {
-    labels: data.map((d) => d.time),
-    datasets: [
-      {
-        label: "Multiplier",
-        data: data.map((d) => d.multiplier),
-        borderColor: isCrashed ? "gray" : "white",
-        backgroundColor: isCrashed ? "gray" : "white",
-        pointRadius: data.map((_, index) =>
-          index === data.length - 1 ? 5 : 0
-        ),
-        borderWidth: 6,
-        tension: 0.4,
-        fill: true,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        enabled: false,
-      },
-    },
-    scales: {
-      x: {
-        type: "linear",
-        min: 0,
-        max: xMax,
-        title: {
-          display: false,
-        },
-        ticks: { font: { size: 10 } },
-      },
-      y: {
-        min: 1,
-        max: yMax,
-        title: {
-          display: false,
-        },
-        ticks: { font: { size: 10 } },
-      },
-    },
-    animation: {
-      duration: 0,
-    },
-  };
-
   return (
-    <div className="flex relative flex-col items-center justify-center w-full h-full bg-gray-900 text-white">
-      <div className="w-full h-full max-lg:h-[450px] p-6 ">
-        <Line data={chartData} options={chartOptions} />
+    <div className="flex flex-col items-center justify-center w-full h-full bg-gray-900 text-white">
+      <div className="w-full h-full p-4">
+        <LineChart
+          width={600}
+          height={300}
+          data={data}
+          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+        >
+          <XAxis
+            dataKey="time"
+            type="number"
+            domain={[0, xMax]}
+            label={{
+              value: "Time (s)",
+              position: "insideBottomRight",
+              offset: -10,
+            }}
+            // axisLine={false} // Hide X-axis line
+            // tick={false} // Hide X-axis tick labels
+          />
+          <YAxis
+            domain={[1, yMax]} // Dynamic Y-axis limit
+            label={{ value: "Multiplier", angle: -90, position: "insideLeft" }}
+            // axisLine={false} // Hide X-axis line
+            // tick={false} // Hide X-axis tick labels
+          />
+          <Tooltip />
+          <Line
+            type="monotone"
+            dataKey="multiplier"
+            stroke="#8884d8"
+            activeDot={{ r: 8 }}
+          />
+        </LineChart>
       </div>
 
-      <div
-        className={`absolute text-3xl flex items-center flex-col max-md:text-xl font-semibold ${
-          countdown !== 0 ? "blink" : ""
-        } ${isCrashed ? "zoom-in" : ""}`}
-      >
-        {isCrashed ? (
-          <>
-            <span className="text-red-500">{`${multiplier.toFixed(2)}x`}</span>
-            <span>Crashed</span>
-          </>
-        ) : countdown !== 0 ? (
-          <span>{countdown}</span>
-        ) : (
-          <span>{`${multiplier.toFixed(2)}x`}</span>
-        )}
-      </div>
+      <CustomModal
+        showModal={showModal}
+        closeModal={closeModal}
+        modalColor={modalColor}
+        modalMessage={modalMessage}
+      />
     </div>
   );
 };

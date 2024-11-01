@@ -13,52 +13,57 @@ import WheelPage from "./components/WheelGame/WheelPage";
 import DiamondPage from "./components/DiamondGame/Diamond";
 import BalloonPage from "./components/BalloonPage/Balloon";
 import CrashPage from "./components/CrashGame/Crash";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { io } from 'socket.io-client';
+const socket = io('http://localhost:3000');
 
 function App() {
-  const user = useSelector((state) => state.auth?.user?.user)
-  console.log(user)
+  const user = useSelector((state) => state.auth?.user?.user);
   const dispatch = useDispatch();
   const [sideOpen, setSideOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);  // Initialize loading as true
+  const [loggedInUsers, setLoggedInUsers] = useState([]); // Initialize loggedInUsers state
   const location = useLocation();
-  // const user = useState((state) => state.auth.user)
-  // console.log(user)
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    if (params.get("tab") === "login") {
-      setShowLogin(true);
-    } else {
-      setShowLogin(false);
-    }
-
-    if (params.get("tab") === "register") {
-      setShowRegister(true);
-    } else {
-      setShowRegister(false);
-    }
+    setShowLogin(params.get("tab") === "login");
+    setShowRegister(params.get("tab") === "register");
 
     setTimeout(() => {
       setLoading(false);
     }, 1000);
   }, [location]);
 
-
-  // useEffect(() => {
-  //   // Fetch user profile when the app loads
-  //   dispatch(fetchUserProfile());
-  // }, [dispatch]);
-
-  
-
-  // Scroll to top on route change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const storedEmail = user?.email;
+    const storedToken = localStorage.getItem("jwtToken");
+
+    if (storedEmail && storedToken) {
+      socket.emit("userLoggedIn", { email: storedEmail, socketId: socket.id });
+    }
+
+    socket.on("userUpdate", (users) => {
+      setLoggedInUsers(users);
+    });
+
+    socket.on("connect", () => {
+      if (storedEmail && storedToken) {
+        socket.emit("userLoggedIn", { email: storedEmail, socketId: socket.id });
+      }
+    });
+
+    return () => {
+      socket.off("userUpdate");
+      socket.off("connect");
+    };
+  }, [user?.email]);
 
   return (
     <>
@@ -74,10 +79,8 @@ function App() {
           {showRegister && <Register />}
 
           <div className="w-full flex min-h-screen bg-primary">
-            {/* Sidebar */}
             <Sidebar setSideOpen={setSideOpen} sideOpen={sideOpen} />
 
-            {/* Header */}
             <div
               className={`bg-primary ${
                 sideOpen ? "lg:pl-[220px]" : "lg:pl-[60px]"
@@ -90,12 +93,11 @@ function App() {
                     sideOpen
                       ? "bottom-[-0.40rem] left-[-0.95rem]"
                       : "bottom-[-0.75rem] left-[-0.65rem]"
-                  }  rounded-2xl w-6 h-6 bg-primary`}
+                  } rounded-2xl w-6 h-6 bg-primary`}
                 ></div>
               </div>
             </div>
 
-            {/* Main Frame */}
             <div
               className={`w-full ${
                 sideOpen ? "ml-[210px]" : "ml-[68px]"
@@ -113,7 +115,6 @@ function App() {
               </Routes>
             </div>
 
-            {/* Footer */}
             <Footer />
           </div>
         </>
