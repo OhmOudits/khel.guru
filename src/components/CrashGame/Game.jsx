@@ -38,8 +38,8 @@ const Game = ({
   const [time, setTime] = useState(0);
   const [countdown, setCountdown] = useState(5);
   const [isCrashed, setIsCrashed] = useState(false);
-  const [xMax, setXMax] = useState(14);
-  const [yMax, setYMax] = useState(2.5);
+  const [xMax, setXMax] = useState(12);
+  const [yMax, setYMax] = useState(2);
 
   useEffect(() => {
     if (countdown > 0) {
@@ -67,7 +67,7 @@ const Game = ({
             resetGame();
           }, 3000);
         }
-      }, 50);
+      }, 100);
     } else if (!isPlaying && multiplier !== 1.0) {
       clearInterval(interval);
     }
@@ -84,12 +84,12 @@ const Game = ({
   useEffect(() => {
     if (time > xMax * 0.9) {
       setXMax(time * 1.1);
-      setYMax(multiplier * 1.2);
+      setYMax(multiplier * 1.1);
     }
 
     if (multiplier * 0.8 > yMax) {
       setXMax(time * 1.1);
-      setYMax(Math.exp(time / 18) * 1.2);
+      setYMax(Math.exp(time / 18) * 1.1);
     }
   }, [time, multiplier, yMax, xMax]);
 
@@ -100,8 +100,8 @@ const Game = ({
   }, [isCrashed, setBettingStarted]);
 
   const startGame = () => {
-    setXMax(14);
-    setYMax(2.5);
+    setXMax(12);
+    setYMax(2);
     setIsPlaying(true);
     setIsCrashed(false);
     setDisableBet(true);
@@ -155,7 +155,7 @@ const Game = ({
       y: {
         min: 1,
         max: yMax,
-        ticks: { font: { size: 10 }, stepSize: yMax / 10 },
+        ticks: { font: { size: 10 }, callback: (value) => value.toFixed(2),stepSize: yMax / 10 },
       },
     },
     animation: { duration: 0 },
@@ -191,4 +191,4 @@ const Game = ({
   );
 };
 
-export default Game;
+export default Game; 
