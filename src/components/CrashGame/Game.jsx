@@ -23,15 +23,23 @@ ChartJS.register(
   Legend
 );
 
-const Game = () => {
-  const [multiplier, setMultiplier] = useState(1.0);
+const Game = ({
+  // eslint-disable-next-line
+  multiplier,
+  // eslint-disable-next-line
+  setMultiplier,
+  // eslint-disable-next-line
+  setBettingStarted,
+  // eslint-disable-next-line
+  setDisableBet,
+}) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [data, setData] = useState([{ time: 0, multiplier: 1.0 }]);
   const [time, setTime] = useState(0);
   const [countdown, setCountdown] = useState(5);
   const [isCrashed, setIsCrashed] = useState(false);
-  const [xMax, setXMax] = useState(16);
-  const [yMax, setYMax] = useState(3.0);
+  const [xMax, setXMax] = useState(14);
+  const [yMax, setYMax] = useState(3.5);
 
   useEffect(() => {
     if (countdown !== 0) {
@@ -50,7 +58,7 @@ const Game = () => {
     if (isPlaying && !isCrashed) {
       interval = setInterval(() => {
         setTime((prev) => prev + 0.1);
-        setMultiplier(Math.exp(time / 18));
+        setMultiplier(Math.exp(time / 12));
 
         if (Math.random() < 0.01) {
           setIsCrashed(true);
@@ -60,13 +68,13 @@ const Game = () => {
             resetGame();
           }, 3000);
         }
-      }, 100);
+      }, 10);
     } else if (!isPlaying && multiplier !== 1.0) {
       clearInterval(interval);
     }
 
     return () => clearInterval(interval);
-  }, [isPlaying, time, isCrashed, multiplier]);
+  }, [isPlaying, time, isCrashed, multiplier, setMultiplier]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -78,20 +86,29 @@ const Game = () => {
   }, [multiplier, time, isPlaying]);
 
   useEffect(() => {
-    if (time > xMax) {
-      setXMax(time + 1);
+    if (time > xMax * 0.9) {
+      setXMax(time * 1.1);
+      setYMax(multiplier * 1.2);
     }
 
-    if (multiplier > yMax) {
-      setYMax(multiplier);
+    if (multiplier * 0.8 > yMax) {
+      setXMax(time * 1.1);
+      setYMax(Math.exp(time / 18) * 1.2);
     }
   }, [time, multiplier, yMax, xMax]);
 
+  useEffect(() => {
+    if (isCrashed) {
+      setBettingStarted(false);
+    }
+  }, [isCrashed, setBettingStarted]);
+
   const startGame = () => {
-    setXMax(16);
-    setYMax(3.0);
+    setXMax(14);
+    setYMax(3.5);
     setIsPlaying(true);
     setIsCrashed(false);
+    setDisableBet(true);
   };
 
   const resetGame = () => {
@@ -99,6 +116,8 @@ const Game = () => {
     setData([{ time: 0, multiplier: 1.0 }]);
     setTime(0);
     setIsCrashed(false);
+    setBettingStarted(false);
+    setDisableBet(false);
   };
 
   const chartData = {
@@ -138,7 +157,11 @@ const Game = () => {
         title: {
           display: false,
         },
-        ticks: { font: { size: 10 } },
+        ticks: {
+          font: { size: 10 },
+          stepSize: xMax / 8,
+          callback: (value) => value.toFixed(2),
+        },
       },
       y: {
         min: 1,
@@ -146,7 +169,11 @@ const Game = () => {
         title: {
           display: false,
         },
-        ticks: { font: { size: 10 } },
+        ticks: {
+          font: { size: 10 },
+          stepSize: yMax / 10,
+          callback: (value) => value.toFixed(1),
+        },
       },
     },
     animation: {
@@ -167,13 +194,17 @@ const Game = () => {
       >
         {isCrashed ? (
           <>
+            {/* eslint-disable-next-line */}
             <span className="text-red-500">{`${multiplier.toFixed(2)}x`}</span>
             <span>Crashed</span>
           </>
         ) : countdown !== 0 ? (
           <span>{countdown}</span>
         ) : (
-          <span>{`${multiplier.toFixed(2)}x`}</span>
+          <>
+            {/* eslint-disable-next-line */}
+            <span>{`${multiplier.toFixed(2)}x`}</span>
+          </>
         )}
       </div>
     </div>

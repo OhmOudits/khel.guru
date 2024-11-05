@@ -5,8 +5,8 @@ import FrameFooter from "../Frame/FrameFooter";
 import HotKeysModal from "../Frame/HotKeysModal";
 import GameInfoModal from "../Frame/GameInfoModal";
 import MaxBetModal from "../Frame/MaxBetModal";
-import LeftSection from "../Frame/LeftSection";
 import Game from "./Game";
+import SideBar from "./Sidebar";
 
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
@@ -33,6 +33,23 @@ const Frame = () => {
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
 
+  const [bettingStarted, setBettingStarted] = useState(false);
+  const [checkout, setCheckout] = useState(false);
+  const [disableBet, setDisableBet] = useState(false);
+  const [value, setValue] = useState(1.0);
+
+  const handleBetClick = () => {
+    if (!disableBet) {
+      setBettingStarted(true);
+      setCheckout(false);
+    }
+  };
+
+  const handleCheckout = () => {
+    setCheckout(true);
+    setBettingStarted(false);
+  };
+
   return (
     <>
       <div
@@ -49,7 +66,7 @@ const Frame = () => {
           <div className="flex flex-col gap-[0.15rem] relative">
             <div className="grid grid-cols-12 lg:min-h-[600px]">
               {/* Left Section */}
-              <LeftSection
+              <SideBar
                 theatreMode={theatreMode}
                 setTheatreMode={setTheatreMode}
                 setBet={setBet}
@@ -71,6 +88,12 @@ const Frame = () => {
                 onLossReset={onLossReset}
                 setOnLossReset={setOnLossReset}
                 setOnWinReset={setOnWinReset}
+                bettingStarted={bettingStarted}
+                setBettingStarted={setBettingStarted}
+                handleBetClick={handleBetClick}
+                handleCheckout={handleCheckout}
+                value={value}
+                disableBet={disableBet}
               />
 
               {/* Right Section */}
@@ -82,7 +105,12 @@ const Frame = () => {
                 } xl:col-span-9 bg-gray-900 order-1`}
               >
                 <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
-                  <Game />
+                  <Game
+                    multiplier={value}
+                    setMultiplier={setValue}
+                    setBettingStarted={setBettingStarted}
+                    setDisableBet={setDisableBet}
+                  />
                 </div>
               </div>
             </div>
