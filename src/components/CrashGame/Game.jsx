@@ -11,6 +11,7 @@ import {
   Legend,
 } from "chart.js";
 import "tailwindcss/tailwind.css";
+import "../../styles/Crash.css";
 
 ChartJS.register(
   CategoryScale,
@@ -38,7 +39,7 @@ const Game = ({
   const [countdown, setCountdown] = useState(5);
   const [isCrashed, setIsCrashed] = useState(false);
   const [xMax, setXMax] = useState(14);
-  const [yMax, setYMax] = useState(13.5);
+  const [yMax, setYMax] = useState(2.5);
 
   useEffect(() => {
     if (countdown > 0) {
@@ -56,7 +57,7 @@ const Game = ({
     if (isPlaying) {
       interval = setInterval(() => {
         setTime((prev) => prev + 0.1);
-        setMultiplier(Math.exp(time / 12));
+        setMultiplier(Math.exp(time / 18));
 
         if (Math.random() < 0.01) {
           setIsCrashed(true);
@@ -66,7 +67,7 @@ const Game = ({
             resetGame();
           }, 3000);
         }
-      }, 10);
+      }, 50);
     } else if (!isPlaying && multiplier !== 1.0) {
       clearInterval(interval);
     }
@@ -100,7 +101,7 @@ const Game = ({
 
   const startGame = () => {
     setXMax(14);
-    setYMax(3.5);
+    setYMax(2.5);
     setIsPlaying(true);
     setIsCrashed(false);
     setDisableBet(true);
