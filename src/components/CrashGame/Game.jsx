@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
-import "../../styles/Crash.css";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -39,23 +38,22 @@ const Game = ({
   const [countdown, setCountdown] = useState(5);
   const [isCrashed, setIsCrashed] = useState(false);
   const [xMax, setXMax] = useState(14);
-  const [yMax, setYMax] = useState(3.5);
+  const [yMax, setYMax] = useState(13.5);
 
   useEffect(() => {
-    if (countdown !== 0) {
+    if (countdown > 0) {
       const timer = setTimeout(() => {
         setCountdown(countdown - 1);
       }, 1000);
       return () => clearTimeout(timer);
-    }
-    if (countdown === 0) {
+    } else {
       startGame();
     }
   }, [countdown]);
 
   useEffect(() => {
     let interval;
-    if (isPlaying && !isCrashed) {
+    if (isPlaying) {
       interval = setInterval(() => {
         setTime((prev) => prev + 0.1);
         setMultiplier(Math.exp(time / 12));
@@ -78,10 +76,7 @@ const Game = ({
 
   useEffect(() => {
     if (isPlaying) {
-      setData((prevData) => [
-        ...prevData,
-        { time: time.toFixed(1), multiplier },
-      ]);
+      setData((prevData) => [...prevData, { time, multiplier }]);
     }
   }, [multiplier, time, isPlaying]);
 
@@ -142,43 +137,27 @@ const Game = ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        enabled: false,
-      },
+      legend: { display: false },
+      tooltip: { enabled: false },
     },
     scales: {
       x: {
         type: "linear",
         min: 0,
         max: xMax,
-        title: {
-          display: false,
-        },
         ticks: {
           font: { size: 10 },
-          stepSize: xMax / 8,
           callback: (value) => value.toFixed(2),
+          stepSize: xMax / 8,
         },
       },
       y: {
         min: 1,
         max: yMax,
-        title: {
-          display: false,
-        },
-        ticks: {
-          font: { size: 10 },
-          stepSize: yMax / 10,
-          callback: (value) => value.toFixed(1),
-        },
+        ticks: { font: { size: 10 }, stepSize: yMax / 10 },
       },
     },
-    animation: {
-      duration: 0,
-    },
+    animation: { duration: 0 },
   };
 
   return (

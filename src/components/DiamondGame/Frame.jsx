@@ -7,8 +7,11 @@ import GameInfoModal from "../Frame/GameInfoModal";
 import MaxBetModal from "../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
+import { useSelector } from "react-redux";
 
 const Frame = () => {
+  const user = useSelector((state) => state.auth.user.user)
+  console.log(user)
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [nbets, setNBets] = useState(0);
@@ -140,6 +143,7 @@ const Frame = () => {
                       setBetStarted={setBettingStarted}
                       gameCheckout={gameCheckout}
                       setGameCheckout={setGameCheckout}
+                      userEmail={user.email}
                     />
                   )}
                 </div>
