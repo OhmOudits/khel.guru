@@ -38,6 +38,15 @@ const Frame = () => {
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
 
+  const history = [
+    { id: 1, value: "1.64", color: "#f7b32b" },
+    { id: 2, value: "0.04", color: "#28a745" },
+    { id: 3, value: "1.24", color: "#f7b32b" },
+    { id: 4, value: "21.64", color: "#5b34eb" },
+    { id: 5, value: "2.94", color: "#f7b32b" },
+    { id: 6, value: "0.64", color: "#28a745" },
+  ];
+
   return (
     <>
       <div
@@ -90,10 +99,10 @@ const Frame = () => {
                   theatreMode
                     ? "md:col-span-8 md:order-2"
                     : "lg:col-span-8 lg:order-2"
-                } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[400px]`}
+                } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[470px]`}
               >
                 <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
-                  <History />
+                  <History list={history} />
                   <Game risk={risk} segment={segment} />
                   <Chances risk={risk} segment={segment} />
                 </div>

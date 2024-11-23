@@ -10,6 +10,7 @@ import sportsbg from "../../assets/sportsbg.png";
 
 import { originals } from "../../constants";
 import List from "./List";
+import { IoIosBasketball } from "react-icons/io";
 
 const MainFrame = () => {
   const navigate = useNavigate();
@@ -71,7 +72,7 @@ const MainFrame = () => {
               backgroundImage: `url('${casinobg}')`,
             }}
           >
-            <Link to="/">
+            <Link to="/casino">
               <div className="mt-8 lg:mt-12 xl:mt-16">
                 <h1 className="text-4xl max-md:text-2xl xl:text-2xl font-semibold">
                   Casino
@@ -90,7 +91,7 @@ const MainFrame = () => {
               backgroundImage: `url('${sportsbg}')`,
             }}
           >
-            <Link to="/">
+            <Link to="/sports">
               <div className="mt-8 lg:mt-12  xl:mt-16">
                 <h1 className="text-4xl max-md:text-2xl xl:text-2xl font-semibold">
                   Sports Betting
@@ -105,8 +106,14 @@ const MainFrame = () => {
 
         <div className="mt-4"></div>
         {/* Games */}
-        <GamesLines games={originals} title="Originals" link="/" />
-        <GamesLines games={originals} title="Originals" link="/" />
+        <GamesLines games={originals} title="Originals" link="/original" />
+        <GamesLines games={originals} title="Slots" link="/slots" />
+        <GamesLines
+          icon={<IoIosBasketball />}
+          games={originals}
+          title="Sports"
+          link="/sports"
+        />
 
         <div className="mt-4">
           <List />

@@ -35,13 +35,14 @@ const Frame = () => {
 
   const [bettingStarted, setBettingStarted] = useState(false);
   const [checkout, setCheckout] = useState(false);
-  const [value, setValue] = useState(0.0);
+  const [value, setValue] = useState(1.0);
   const [pause, setPause] = useState(false);
+  const [difficulty, setDifficulty] = useState("medium");
 
   const handleBetClick = () => {
     setBettingStarted(true);
     setPause(false);
-    setValue(0.0);
+    setValue(1.0);
   };
 
   const handleCheckout = () => {
@@ -95,6 +96,8 @@ const Frame = () => {
                 handleBetClick={handleBetClick}
                 handleCheckout={handleCheckout}
                 value={value}
+                difficulty={difficulty}
+                setDifficulty={setDifficulty}
               />
 
               {/* Right Section */}
@@ -115,6 +118,8 @@ const Frame = () => {
                     setValue={setValue}
                     pause={pause}
                     setPause={setPause}
+                    difficulty={difficulty}
+                    setDifficulty={setDifficulty}
                   />
                 </div>
               </div>

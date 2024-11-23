@@ -155,15 +155,19 @@ const Game = ({
       y: {
         min: 1,
         max: yMax,
-        ticks: { font: { size: 10 }, callback: (value) => value.toFixed(2),stepSize: yMax / 10 },
+        ticks: {
+          font: { size: 10 },
+          callback: (value) => value.toFixed(2),
+          stepSize: yMax / 10,
+        },
       },
     },
     animation: { duration: 0 },
   };
 
   return (
-    <div className="flex relative flex-col items-center justify-center w-full h-full bg-gray-900 text-white">
-      <div className="w-full h-full max-lg:h-[450px] p-6 ">
+    <div className="flex relative pt-16 flex-col items-center justify-center w-full h-full bg-gray-900 text-white">
+      <div className="w-full h-full max-lg:h-[350px] p-6 ">
         <Line data={chartData} options={chartOptions} />
       </div>
 
@@ -191,4 +195,4 @@ const Game = ({
   );
 };
 
-export default Game; 
+export default Game;

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import clouds from "../../assets/Balloon/clouds.png";
-import mountain from "../../assets/Balloon/mountain.png";
+// import mountain from "../../assets/Balloon/mountain.png";
 import balloon from "../../assets/Balloon/balloon.png";
 import "../../styles/Balloon.css";
+import Background from "./Background";
 
 const Game = ({
   // eslint-disable-next-line
@@ -23,27 +24,34 @@ const Game = ({
   pause,
   // eslint-disable-next-line
   setPause,
+  // eslint-disable-next-line
+  difficulty,
+  // eslint-disable-next-line
+  setDifficulty,
 }) => {
   const [balloonFlew, setBalloonFlew] = useState(false);
   const [isCrashed, setIsCrashed] = useState(false);
-  const treshold = 3;
-  const min = 0.2;
+  const [time, setTime] = useState(0);
   const speed = 100;
-  const increment = 0.05;
-  const [multipliers, setMultipliers] = useState([]);
+  const [targetMultiplier, setTargetMultiplier] = useState(2.5);
+  const [mult, setMult] = useState(18);
+  const cloudCount = 1000;
 
-  // Initialize multiplier values
   useEffect(() => {
-    const multiplier = [];
-    for (
-      let i = min;
-      i <= treshold;
-      i = parseFloat((i + increment).toFixed(2))
-    ) {
-      multiplier.push(i);
+    if (difficulty === "low") {
+      setMult(24);
+    } else if (difficulty === "medium") {
+      setMult(18);
+    } else {
+      setMult(12);
     }
-    setMultipliers(multiplier);
-  }, [treshold]);
+  }, [difficulty]);
+
+  useEffect(() => {
+    if (bettingStarted) {
+      setTargetMultiplier(Math.random() * 2 + 1.5);
+    }
+  }, [bettingStarted]);
 
   useEffect(() => {
     if (pause) {
@@ -51,45 +59,40 @@ const Game = ({
     }
 
     if (isCrashed || !bettingStarted) {
-      setValue(0);
+      setValue(1);
+      setTime(0);
       return;
     }
 
-    const targetValue =
-      multipliers[Math.floor(Math.random() * multipliers.length)];
-
     const interval = setInterval(() => {
-      setValue((prevValue) => {
-        const newValue = prevValue + increment;
+      setTime((prevTime) => prevTime + 0.1);
 
-        if (newValue >= targetValue) {
-          setIsCrashed(true);
-          setCheckout(false);
-          setBettingStarted(false);
-          clearInterval(interval);
+      setValue(Math.exp(time / mult));
 
-          setTimeout(() => {
-            setIsCrashed(false);
-          }, 2000);
+      if (Math.exp(time / mult) >= targetMultiplier) {
+        setIsCrashed(true);
+        setCheckout(false);
+        setBettingStarted(false);
+        clearInterval(interval);
 
-          return targetValue;
-        }
-
-        return newValue;
-      });
+        setTimeout(() => {
+          setIsCrashed(false);
+        }, 2000);
+      }
     }, speed);
 
     return () => clearInterval(interval);
   }, [
     isCrashed,
     bettingStarted,
-    increment,
     speed,
-    multipliers,
+    targetMultiplier,
     setValue,
     setCheckout,
     setBettingStarted,
     pause,
+    time,
+    mult,
   ]);
 
   useEffect(() => {
@@ -98,34 +101,42 @@ const Game = ({
         setPause(false);
         setBettingStarted(false);
         setBalloonFlew(false);
-      }, 2000);
+      }, 3000);
       setBalloonFlew(true);
     }
-  }, [pause, setPause, setBettingStarted]);
+
+    if (isCrashed) {
+      setTimeout(() => {
+        setPause(false);
+        setBettingStarted(false);
+        setBalloonFlew(false);
+      }, 3000);
+      setBalloonFlew(true);
+    }
+  }, [pause, isCrashed, setPause, setBettingStarted]);
 
   return (
     <div className="relative w-full h-full bg-primary overflow-hidden max-lg:min-h-[500px]">
       <div
         className={`absolute bottom-0 left-0 overflow-hidden ${
-          bettingStarted ? "moving-up" : ""
-        } ${pause ? "moving-up" : ""} ${balloonFlew ? "pause" : ""}`}
+          bettingStarted || isCrashed || pause ? "moving-up" : ""
+        } ${balloonFlew ? "pause" : ""}`}
       >
-        <div className="w-full bg-blue-600">
-          <img src={clouds} className="w-full" alt="clouds" />
-          <img src={clouds} className="w-full" alt="clouds" />
-          <img src={clouds} className="w-full" alt="clouds" />
-          <img src={clouds} className="w-full" alt="clouds" />
-          <img src={clouds} className="w-full" alt="clouds" />
-          <img src={clouds} className="w-full" alt="clouds" />
+        <div>
+          <div className="w-full bg-blue-600">
+            {Array.from({ length: cloudCount }).map((_, index) => (
+              <img key={index} src={clouds} className="w-full" alt="clouds" />
+            ))}
+          </div>
+          <div className="w-full relative bg-gradient-to-t from-[#d08e80] to-blue-600">
+            <img src={clouds} className="w-full" alt="clouds" />
+            <img src={clouds} className="w-full" alt="clouds" />
+            <img src={clouds} className="w-full" alt="clouds" />
+          </div>
         </div>
 
-        <div className="w-full relative bg-gradient-to-t from-[#f5d693] to-blue-600">
-          <img src={clouds} className="w-full" alt="clouds" />
-          <img src={clouds} className="w-full" alt="clouds" />
-          <img src={clouds} className="w-full" alt="clouds" />
-        </div>
-
-        <img src={mountain} className="w-full" alt="mountain" />
+        {/* <img src={mountain} className="w-full" alt="mountain" /> */}
+        <Background />
       </div>
 
       <div

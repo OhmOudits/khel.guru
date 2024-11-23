@@ -13,18 +13,19 @@ import WheelPage from "./components/WheelGame/WheelPage";
 import DiamondPage from "./components/DiamondGame/Diamond";
 import BalloonPage from "./components/BalloonPage/Balloon";
 import CrashPage from "./components/CrashGame/Crash";
-import { useDispatch, useSelector } from "react-redux";
-import { io } from 'socket.io-client';
-const socket = io('http://localhost:3000');
+import { useSelector } from "react-redux";
+import { io } from "socket.io-client";
+import { Sports } from "./pages";
+const socket = io("http://localhost:3000");
 
 function App() {
   const user = useSelector((state) => state.auth?.user?.user);
-  const dispatch = useDispatch();
   const [sideOpen, setSideOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-  const [loading, setLoading] = useState(true);  // Initialize loading as true
-  const [loggedInUsers, setLoggedInUsers] = useState([]); // Initialize loggedInUsers state
+  const [loading, setLoading] = useState(true);
+  // eslint-disable-next-line
+  const [loggedInUsers, setLoggedInUsers] = useState([]);
   const location = useLocation();
 
   useEffect(() => {
@@ -55,7 +56,10 @@ function App() {
 
     socket.on("connect", () => {
       if (storedEmail && storedToken) {
-        socket.emit("userLoggedIn", { email: storedEmail, socketId: socket.id });
+        socket.emit("userLoggedIn", {
+          email: storedEmail,
+          socketId: socket.id,
+        });
       }
     });
 
@@ -107,6 +111,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/game" element={<Frame />} />
+                <Route path="/sports" element={<Sports />} />
                 <Route path="/game/wheel" element={<WheelPage />} />
                 <Route path="/game/diamond" element={<DiamondPage />} />
                 <Route path="/game/balloon" element={<BalloonPage />} />

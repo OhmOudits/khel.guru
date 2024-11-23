@@ -3,75 +3,82 @@ import { Link } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
 
 // eslint-disable-next-line
-const GamesLines = ({ title, link, games }) => {
+const GamesLines = ({ title, link, icon, games, hoverEffect = false }) => {
   const scrollRef = useRef(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [scrollState, setScrollState] = useState({
+    canScrollLeft: false,
+    canScrollRight: true,
+  });
 
-  const moveLeft = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({
-        left: -scrollRef.current.offsetWidth,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  const moveRight = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({
-        left: scrollRef.current.offsetWidth,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  const handleScroll = () => {
+  const updateScrollState = () => {
     if (scrollRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft + clientWidth < scrollWidth);
+      setScrollState({
+        canScrollLeft: scrollLeft > 0,
+        canScrollRight: scrollLeft + clientWidth < scrollWidth,
+      });
+    }
+  };
+
+  const scrollByOffset = (offset) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({
+        left: offset,
+        behavior: "smooth",
+      });
     }
   };
 
   useEffect(() => {
-    handleScroll();
+    updateScrollState();
+
     const currentScrollRef = scrollRef.current;
-    currentScrollRef.addEventListener("scroll", handleScroll);
-    return () => currentScrollRef.removeEventListener("scroll", handleScroll);
+    currentScrollRef.addEventListener("scroll", updateScrollState);
+
+    return () =>
+      currentScrollRef.removeEventListener("scroll", updateScrollState);
   }, []);
 
   return (
-    <div className="w-full flex flex-col">
-      <div className="w-full flex items-center justify-between mt-2 px-1 pb-2">
-        <h1 className="text-3xl font-semibold max-md:text-2xl">{title}</h1>
-        <div className="flex gap-2">
+    <div className="w-full flex flex-col mt-2">
+      {/* Header Section */}
+      <div className="flex items-center justify-between px-2 pb-2">
+        <h1 className="text-2xl font-semibold flex items-center gap-1.5">
+          {icon && <span className="text-2xl pt-0.5">{icon}</span>}
+          {title}
+        </h1>
+        <div className="flex items-center gap-2">
+          {/* View All Link */}
           <Link to={link}>
-            <div className="px-4 py-1.5 max-md:py-1.5 rounded-xl hover:bg-activeHover bg-inactive">
+            <div className="px-4 py-1.5 rounded-xl bg-inactive hover:bg-activeHover">
               View All
             </div>
           </Link>
-          <div className="flex gap-0.5 max-md:hidden">
-            <div
-              className={`px-3 cursor-pointer py-1.5 flex items-center justify-center rounded-tl-xl rounded-bl-xl ${
-                canScrollLeft
+
+          {/* Scroll Controls */}
+          <div className="hidden md:flex gap-0.5">
+            <button
+              className={`px-3 py-2.5 rounded-tl-xl rounded-bl-xl flex items-center justify-center ${
+                scrollState.canScrollLeft
                   ? "hover:bg-activeHover bg-inactive"
-                  : "bg-inactive"
+                  : "bg-inactive opacity-50 cursor-not-allowed"
               }`}
-              onClick={canScrollLeft ? moveLeft : null}
+              onClick={() => scrollByOffset(-scrollRef.current.offsetWidth)}
+              disabled={!scrollState.canScrollLeft}
             >
               <FaChevronLeft />
-            </div>
-            <div
-              className={`px-3 cursor-pointer py-1.5 flex items-center justify-center rounded-tr-xl rounded-br-xl ${
-                canScrollRight
+            </button>
+            <button
+              className={`px-3 py-1.5 rounded-tr-xl rounded-br-xl flex items-center justify-center ${
+                scrollState.canScrollRight
                   ? "hover:bg-activeHover bg-inactive"
-                  : "bg-inactive"
+                  : "bg-inactive opacity-50 cursor-not-allowed"
               }`}
-              onClick={canScrollRight ? moveRight : null}
+              onClick={() => scrollByOffset(scrollRef.current.offsetWidth)}
+              disabled={!scrollState.canScrollRight}
             >
               <FaChevronRight />
-            </div>
+            </button>
           </div>
         </div>
       </div>
@@ -79,44 +86,46 @@ const GamesLines = ({ title, link, games }) => {
       {/* Scrollable Games Section */}
       <div
         ref={scrollRef}
-        className="mb-2 mt-0.5 flex overflow-x-scroll relative"
+        className="relative flex overflow-x-scroll mb-2 mt-0.5"
       >
-        {/* Overlay for the right side */}
-        {!canScrollLeft && (
-          <div
-            className="absolute z-[1] top-0 h-full w-[15%] bg-gradient-to-l from-black/75 to-transparent rounded-xl pointer-events-none"
-            style={{
-              right: "0",
-            }}
-          ></div>
+        {/* Right Side Gradient Overlay */}
+        {!scrollState.canScrollRight && (
+          <div className="absolute z-10 top-0 right-0 h-full w-[15%] bg-gradient-to-l from-black/75 to-transparent pointer-events-none"></div>
         )}
 
+        {/* Game Cards */}
         {/* eslint-disable-next-line */}
-        {games.map((g) => {
-          return (
-            <Link
-              to={g.link}
-              key={g.id}
-              className="flex-none p-2 max-md:p-1 min-w-[40%] sm:min-w-[25%] lg:min-w-[20%] rounded-[1rem] overflow-hidden xl:min-w-[15%] 2xl:min-w-[15%]"
+        {games.map((game) => (
+          <Link
+            to={game.link}
+            key={game.id}
+            className="flex-none p-2 min-w-[40%] sm:min-w-[25%] lg:min-w-[20%] xl:min-w-[15%] 2xl:min-w-[15%]"
+          >
+            <div
+              className={`relative cursor-pointer border-2 border-transparent rounded-xl aspect-[8/10] bg-center bg-cover transition-transform duration-500 ${
+                hoverEffect ? "hover:-translate-y-2" : ""
+              }`}
+              style={{
+                backgroundImage: `url(${game.img})`,
+                backgroundPosition: "fixed",
+              }}
             >
-              <div
-                className={`cursor-pointer border-2 border-transparent hover:border-white bg-inactive rounded-[1rem] overflow-hidden aspect-[8/10] xl:aspect-[8/10.5] relative bg-bottom bg-cover bg-no-repeat`}
-                style={{ backgroundImage: `url(${g.img})` }}
-              >
-                {g.exclusive && (
-                  <div className="absolute text-black text-sm max-md:hidden max-md:text-xs xl:text-xs font-bold top-[8px] left-[8px] px-2.5 py-1.5 rounded-lg bg-yellow-400">
-                    Exclusive
-                  </div>
-                )}
-                {g.new && (
-                  <div className="absolute text-black text-sm max-md:hidden max-md:text-xs xl:text-xs font-bold top-[8px] left-[8px] px-2.5 py-1.5 rounded-lg bg-green-700">
-                    New
-                  </div>
-                )}
-              </div>
-            </Link>
-          );
-        })}
+              {/* Exclusive Badge */}
+              {game.exclusive && (
+                <span className="absolute top-2 left-2 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-lg">
+                  Exclusive
+                </span>
+              )}
+
+              {/* New Badge */}
+              {game.new && (
+                <span className="absolute top-2 left-2 bg-green-700 text-black text-xs font-bold px-2 py-1 rounded-lg">
+                  New
+                </span>
+              )}
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   );

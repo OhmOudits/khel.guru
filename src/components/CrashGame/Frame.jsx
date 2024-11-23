@@ -7,6 +7,7 @@ import GameInfoModal from "../Frame/GameInfoModal";
 import MaxBetModal from "../Frame/MaxBetModal";
 import Game from "./Game";
 import SideBar from "./Sidebar";
+import History from "../Frame/History";
 
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
@@ -34,6 +35,7 @@ const Frame = () => {
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
 
   const [bettingStarted, setBettingStarted] = useState(false);
+  // eslint-disable-next-line
   const [checkout, setCheckout] = useState(false);
   const [disableBet, setDisableBet] = useState(false);
   const [value, setValue] = useState(1.0);
@@ -49,6 +51,15 @@ const Frame = () => {
     setCheckout(true);
     setBettingStarted(false);
   };
+
+  const history = [
+    { id: 1, value: "1.64", color: "#f7b32b" },
+    { id: 2, value: "0.04", color: "#28a745" },
+    { id: 3, value: "1.24", color: "#f7b32b" },
+    { id: 4, value: "21.64", color: "#5b34eb" },
+    { id: 5, value: "2.94", color: "#f7b32b" },
+    { id: 6, value: "0.64", color: "#28a745" },
+  ];
 
   return (
     <>
@@ -105,6 +116,7 @@ const Frame = () => {
                 } xl:col-span-9 bg-gray-900 order-1`}
               >
                 <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
+                  <History list={history} />
                   <Game
                     multiplier={value}
                     setMultiplier={setValue}

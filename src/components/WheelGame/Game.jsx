@@ -52,7 +52,7 @@ const Game = ({ risk, segment }) => {
     <div className="flex justify-center items-center relative">
       {/* Indicator at the top center */}
       <div
-        className="absolute top-[-3.5%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-red-500 z-50"
+        className="absolute top-[-3.5%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-red-500 z-[10]"
         style={{
           clipPath: "polygon(25% 0, 75% 0, 50% 100%, 50% 100%)",
         }}
@@ -64,8 +64,8 @@ const Game = ({ risk, segment }) => {
 
       <div className="relative w-72 h-72 max-lg:w-64 max-lg:h-64 rounded-full overflow-hidden">
         {/* Inner Section */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[40%] aspect-square rounded-full bg-primary z-[200] border border-activeHover"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] aspect-square rounded-full bg-primary z-[100] border border-activeHover"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[40%] aspect-square rounded-full bg-primary z-[10] border border-activeHover"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] aspect-square rounded-full bg-primary z-[10] border border-activeHover"></div>
 
         {/* Background circle */}
         <div className="absolute inset-0 rounded-full bg-inactive"></div>

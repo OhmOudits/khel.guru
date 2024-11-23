@@ -51,6 +51,10 @@ const SideBar = ({
   handleBetClick,
   // eslint-disable-next-line
   handleCheckout,
+  // eslint-disable-next-line
+  difficulty,
+  // eslint-disable-next-line
+  setDifficulty,
 }) => {
   return (
     <>
@@ -123,6 +127,26 @@ const SideBar = ({
                     </div>
                   )}
                 </div>
+              </div>
+
+              <div className="order-1 md:order-2 my-2 w-full">
+                <label
+                  htmlFor="difficulty"
+                  className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"
+                >
+                  <h1>Difficulty</h1>
+                </label>
+                <select
+                  className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
+                  value={difficulty}
+                  id="difficulty"
+                  disabled={bettingStarted}
+                  onChange={(e) => setDifficulty(e.target.value)}
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
               </div>
 
               {bettingStarted && (
