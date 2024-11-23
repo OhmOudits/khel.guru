@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 // eslint-disable-next-line
-const CricketBet = ({ teams, score }) => {
+const FootballBet = ({ teams, score }) => {
   const [bet, setBet] = useState("0.000000");
   const [select, setSelect] = useState("Draw");
 
@@ -35,7 +35,7 @@ const CricketBet = ({ teams, score }) => {
         <div className="flex flex-col gap-2 max-lg:gap-0 px-3.5 py-5 max-lg:pb-2 col-span-3 w-full">
           <div className="flex items-center gap-3.5 mb-1 text-sm">
             <h1 className="px-1.5 rounded font-semibold bg-red-600">Live</h1>
-            <h1 className="text-gray-400 w-[200px]">2nd Innings</h1>
+            <h1 className="text-gray-400 w-[200px]">2nd Half</h1>
             <div className="w-full h-[1px] bg-gray-700"></div>
           </div>
           <div className="flex flex-col text-[1rem]">
@@ -103,4 +103,4 @@ const CricketBet = ({ teams, score }) => {
   );
 };
 
-export default CricketBet;
+export default FootballBet;

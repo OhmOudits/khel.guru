@@ -1,12 +1,12 @@
 import { IoIosBasketball } from "react-icons/io";
 import GamesLines from "../components/MainFrame/GamesLines";
 import { originals } from "../constants";
-import { FaChevronDown, FaSearch } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 import { useState } from "react";
 import { IoClose } from "react-icons/io5";
 import UpcomingEventsCard from "../components/Sports/UpcomingEventCard";
-import { BiSolidCricketBall } from "react-icons/bi";
-import CricketBet from "../components/Sports/CricketBet";
+import LiveCricketEvents from "../components/Sports/LiveCricketEvents";
+import LiveFootballEvents from "../components/Sports/LiveFootballEvents";
 
 const Sports = () => {
   const [search, setSearch] = useState("");
@@ -52,20 +52,8 @@ const Sports = () => {
         {/* Live Cards */}
         <div className="px-4 text-xl font-semibold mt-5">
           <h1>Live Events</h1>
-          <div className="my-5 grid grid-cols-1 bg-primary">
-            <div className="flex items-center justify-between bg-inactive px-3 py-2.5 rounded-md hover:bg-activeHover cursor-pointer">
-              <div className="flex items-center gap-1.5">
-                <BiSolidCricketBall />
-                Cricket
-              </div>
-              <div>
-                <FaChevronDown size={14} />
-              </div>
-            </div>
-
-            <CricketBet teams={["India", "Australia"]} />
-            <CricketBet />
-          </div>
+          <LiveCricketEvents />
+          <LiveFootballEvents />
         </div>
 
         {/* Upcoming Cards */}
