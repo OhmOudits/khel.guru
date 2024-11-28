@@ -15,7 +15,7 @@ import BalloonPage from "./components/BalloonPage/Balloon";
 import CrashPage from "./components/CrashGame/Crash";
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
-import { Sports } from "./pages";
+import { Sports, SportsCricket, SportsFootball } from "./pages";
 const socket = io("http://localhost:3000");
 
 function App() {
@@ -112,6 +112,8 @@ function App() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/game" element={<Frame />} />
                 <Route path="/sports" element={<Sports />} />
+                <Route path="/sports/cricket" element={<SportsCricket />} />
+                <Route path="/sports/football" element={<SportsFootball />} />
                 <Route path="/game/wheel" element={<WheelPage />} />
                 <Route path="/game/diamond" element={<DiamondPage />} />
                 <Route path="/game/balloon" element={<BalloonPage />} />

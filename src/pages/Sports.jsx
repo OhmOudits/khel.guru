@@ -1,15 +1,28 @@
-import { IoIosBasketball } from "react-icons/io";
+import { IoIosBasketball, IoIosTennisball } from "react-icons/io";
 import GamesLines from "../components/MainFrame/GamesLines";
-import { originals } from "../constants";
+import { topGames } from "../constants";
 import { FaSearch } from "react-icons/fa";
 import { useState } from "react";
 import { IoClose } from "react-icons/io5";
-import UpcomingEventsCard from "../components/Sports/UpcomingEventCard";
-import LiveCricketEvents from "../components/Sports/LiveCricketEvents";
-import LiveFootballEvents from "../components/Sports/LiveFootballEvents";
+import CricketHome from "../components/Sports/Cricket/CricketHome";
+import { GiSoccerBall } from "react-icons/gi";
+import { BiSolidCricketBall } from "react-icons/bi";
 
 const Sports = () => {
+  const events = [
+    { id: 1, events: 5, icon: <BiSolidCricketBall />, name: "Cricket" },
+    { id: 2, events: 12, icon: <GiSoccerBall />, name: "Football" },
+    { id: 3, events: 1, icon: <IoIosTennisball />, name: "Tennis" },
+    { id: 4, events: 5, icon: <BiSolidCricketBall />, name: "Badminton" },
+    { id: 5, events: 12, icon: <GiSoccerBall />, name: "Golf" },
+    { id: 6, events: 1, icon: <IoIosTennisball />, name: "Table Tennis" },
+    { id: 7, events: 5, icon: <BiSolidCricketBall />, name: "Boxing" },
+    { id: 8, events: 12, icon: <GiSoccerBall />, name: "CS2" },
+    { id: 9, events: 1, icon: <IoIosTennisball />, name: "Volley Ball" },
+  ];
+
   const [search, setSearch] = useState("");
+  const [event, setEvent] = useState("Cricket");
 
   const handleClear = () => {
     setSearch("");
@@ -43,69 +56,40 @@ const Sports = () => {
 
         <GamesLines
           icon={<IoIosBasketball />}
-          games={originals}
+          games={topGames}
           title="Sports"
           link="/sports"
           hoverEffect={true}
         />
 
-        {/* Live Cards */}
-        <div className="px-4 text-xl font-semibold mt-5">
-          <h1>Live Events</h1>
-          <LiveCricketEvents />
-          <LiveFootballEvents />
-        </div>
-
-        {/* Upcoming Cards */}
-        <div className="px-4 text-xl font-semibold mt-5">
-          <h1>Upcoming Events</h1>
-          <div className="mt-5 mb-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            <UpcomingEventsCard
-              date="Sat, Nov 22"
-              time="8:30 AM"
-              teams={[
-                { name: "Sacramento Kings", percentage: 50 },
-                { name: "Minnesota Timberwolves", percentage: 50 },
-              ]}
-            />
-
-            <UpcomingEventsCard
-              date="Sat, Nov 22"
-              time="8:30 AM"
-              teams={[
-                { name: "Sacramento Kings", percentage: 50 },
-                { name: "Minnesota Timberwolves", percentage: 50 },
-              ]}
-            />
-
-            <UpcomingEventsCard
-              date="Sat, Nov 22"
-              time="8:30 AM"
-              teams={[
-                { name: "Sacramento Kings", percentage: 50 },
-                { name: "Minnesota Timberwolves", percentage: 50 },
-              ]}
-            />
-
-            <UpcomingEventsCard
-              date="Sat, Nov 22"
-              time="8:30 AM"
-              teams={[
-                { name: "Sacramento Kings", percentage: 50 },
-                { name: "Minnesota Timberwolves", percentage: 50 },
-              ]}
-            />
-
-            <UpcomingEventsCard
-              date="Sat, Nov 22"
-              time="8:30 AM"
-              teams={[
-                { name: "Sacramento Kings", percentage: 50 },
-                { name: "Minnesota Timberwolves", percentage: 50 },
-              ]}
-            />
+        {/* Events */}
+        <div className="w-full my-8">
+          <div className="w-full overflow-y-auto px-8 rounded-md bg-primary flex items-center gap-6">
+            {events.map((e) => {
+              return (
+                <div
+                  className={`py-6 text-4xl text-gray-400 cursor-pointer hover:text-white ${
+                    event === e.name
+                      ? "text-white border-t-4 rounded-sm border-blue-600"
+                      : ""
+                  } flex items-center gap-1 flex-col`}
+                  onClick={() => setEvent(e.name)}
+                  key={e.id}
+                >
+                  <div className="relative">
+                    <div className="text-sm absolute top-[-5px] right-[-5px] text-white font-semibold bg-blue-600 px-1.5 rounded-full">
+                      {e.events}
+                    </div>
+                    {e.icon}
+                  </div>
+                  <p className="text-sm font-semibold">{e.name}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
+
+        <CricketHome />
       </div>
     </div>
   );

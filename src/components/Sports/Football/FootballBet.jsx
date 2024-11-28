@@ -32,7 +32,7 @@ const FootballBet = ({ teams, score }) => {
   return (
     <>
       <div className="grid grid-cols-8 max-lg:grid-cols-1 gap-2 place-items-center bg-primary-1">
-        <div className="flex flex-col gap-2 max-lg:gap-0 px-3.5 py-5 max-lg:pb-2 col-span-3 w-full">
+        <div className="flex flex-col gap-2 max-lg:gap-0 px-3.5 py-1.5 max-lg:pb-2 col-span-3 w-full">
           <div className="flex items-center gap-3.5 mb-1 text-sm">
             <h1 className="px-1.5 rounded font-semibold bg-red-600">Live</h1>
             <h1 className="text-gray-400 w-[200px]">2nd Half</h1>
@@ -60,7 +60,10 @@ const FootballBet = ({ teams, score }) => {
                 select === teams[0] && "bg-[#082f5a]"
               }`}
             >
-              <h1>{teams[0]}</h1>
+              <h1>
+                {/* eslint-disable-next-line */}
+                {teams[0].length <= 9 ? teams[0] : `${teams[0].slice(0, 7)}...`}
+              </h1>
               <p className="text-[#4391E7]">1.45</p>
             </div>
             <div
@@ -78,7 +81,10 @@ const FootballBet = ({ teams, score }) => {
                 select === teams[1] && "bg-[#082f5a]"
               }`}
             >
-              <h1>{teams[1]}</h1>
+              <h1>
+                {/* eslint-disable-next-line */}
+                {teams[1].length <= 9 ? teams[1] : `${teams[1].slice(0, 7)}...`}
+              </h1>
               <p className="text-[#4391E7]">2.45</p>
             </div>
           </div>

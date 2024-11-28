@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { GiCricketBat } from "react-icons/gi";
 
 // eslint-disable-next-line
 const CricketBet = ({ teams, score }) => {
@@ -32,7 +33,7 @@ const CricketBet = ({ teams, score }) => {
   return (
     <>
       <div className="grid grid-cols-8 max-lg:grid-cols-1 gap-2 place-items-center bg-primary-1">
-        <div className="flex flex-col gap-2 max-lg:gap-0 px-3.5 py-5 max-lg:pb-2 col-span-3 w-full">
+        <div className="flex flex-col gap-2 max-lg:gap-0 px-3.5 py-1.5 max-lg:pb-2 col-span-3 w-full">
           <div className="flex items-center gap-3.5 mb-1 text-sm">
             <h1 className="px-1.5 rounded font-semibold bg-red-600">Live</h1>
             <h1 className="text-gray-400 w-[200px]">2nd Innings</h1>
@@ -40,11 +41,14 @@ const CricketBet = ({ teams, score }) => {
           </div>
           <div className="flex flex-col text-[1rem]">
             <div className="flex items-center justify-between">
-              <h1>{teams[0]}</h1>
+              <h1 className="flex items-center gap-2.5">
+                <GiCricketBat />
+                {teams[0]}
+              </h1>
               <h3>{score[0]}</h3>
             </div>
             <div className="flex items-center justify-between">
-              <h1>{teams[1]}</h1>
+              <h1 className="flex items-center gap-2.5">{teams[1]}</h1>
               <h3>{score[1]}</h3>
             </div>
           </div>
@@ -60,7 +64,10 @@ const CricketBet = ({ teams, score }) => {
                 select === teams[0] && "bg-[#082f5a]"
               }`}
             >
-              <h1>{teams[0]}</h1>
+              <h1>
+                {/* eslint-disable-next-line */}
+                {teams[0].length <= 9 ? teams[0] : `${teams[0].slice(0, 7)}...`}
+              </h1>
               <p className="text-[#4391E7]">1.45</p>
             </div>
             <div
@@ -78,7 +85,10 @@ const CricketBet = ({ teams, score }) => {
                 select === teams[1] && "bg-[#082f5a]"
               }`}
             >
-              <h1>{teams[1]}</h1>
+              <h1>
+                {/* eslint-disable-next-line */}
+                {teams[1].length <= 9 ? teams[1] : `${teams[1].slice(0, 7)}...`}
+              </h1>
               <p className="text-[#4391E7]">2.45</p>
             </div>
           </div>
