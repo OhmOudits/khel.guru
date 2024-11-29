@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // eslint-disable-next-line
 const FootballBet = ({ teams, score }) => {
   const [bet, setBet] = useState("0.000000");
   const [select, setSelect] = useState("Draw");
+  const navigate = useNavigate();
 
   //   eslint-disable-next-line
   const options = [
@@ -31,8 +33,13 @@ const FootballBet = ({ teams, score }) => {
 
   return (
     <>
-      <div className="grid grid-cols-8 max-lg:grid-cols-1 gap-2 place-items-center bg-primary-1">
-        <div className="flex flex-col gap-2 max-lg:gap-0 px-3.5 py-1.5 max-lg:pb-2 col-span-3 w-full">
+      <div className="grid px-2 grid-cols-8 max-lg:grid-cols-1 gap-2 place-items-center bg-primary-1">
+        <div
+          className="flex flex-col gap-2 max-lg:gap-0 px-3.5 py-1.5 max-lg:pb-2 col-span-3 w-full hover:bg-activeHover rounded-sm cursor-pointer"
+          onClick={() => {
+            navigate("/sports/cricket/bet");
+          }}
+        >
           <div className="flex items-center gap-3.5 mb-1 text-sm">
             <h1 className="px-1.5 rounded font-semibold bg-red-600">Live</h1>
             <h1 className="text-gray-400 w-[200px]">2nd Half</h1>
