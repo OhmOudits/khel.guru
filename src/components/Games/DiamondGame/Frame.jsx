@@ -1,19 +1,20 @@
-import { useState } from "react";
-import "../../styles/Frame.css";
-import FairnessModal from "./FairnessModal";
-import FrameFooter from "./FrameFooter";
-import HotKeysModal from "./HotKeysModal";
-import GameInfoModal from "./GameInfoModal";
-import MaxBetModal from "./MaxBetModal";
-import LeftSection from "./LeftSection";
-import History from "./History";
-
-import { history } from "../../constants";
+import { useEffect, useState } from "react";
+import "../../../styles/Frame.css";
+import FairnessModal from "../../Frame/FairnessModal";
+import FrameFooter from "../../Frame/FrameFooter";
+import HotKeysModal from "../../Frame/HotKeysModal";
+import GameInfoModal from "../../Frame/GameInfoModal";
+import MaxBetModal from "../../Frame/MaxBetModal";
+import SideBar from "./SideBar";
+import Game from "./Game";
+import { useSelector } from "react-redux";
 
 const Frame = () => {
+  const user = useSelector((state) => state.auth.user.user);
+  console.log(user);
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
-  const [nbets, setNBets] = useState("");
+  const [nbets, setNBets] = useState(0);
   const [onWin, setOnWin] = useState(0);
   const [onLoss, setOnLoss] = useState(0);
   const [onWinReset, setOnWinReset] = useState(false);
@@ -21,6 +22,11 @@ const Frame = () => {
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
+  const [mines, setMines] = useState(3);
+  const [gems, setGems] = useState(25 - mines);
+  const [betStarted, setBettingStarted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [totalProfit, setTotalProfit] = useState("0.000000");
 
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
@@ -34,6 +40,36 @@ const Frame = () => {
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
+  const [randomSelect, setRandomSelect] = useState(false);
+  const [gameCheckout, setGameCheckout] = useState(false);
+
+  const handleMineBet = () => {
+    if (!betStarted) {
+      setBettingStarted(true);
+    }
+  };
+
+  const handleCheckout = () => {
+    setGameCheckout(true);
+    setBettingStarted(false);
+  };
+
+  const handleRandomSelect = () => {
+    setRandomSelect(true);
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    const loadingTimeout = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(loadingTimeout);
+  }, [setLoading]);
+
+  useEffect(() => {
+    setGems(25 - mines);
+  }, [mines]);
 
   return (
     <>
@@ -51,21 +87,19 @@ const Frame = () => {
           <div className="flex flex-col gap-[0.15rem] relative">
             <div className="grid grid-cols-12 lg:min-h-[600px]">
               {/* Left Section */}
-              <LeftSection
-                profitWin
-                nbetsSection
+              <SideBar
                 theatreMode={theatreMode}
                 setTheatreMode={setTheatreMode}
                 setBet={setBet}
                 setBetMode={setBetMode}
+                profit={profit}
+                setProfit={setProfit}
                 setLoss={setLoss}
                 nbets={nbets}
                 setNBets={setNBets}
                 betMode={betMode}
                 bet={bet}
                 maxBetEnable={maxBetEnable}
-                profit={profit}
-                setProfit={setProfit}
                 loss={loss}
                 setOnLoss={setOnLoss}
                 setOnWin={setOnWin}
@@ -75,6 +109,15 @@ const Frame = () => {
                 onLossReset={onLossReset}
                 setOnLossReset={setOnLossReset}
                 setOnWinReset={setOnWinReset}
+                mines={mines}
+                setMines={setMines}
+                handleMineBet={handleMineBet}
+                bettingStarted={betStarted}
+                gems={gems}
+                setGems={setGems}
+                totalprofit={totalProfit}
+                handleCheckout={handleCheckout}
+                handleRandomSelect={handleRandomSelect}
               />
 
               {/* Right Section */}
@@ -83,11 +126,26 @@ const Frame = () => {
                   theatreMode
                     ? "md:col-span-8 md:order-2"
                     : "lg:col-span-8 lg:order-2"
-                } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[400px]`}
+                } xl:col-span-9 bg-gray-900 order-1`}
               >
                 <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
-                  <History list={history} />
-                  Game
+                  {loading ? (
+                    <>
+                      <h1 className="text-xl font-semibold">Loading...</h1>
+                    </>
+                  ) : (
+                    <Game
+                      mines={mines}
+                      randomSelect={randomSelect}
+                      setRandomSelect={setRandomSelect}
+                      setGems={setGems}
+                      betStarted={betStarted}
+                      setBetStarted={setBettingStarted}
+                      gameCheckout={gameCheckout}
+                      setGameCheckout={setGameCheckout}
+                      userEmail={user.email}
+                    />
+                  )}
                 </div>
               </div>
             </div>

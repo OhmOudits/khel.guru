@@ -1,19 +1,55 @@
 [[redirects]]
   from = "/game"
-  to = "/game"
+  to = "/index.html?redirect=game"
   status = 200
 
 [[redirects]]
   from = "/game/wheel"
-  to = "/game/wheel"
+  to = "/index.html?redirect=game/wheel"
   status = 200
 
 [[redirects]]
   from = "/game/diamond"
-  to = "/game/diamond"
+  to = "/index.html?redirect=game/diamond"
   status = 200
 
 [[redirects]]
   from = "/game/balloon"
-  to = "/game/balloon"
+  to = "/index.html?redirect=game/balloon"
   status = 200
+
+[[redirects]]
+  from = "/game/crash"
+  to = "/index.html?redirect=game/crash"
+  status = 200
+
+[[redirects]]
+  from = "/sports"
+  to = "/index.html?redirect=sports"
+  status = 200
+
+[[redirects]]
+  from = "/sports"
+  to = "/index.html?redirect=sports"
+  status = 200
+
+[[redirects]]
+  from = "/sports/cricket"
+  to = "/index.html?redirect=sports/cricket"
+  status = 200
+
+[[redirects]]
+  from = "/sports/cricket/bet"
+  to = "/index.html?redirect=sports/cricket/bet"
+  status = 200
+
+[[redirects]]
+  from = "/sports/football"
+  to = "/index.html?redirect=sports/football"
+  status = 200
+
+[[redirects]]
+  from = "/sports/football/bet"
+  to = "/index.html?redirect=sports/football/bet"
+  status = 200
+

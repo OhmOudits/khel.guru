@@ -1,17 +1,15 @@
-import { useEffect, useState } from "react";
-import "../../styles/Frame.css";
-import FairnessModal from "../Frame/FairnessModal";
-import FrameFooter from "../Frame/FrameFooter";
-import HotKeysModal from "../Frame/HotKeysModal";
-import GameInfoModal from "../Frame/GameInfoModal";
-import MaxBetModal from "../Frame/MaxBetModal";
-import SideBar from "./SideBar";
+import { useState } from "react";
+import "../../../styles/Frame.css";
+import FairnessModal from "../../Frame/FairnessModal";
+import FrameFooter from "../../Frame/FrameFooter";
+import HotKeysModal from "../../Frame/HotKeysModal";
+import GameInfoModal from "../../Frame/GameInfoModal";
+import MaxBetModal from "../../Frame/MaxBetModal";
 import Game from "./Game";
-import { useSelector } from "react-redux";
+import SideBar from "./Sidebar";
+import History from "../../Frame/History";
 
 const Frame = () => {
-  const user = useSelector((state) => state.auth.user.user)
-  console.log(user)
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [nbets, setNBets] = useState(0);
@@ -22,11 +20,6 @@ const Frame = () => {
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
-  const [mines, setMines] = useState(3);
-  const [gems, setGems] = useState(25 - mines);
-  const [betStarted, setBettingStarted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [totalProfit, setTotalProfit] = useState("0.000000");
 
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
@@ -40,36 +33,33 @@ const Frame = () => {
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
-  const [randomSelect, setRandomSelect] = useState(false);
-  const [gameCheckout, setGameCheckout] = useState(false);
 
-  const handleMineBet = () => {
-    if (!betStarted) {
+  const [bettingStarted, setBettingStarted] = useState(false);
+  // eslint-disable-next-line
+  const [checkout, setCheckout] = useState(false);
+  const [disableBet, setDisableBet] = useState(false);
+  const [value, setValue] = useState(1.0);
+
+  const handleBetClick = () => {
+    if (!disableBet) {
       setBettingStarted(true);
+      setCheckout(false);
     }
   };
 
   const handleCheckout = () => {
-    setGameCheckout(true);
+    setCheckout(true);
     setBettingStarted(false);
   };
 
-  const handleRandomSelect = () => {
-    setRandomSelect(true);
-  };
-
-  useEffect(() => {
-    setLoading(true);
-    const loadingTimeout = setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-
-    return () => clearTimeout(loadingTimeout);
-  }, [setLoading]);
-
-  useEffect(() => {
-    setGems(25 - mines);
-  }, [mines]);
+  const history = [
+    { id: 1, value: "1.64", color: "#f7b32b" },
+    { id: 2, value: "0.04", color: "#28a745" },
+    { id: 3, value: "1.24", color: "#f7b32b" },
+    { id: 4, value: "21.64", color: "#5b34eb" },
+    { id: 5, value: "2.94", color: "#f7b32b" },
+    { id: 6, value: "0.64", color: "#28a745" },
+  ];
 
   return (
     <>
@@ -109,15 +99,12 @@ const Frame = () => {
                 onLossReset={onLossReset}
                 setOnLossReset={setOnLossReset}
                 setOnWinReset={setOnWinReset}
-                mines={mines}
-                setMines={setMines}
-                handleMineBet={handleMineBet}
-                bettingStarted={betStarted}
-                gems={gems}
-                setGems={setGems}
-                totalprofit={totalProfit}
+                bettingStarted={bettingStarted}
+                setBettingStarted={setBettingStarted}
+                handleBetClick={handleBetClick}
                 handleCheckout={handleCheckout}
-                handleRandomSelect={handleRandomSelect}
+                value={value}
+                disableBet={disableBet}
               />
 
               {/* Right Section */}
@@ -129,23 +116,13 @@ const Frame = () => {
                 } xl:col-span-9 bg-gray-900 order-1`}
               >
                 <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
-                  {loading ? (
-                    <>
-                      <h1 className="text-xl font-semibold">Loading...</h1>
-                    </>
-                  ) : (
-                    <Game
-                      mines={mines}
-                      randomSelect={randomSelect}
-                      setRandomSelect={setRandomSelect}
-                      setGems={setGems}
-                      betStarted={betStarted}
-                      setBetStarted={setBettingStarted}
-                      gameCheckout={gameCheckout}
-                      setGameCheckout={setGameCheckout}
-                      userEmail={user.email}
-                    />
-                  )}
+                  <History list={history} />
+                  <Game
+                    multiplier={value}
+                    setMultiplier={setValue}
+                    setBettingStarted={setBettingStarted}
+                    setDisableBet={setDisableBet}
+                  />
                 </div>
               </div>
             </div>

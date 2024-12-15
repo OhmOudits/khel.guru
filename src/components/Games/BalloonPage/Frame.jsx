@@ -1,10 +1,10 @@
 import { useState } from "react";
-import "../../styles/Frame.css";
-import FairnessModal from "../Frame/FairnessModal";
-import FrameFooter from "../Frame/FrameFooter";
-import HotKeysModal from "../Frame/HotKeysModal";
-import GameInfoModal from "../Frame/GameInfoModal";
-import MaxBetModal from "../Frame/MaxBetModal";
+import "../../../styles/Frame.css";
+import FairnessModal from "../../Frame/FairnessModal";
+import FrameFooter from "../../Frame/FrameFooter";
+import HotKeysModal from "../../Frame/HotKeysModal";
+import GameInfoModal from "../../Frame/GameInfoModal";
+import MaxBetModal from "../../Frame/MaxBetModal";
 import Game from "./Game";
 import SideBar from "./Sidebar";
 

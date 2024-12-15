@@ -11,7 +11,7 @@ import {
   Legend,
 } from "chart.js";
 import "tailwindcss/tailwind.css";
-import "../../styles/Crash.css";
+import "../../../styles/Crash.css";
 
 ChartJS.register(
   CategoryScale,

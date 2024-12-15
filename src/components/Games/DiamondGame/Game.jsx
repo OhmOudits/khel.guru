@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { io } from "socket.io-client";
-import bomb from "../../assets/boom.png";
-import diamond from "../../assets/diamond.png";
+import bomb from "../../../assets/boom.png";
+import diamond from "../../../assets/diamond.png";
 
 const socket = io("http://localhost:3000"); // Replace with your backend URL
 
@@ -161,7 +161,11 @@ const Game = ({
                     animate={{ opacity: 1, scale: 1 }}
                   />
                 ) : box.type === "bomb" ? (
-                  <img src={bomb} alt="Bomb" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" />
+                  <img
+                    src={bomb}
+                    alt="Bomb"
+                    className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
+                  />
                 ) : (
                   ""
                 )}

@@ -1,13 +1,15 @@
 import { useState } from "react";
-import "../../styles/Frame.css";
-import FairnessModal from "../Frame/FairnessModal";
-import FrameFooter from "../Frame/FrameFooter";
-import HotKeysModal from "../Frame/HotKeysModal";
-import GameInfoModal from "../Frame/GameInfoModal";
-import MaxBetModal from "../Frame/MaxBetModal";
+import "../../../styles/Frame.css";
+import "../../../styles/Wheel.css";
+import FairnessModal from "../../Frame/FairnessModal";
+import FrameFooter from "../../Frame/FrameFooter";
+import HotKeysModal from "../../Frame/HotKeysModal";
+import GameInfoModal from "../../Frame/GameInfoModal";
+import MaxBetModal from "../../Frame/MaxBetModal";
+import LeftSection from "../../Frame/LeftSection";
+import History from "../../Frame/History";
+import Chances from "./Chances";
 import Game from "./Game";
-import SideBar from "./Sidebar";
-import History from "../Frame/History";
 
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
@@ -20,6 +22,8 @@ const Frame = () => {
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
+  const [risk, setRisk] = useState("Medium");
+  const [segment, setSegment] = useState(30);
 
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
@@ -33,24 +37,6 @@ const Frame = () => {
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
-
-  const [bettingStarted, setBettingStarted] = useState(false);
-  // eslint-disable-next-line
-  const [checkout, setCheckout] = useState(false);
-  const [disableBet, setDisableBet] = useState(false);
-  const [value, setValue] = useState(1.0);
-
-  const handleBetClick = () => {
-    if (!disableBet) {
-      setBettingStarted(true);
-      setCheckout(false);
-    }
-  };
-
-  const handleCheckout = () => {
-    setCheckout(true);
-    setBettingStarted(false);
-  };
 
   const history = [
     { id: 1, value: "1.64", color: "#f7b32b" },
@@ -77,7 +63,7 @@ const Frame = () => {
           <div className="flex flex-col gap-[0.15rem] relative">
             <div className="grid grid-cols-12 lg:min-h-[600px]">
               {/* Left Section */}
-              <SideBar
+              <LeftSection
                 theatreMode={theatreMode}
                 setTheatreMode={setTheatreMode}
                 setBet={setBet}
@@ -99,12 +85,12 @@ const Frame = () => {
                 onLossReset={onLossReset}
                 setOnLossReset={setOnLossReset}
                 setOnWinReset={setOnWinReset}
-                bettingStarted={bettingStarted}
-                setBettingStarted={setBettingStarted}
-                handleBetClick={handleBetClick}
-                handleCheckout={handleCheckout}
-                value={value}
-                disableBet={disableBet}
+                riskSection
+                segmentSection
+                risk={risk}
+                setRisk={setRisk}
+                segment={segment}
+                setSegment={setSegment}
               />
 
               {/* Right Section */}
@@ -113,16 +99,12 @@ const Frame = () => {
                   theatreMode
                     ? "md:col-span-8 md:order-2"
                     : "lg:col-span-8 lg:order-2"
-                } xl:col-span-9 bg-gray-900 order-1`}
+                } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[470px]`}
               >
                 <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
                   <History list={history} />
-                  <Game
-                    multiplier={value}
-                    setMultiplier={setValue}
-                    setBettingStarted={setBettingStarted}
-                    setDisableBet={setDisableBet}
-                  />
+                  <Game risk={risk} segment={segment} />
+                  <Chances risk={risk} segment={segment} />
                 </div>
               </div>
             </div>

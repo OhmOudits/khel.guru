@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import clouds from "../../assets/Balloon/clouds.png";
+import clouds from "../../../assets/Balloon/clouds.png";
 // import mountain from "../../assets/Balloon/mountain.png";
-import balloon from "../../assets/Balloon/balloon.png";
-import "../../styles/Balloon.css";
+import balloon from "../../../assets/Balloon/balloon.png";
+import "../../../styles/Balloon.css";
 import Background from "./Background";
 
 const Game = ({

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./App.css";
 import Footer from "./components/Footer/Footer";
 import Header from "./components/Header/Header";
@@ -9,34 +9,51 @@ import Login from "./components/Login/Login";
 import Register from "./components/Login/Register";
 import { Routes, Route } from "react-router-dom";
 import Frame from "./components/Frame/Frame";
-import WheelPage from "./components/WheelGame/WheelPage";
-import DiamondPage from "./components/DiamondGame/Diamond";
-import BalloonPage from "./components/BalloonPage/Balloon";
-import CrashPage from "./components/CrashGame/Crash";
+import WheelPage from "./components/Games/WheelGame/WheelPage";
+import DiamondPage from "./components/Games/DiamondGame/Diamond";
+import BalloonPage from "./components/Games/BalloonPage/Balloon";
+import CrashPage from "./components/Games/CrashGame/Crash";
+import PlinkoPage from "./components/Games/PlinkoGame/Plinko";
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { SportsBet, Sports, SportsCricket, SportsFootball } from "./pages";
+import Wallet from "./components/tabs/Wallet";
+import Search from "./components/tabs/Search";
 const socket = io("http://localhost:3000");
 
 function App() {
   const user = useSelector((state) => state.auth?.user?.user);
   const [sideOpen, setSideOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [showWallet, setShowWallet] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [loading, setLoading] = useState(true);
   // eslint-disable-next-line
   const [loggedInUsers, setLoggedInUsers] = useState([]);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setShowLogin(params.get("tab") === "login");
     setShowRegister(params.get("tab") === "register");
+    setShowWallet(params.get("tab") === "wallet");
+    setShowSearch(params.get("tab") === "search");
 
     setTimeout(() => {
       setLoading(false);
     }, 1000);
   }, [location]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const redirectPage = params.get("redirect");
+
+    if (redirectPage) {
+      navigate(`/${redirectPage}`);
+    }
+  }, [location, navigate]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -81,6 +98,8 @@ function App() {
         <>
           {showLogin && <Login />}
           {showRegister && <Register />}
+          {showWallet && <Wallet />}
+          {showSearch && <Search />}
 
           <div className="w-full flex min-h-screen bg-primary">
             <Sidebar setSideOpen={setSideOpen} sideOpen={sideOpen} />
@@ -90,7 +109,7 @@ function App() {
                 sideOpen ? "lg:pl-[220px]" : "lg:pl-[60px]"
               } z-[12] fixed max-lg:left-0 right-0 px-6 max-md:px-2 py-1 w-full flex items-center justify-center`}
             >
-              <div className="w-full max-w-[1200px] relative flex items-center justify-between">
+              <div className="w-full text-white max-w-[1200px] relative flex items-center justify-between">
                 <Header />
                 <div
                   className={`absolute max-lg:hidden ${
@@ -119,6 +138,7 @@ function App() {
                 <Route path="/game/diamond" element={<DiamondPage />} />
                 <Route path="/game/balloon" element={<BalloonPage />} />
                 <Route path="/game/crash" element={<CrashPage />} />
+                <Route path="/game/plinko" element={<PlinkoPage />} />
                 <Route path="*" element={<LandingPage />} />
               </Routes>
             </div>

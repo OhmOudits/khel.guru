@@ -637,3 +637,18 @@ export const segments = [
     ],
   },
 ];
+
+export const history = [
+  { id: 1, color: "#FF5733", value: "1.2x" },
+  { id: 2, color: "#33FF57", value: "2.0x" },
+  { id: 3, color: "#3357FF", value: "1.5x" },
+  { id: 4, color: "#FF33A1", value: "0.8x" },
+  { id: 5, color: "#FF8333", value: "1.7x" },
+  { id: 6, color: "#57FF33", value: "2.2x" },
+  { id: 7, color: "#33FF83", value: "1.0x" },
+  { id: 8, color: "#8333FF", value: "0.9x" },
+  { id: 9, color: "#FF3383", value: "1.3x" },
+  { id: 10, color: "#33A1FF", value: "1.8x" },
+  { id: 11, color: "#A1FF33", value: "2.5x" },
+  { id: 12, color: "#5733FF", value: "1.1x" },
+];
