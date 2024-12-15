@@ -14,6 +14,7 @@ import DiamondPage from "./components/Games/DiamondGame/Diamond";
 import BalloonPage from "./components/Games/BalloonPage/Balloon";
 import CrashPage from "./components/Games/CrashGame/Crash";
 import PlinkoPage from "./components/Games/PlinkoGame/Plinko";
+import LimboPage from './components/Games/Limbo/Limbo'
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { SportsBet, Sports, SportsCricket, SportsFootball } from "./pages";
@@ -139,6 +140,7 @@ function App() {
                 <Route path="/game/balloon" element={<BalloonPage />} />
                 <Route path="/game/crash" element={<CrashPage />} />
                 <Route path="/game/plinko" element={<PlinkoPage />} />
+                <Route path="/game/limbo" element={<LimboPage />} />
                 <Route path="*" element={<LandingPage />} />
               </Routes>
             </div>
