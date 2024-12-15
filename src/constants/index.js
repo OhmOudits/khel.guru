@@ -44,7 +44,7 @@ export const originals = [
     img: "/games/img2.png",
     exclusive: false,
     new: false,
-    link: "/game",
+    link: "/game/plinko",
   },
   {
     id: 6,
