@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
 import "../../../styles/Frame.css";
 import "../../../styles/Wheel.css";
-import FairnessModal from "./Frame/FairnessModal";
-import FrameFooter from "./Frame/FrameFooter";
-import HotKeysModal from "./Frame/HotKeysModal";
-import GameInfoModal from "./Frame/GameInfoModal";
-import MaxBetModal from "./Frame/MaxBetModal";
-import LeftSection from "./Frame/LeftSection";
-import Chances from "./Chances";
-import GameComponent from "./DiceGame";
-import History from "./Frame/History";
+import FairnessModal from "../../Frame/FairnessModal";
+import FrameFooter from "../../Frame/FrameFooter";
+import HotKeysModal from "../../Frame/HotKeysModal";
+import GameInfoModal from "../../Frame/GameInfoModal";
+import MaxBetModal from "../../Frame/MaxBetModal";
+import LeftSection from "../../Frame/LeftSection";
+import GameComponent from "./Game";
+import History from "../../Frame/History";
 import BetCalculator from "./Chances";
 
 const DiceFrame = () => {
@@ -99,7 +98,7 @@ const DiceFrame = () => {
                   theatreMode
                     ? "md:col-span-8 md:order-2"
                     : "lg:col-span-8 lg:order-2"
-                } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[470px]`}
+                } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[450px]`}
               >
                 <div className="w-full px-10 relative text-white h-full  items-center justify-center text-3xl">
                   <History list={history} />

@@ -83,7 +83,7 @@ const Game = ({Start , setStart , rollover , setRollover}) => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center h-[70vh] bg-gray-900 text-white">
+    <div className="flex flex-col items-center justify-center h-[48vh] bg-gray-900 text-white">
 
       {/* Numbers at the Top */}
       <div className="relative w-full max-w-2xl flex justify-between px-2 text-sm mb-1">

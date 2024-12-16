@@ -61,8 +61,8 @@ const BetCalculator = ({ setEstProfit, bet, setMultiplier }) => {
             onBlur={handleBlur} 
             onFocus={handleFocus}
             style={{
-              fontSize: "clamp(1.2rem, 1.8vw, 1.6rem)", 
-              lineHeight: "clamp(2rem, 2vw, 1.5rem)", 
+              fontSize: "clamp(1.4rem, 1.5vw, 1.5rem)", 
+              lineHeight: "clamp(2rem, 1.5vw, 1.5rem)", 
               padding: "clamp(0.4rem, 0.8vw, 0.3rem)",
             }}
             className="w-full px-3 text-left text-white bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 no-spin-on-hover"
@@ -80,7 +80,7 @@ const BetCalculator = ({ setEstProfit, bet, setMultiplier }) => {
             value={winChance}
             readOnly
             style={{
-              fontSize: "clamp(1.2rem, 1.8vw, 1.6rem)", 
+              fontSize: "clamp(1.4rem, 1.5vw, 1.5rem)", 
               lineHeight: "clamp(2rem, 2vw, 1.5rem)", 
               padding: "clamp(0.4rem, 0.8vw, 0.3rem)",
             }}
