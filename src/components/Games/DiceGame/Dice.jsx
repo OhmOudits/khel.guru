@@ -1,4 +1,4 @@
-import DiceFrame from "./DiceFrame";
+import DiceFrame from "./Frame";
 
 const DicePage = () => {
   return (

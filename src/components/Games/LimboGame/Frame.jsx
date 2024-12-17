@@ -1,18 +1,22 @@
-import { useState } from "react";
-import "src/styles/Frame.css";
-import FairnessModal from "./FairnessModal";
-import FrameFooter from "./FrameFooter";
-import HotKeysModal from "./HotKeysModal";
-import GameInfoModal from "./GameInfoModal";
-import MaxBetModal from "./MaxBetModal";
-import LeftSection from "./LeftSection";
-import History from "./History";
-
+import { useEffect, useState } from "react";
+import "../../../styles/Frame.css";
+import "../../../styles/Wheel.css";
+import FairnessModal from "../../Frame/FairnessModal";
+import FrameFooter from "../../Frame/FrameFooter";
+import HotKeysModal from "../../Frame/HotKeysModal";
+import GameInfoModal from "../../Frame/GameInfoModal";
+import MaxBetModal from "../../Frame/MaxBetModal";
+import LeftSection from "../../Frame/LeftSection";
+import Chances from "./Chances";
+import GameComponent from "./Game";
+import History from "../../Frame/History";
+import BetCalculator from "./Chances";
 
 const Frame = () => {
+  // main states 
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
-  const [nbets, setNBets] = useState("");
+  const [nbets, setNBets] = useState(0);
   const [onWin, setOnWin] = useState(0);
   const [onLoss, setOnLoss] = useState(0);
   const [onWinReset, setOnWinReset] = useState(false);
@@ -20,12 +24,15 @@ const Frame = () => {
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
-
+  const [start , setstart ] = useState(false) // when game starts it will be true - karthik 
+  const [Multipler  , setMultipler] = useState(2.00)
+  const [EstProfit , setEstProfit] = useState("0.000000")
+  // options 
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
   const [maxBetEnable, setMaxBetEnable] = useState(false);
   const [theatreMode, setTheatreMode] = useState(false);
-
+  // left back side 
   const [volume, setVolume] = useState(50);
   const [instantBet, setInstantBet] = useState(false);
   const [animations, setAnimations] = useState(true);
@@ -33,7 +40,28 @@ const Frame = () => {
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
+  
+  // history will be temporatrly stored in memory here 
+  const history=[
+    { value :11.1 , target :2 ,  chance:true , color:"#1FFF20" , } , 
+    { value :1.1 , target :2 ,  chance:false , color:"#1FFF20" , } , 
 
+  ]
+
+    console.log("isFav:", isFav);
+    console.log("betMode:", betMode);
+    console.log("nbets:", nbets);
+    console.log("onWin:", onWin);
+    console.log("onLoss:", onLoss);
+    console.log("onWinReset:", onWinReset);
+    console.log("onLossReset:", onLossReset);
+    console.log("bet:", bet);
+    console.log("loss:", loss);
+    console.log("profit:", profit);
+    console.log("start:", start);
+
+
+  
   return (
     <>
       <div
@@ -51,29 +79,31 @@ const Frame = () => {
             <div className="grid grid-cols-12 lg:min-h-[600px]">
               {/* Left Section */}
               <LeftSection
-                profitWin
-                nbetsSection
                 theatreMode={theatreMode}
                 setTheatreMode={setTheatreMode}
                 setBet={setBet}
                 setBetMode={setBetMode}
+                profit={profit}
+                setProfit={setProfit}
                 setLoss={setLoss}
                 nbets={nbets}
                 setNBets={setNBets}
                 betMode={betMode}
                 bet={bet}
                 maxBetEnable={maxBetEnable}
-                profit={profit}
-                setProfit={setProfit}
                 loss={loss}
                 setOnLoss={setOnLoss}
                 setOnWin={setOnWin}
                 onLoss={onLoss}
                 onWin={onWin}
+                EstProfit={EstProfit}
                 onWinReset={onWinReset}
                 onLossReset={onLossReset}
                 setOnLossReset={setOnLossReset}
                 setOnWinReset={setOnWinReset}
+                setStart={setstart} 
+                start={start}             
+              
               />
 
               {/* Right Section */}
@@ -82,11 +112,15 @@ const Frame = () => {
                   theatreMode
                     ? "md:col-span-8 md:order-2"
                     : "lg:col-span-8 lg:order-2"
-                } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[400px]`}
+                } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[470px]`}
               >
-                <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
+                <div className="w-full px-10 relative text-white h-full  items-center justify-center text-3xl">
                   <History list={history} />
-                  Game
+                  <GameComponent Start={start}  Multipler={Multipler}  setStart={setstart} />
+                  <div className="mb-5">
+
+                  <BetCalculator bet={bet} setMultiplier={setMultipler} setEstProfit={setEstProfit}/>
+                  </div>
                 </div>
               </div>
             </div>
