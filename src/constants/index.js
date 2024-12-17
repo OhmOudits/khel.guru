@@ -11,6 +11,15 @@ export const originals = [
     link: "/game/wheel",
   },
   {
+    id: 1,
+    name: "Limbo",
+    creator: "Roobet",
+    img: "/games/limbo.jpeg",
+    exclusive: true,
+    new: true,
+    link: "/game/limbo",
+  },
+  {
     id: 2,
     name: "Crash",
     creator: "Roobet",

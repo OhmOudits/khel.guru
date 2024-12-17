@@ -14,12 +14,14 @@ import DiamondPage from "./components/Games/DiamondGame/Diamond";
 import BalloonPage from "./components/Games/BalloonPage/Balloon";
 import CrashPage from "./components/Games/CrashGame/Crash";
 import PlinkoPage from "./components/Games/PlinkoGame/Plinko";
+import LimboPage from "./components/Games/Limbo/Limbo";
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { SportsBet, Sports, SportsCricket, SportsFootball } from "./pages";
 import Wallet from "./components/tabs/Wallet";
 import Search from "./components/tabs/Search";
 import WalletSettings from "./components/tabs/WalletSettings";
+import DicePage from "./components/Games/dice/Dice";
 const socket = io("http://localhost:3000");
 
 function App() {
@@ -143,6 +145,8 @@ function App() {
                 <Route path="/game/balloon" element={<BalloonPage />} />
                 <Route path="/game/crash" element={<CrashPage />} />
                 <Route path="/game/plinko" element={<PlinkoPage />} />
+                <Route path="/game/limbo" element={<LimboPage />} />
+                <Route path="/game/dice" element={<DicePage />} />
                 <Route path="*" element={<LandingPage />} />
               </Routes>
             </div>

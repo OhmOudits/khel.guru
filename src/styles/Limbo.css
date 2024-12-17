@@ -1,0 +1,11 @@
+.no-spin-on-hover {
+    -moz-appearance: textfield;
+  }
+  
+  .no-spin-on-hover::-webkit-inner-spin-button {
+    display: none;
+  }
+  
+  .no-spin-on-hover:hover::-webkit-inner-spin-button {
+    display: none;
+  }

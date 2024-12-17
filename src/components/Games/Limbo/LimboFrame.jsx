@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
 import "../../../styles/Frame.css";
-import FairnessModal from "../../Frame/FairnessModal";
-import FrameFooter from "../../Frame/FrameFooter";
-import HotKeysModal from "../../Frame/HotKeysModal";
-import GameInfoModal from "../../Frame/GameInfoModal";
-import MaxBetModal from "../../Frame/MaxBetModal";
-import SideBar from "./SideBar";
-import Game from "./Game";
-import { useSelector } from "react-redux";
+import "../../../styles/Wheel.css";
+import FairnessModal from "./Frame/FairnessModal";
+import FrameFooter from "./Frame/FrameFooter";
+import HotKeysModal from "./Frame/HotKeysModal";
+import GameInfoModal from "./Frame/GameInfoModal";
+import MaxBetModal from "./Frame/MaxBetModal";
+import LeftSection from "./Frame/LeftSection";
+import Chances from "./Chances";
+import GameComponent from "./Game";
+import History from "./Frame/History";
+import BetCalculator from "./Chances";
 
 const Frame = () => {
-  const user = useSelector((state) => state.auth.user.user);
+  // main states 
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [nbets, setNBets] = useState(0);
@@ -21,17 +24,15 @@ const Frame = () => {
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
-  const [mines, setMines] = useState(3);
-  const [gems, setGems] = useState(25 - mines);
-  const [betStarted, setBettingStarted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [totalProfit, setTotalProfit] = useState("0.000000");
-
+  const [start , setstart ] = useState(false) // when game starts it will be true - karthik 
+  const [Multipler  , setMultipler] = useState(2.00)
+  const [EstProfit , setEstProfit] = useState("0.000000")
+  // options 
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
   const [maxBetEnable, setMaxBetEnable] = useState(false);
   const [theatreMode, setTheatreMode] = useState(false);
-
+  // left back side 
   const [volume, setVolume] = useState(50);
   const [instantBet, setInstantBet] = useState(false);
   const [animations, setAnimations] = useState(true);
@@ -39,37 +40,28 @@ const Frame = () => {
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
-  const [randomSelect, setRandomSelect] = useState(false);
-  const [gameCheckout, setGameCheckout] = useState(false);
+  
+  // history will be temporatrly stored in memory here 
+  const history=[
+    { value :11.1 , target :2 ,  chance:true , color:"#1FFF20" , } , 
+    { value :1.1 , target :2 ,  chance:false , color:"#1FFF20" , } , 
 
-  const handleMineBet = () => {
-    if (!betStarted) {
-      setBettingStarted(true);
-    }
-  };
+  ]
 
-  const handleCheckout = () => {
-    setGameCheckout(true);
-    setBettingStarted(false);
-  };
+    console.log("isFav:", isFav);
+    console.log("betMode:", betMode);
+    console.log("nbets:", nbets);
+    console.log("onWin:", onWin);
+    console.log("onLoss:", onLoss);
+    console.log("onWinReset:", onWinReset);
+    console.log("onLossReset:", onLossReset);
+    console.log("bet:", bet);
+    console.log("loss:", loss);
+    console.log("profit:", profit);
+    console.log("start:", start);
 
-  const handleRandomSelect = () => {
-    setRandomSelect(true);
-  };
 
-  useEffect(() => {
-    setLoading(true);
-    const loadingTimeout = setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-
-    return () => clearTimeout(loadingTimeout);
-  }, [setLoading]);
-
-  useEffect(() => {
-    setGems(25 - mines);
-  }, [mines]);
-
+  
   return (
     <>
       <div
@@ -86,7 +78,7 @@ const Frame = () => {
           <div className="flex flex-col gap-[0.15rem] relative">
             <div className="grid grid-cols-12 lg:min-h-[600px]">
               {/* Left Section */}
-              <SideBar
+              <LeftSection
                 theatreMode={theatreMode}
                 setTheatreMode={setTheatreMode}
                 setBet={setBet}
@@ -104,19 +96,14 @@ const Frame = () => {
                 setOnWin={setOnWin}
                 onLoss={onLoss}
                 onWin={onWin}
+                EstProfit={EstProfit}
                 onWinReset={onWinReset}
                 onLossReset={onLossReset}
                 setOnLossReset={setOnLossReset}
                 setOnWinReset={setOnWinReset}
-                mines={mines}
-                setMines={setMines}
-                handleMineBet={handleMineBet}
-                bettingStarted={betStarted}
-                gems={gems}
-                setGems={setGems}
-                totalprofit={totalProfit}
-                handleCheckout={handleCheckout}
-                handleRandomSelect={handleRandomSelect}
+                setStart={setstart} 
+                start={start}             
+              
               />
 
               {/* Right Section */}
@@ -125,26 +112,15 @@ const Frame = () => {
                   theatreMode
                     ? "md:col-span-8 md:order-2"
                     : "lg:col-span-8 lg:order-2"
-                } xl:col-span-9 bg-gray-900 order-1`}
+                } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[470px]`}
               >
-                <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
-                  {loading ? (
-                    <>
-                      <h1 className="text-xl font-semibold">Loading...</h1>
-                    </>
-                  ) : (
-                    <Game
-                      mines={mines}
-                      randomSelect={randomSelect}
-                      setRandomSelect={setRandomSelect}
-                      setGems={setGems}
-                      betStarted={betStarted}
-                      setBetStarted={setBettingStarted}
-                      gameCheckout={gameCheckout}
-                      setGameCheckout={setGameCheckout}
-                      userEmail={user.email}
-                    />
-                  )}
+                <div className="w-full px-10 relative text-white h-full  items-center justify-center text-3xl">
+                  <History list={history} />
+                  <GameComponent Start={start}  Multipler={Multipler}  setStart={setstart} />
+                  <div className="mb-5">
+
+                  <BetCalculator bet={bet} setMultiplier={setMultipler} setEstProfit={setEstProfit}/>
+                  </div>
                 </div>
               </div>
             </div>
