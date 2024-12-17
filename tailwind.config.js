@@ -9,6 +9,7 @@ export default {
         "primary-3": "rgb(9, 12, 29)",
         "primary-4": "rgb(9, 12, 29)",
         "button-primary": "#00e701",
+        dropdown: "#3D2C58",
         input: "#2C2852",
         label: "#b1bad3",
         primary: "rgb(25, 25, 57)",

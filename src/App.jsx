@@ -19,6 +19,7 @@ import { io } from "socket.io-client";
 import { SportsBet, Sports, SportsCricket, SportsFootball } from "./pages";
 import Wallet from "./components/tabs/Wallet";
 import Search from "./components/tabs/Search";
+import WalletSettings from "./components/tabs/WalletSettings";
 const socket = io("http://localhost:3000");
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
   const [showWallet, setShowWallet] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+  const [showWalletSettings, setShowWalletSettings] = useState(false);
   const [loading, setLoading] = useState(true);
   // eslint-disable-next-line
   const [loggedInUsers, setLoggedInUsers] = useState([]);
@@ -40,6 +42,7 @@ function App() {
     setShowRegister(params.get("tab") === "register");
     setShowWallet(params.get("tab") === "wallet");
     setShowSearch(params.get("tab") === "search");
+    setShowWalletSettings(params.get("tab") === "walletSettings");
 
     setTimeout(() => {
       setLoading(false);
@@ -100,6 +103,7 @@ function App() {
           {showRegister && <Register />}
           {showWallet && <Wallet />}
           {showSearch && <Search />}
+          {showWalletSettings && <WalletSettings />}
 
           <div className="w-full flex min-h-screen bg-primary">
             <Sidebar setSideOpen={setSideOpen} sideOpen={sideOpen} />

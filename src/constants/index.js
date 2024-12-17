@@ -652,3 +652,22 @@ export const history = [
   { id: 11, color: "#A1FF33", value: "2.5x" },
   { id: 12, color: "#5733FF", value: "1.1x" },
 ];
+
+export const currencies = [
+  { id: 1, value: "0.00000000", name: "BTC" },
+  { id: 2, value: "0.00000000", name: "ETH" },
+  { id: 3, value: "0.00000000", name: "LTC" },
+  { id: 4, value: "0.00000000", name: "UDST" },
+  { id: 5, value: "0.00000000", name: "SOL" },
+  { id: 6, value: "0.00000000", name: "DOGE" },
+  { id: 7, value: "0.00000000", name: "BCH" },
+  { id: 8, value: "0.00000000", name: "XRP" },
+  { id: 9, value: "0.00000000", name: "BTC" },
+  { id: 10, value: "0.00000000", name: "ETH" },
+  { id: 11, value: "0.00000000", name: "LTC" },
+  { id: 12, value: "0.00000000", name: "UDST" },
+  { id: 13, value: "0.00000000", name: "SOL" },
+  { id: 14, value: "0.00000000", name: "DOGE" },
+  { id: 15, value: "0.00000000", name: "BCH" },
+  { id: 16, value: "0.00000000", name: "XRP" },
+];
