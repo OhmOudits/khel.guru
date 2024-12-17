@@ -14,13 +14,12 @@ import DiamondPage from "./components/Games/DiamondGame/Diamond";
 import BalloonPage from "./components/Games/BalloonPage/Balloon";
 import CrashPage from "./components/Games/CrashGame/Crash";
 import PlinkoPage from "./components/Games/PlinkoGame/Plinko";
-import LimboPage from "./components/Games/Limbo/Limbo";
+import LimboPage from "./components/Games/LimboGame/Limbo";
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { SportsBet, Sports, SportsCricket, SportsFootball } from "./pages";
 import Wallet from "./components/tabs/Wallet";
 import Search from "./components/tabs/Search";
-import WalletSettings from "./components/tabs/WalletSettings";
 import DicePage from "./components/Games/dice/Dice";
 const socket = io("http://localhost:3000");
 

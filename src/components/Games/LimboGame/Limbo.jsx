@@ -1,4 +1,4 @@
-import Frame from "./LimboFrame";
+import Frame from "./Frame";
 
 const LimboPage = () => {
   return (
