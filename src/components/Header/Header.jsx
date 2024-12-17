@@ -37,7 +37,7 @@ const Header = () => {
   const [sortedCurrencies, setSortedCurrencies] = useState(currencies);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfDropDownOpen, setIsProfDropDownOpen] = useState(false);
-  const [isNotifications, setIsNotifications] = useState(true);
+  const [isNotifications, setIsNotifications] = useState(false);
 
   const handleTabNavigation = (tab) => {
     navigate(`?tab=${tab}`, { replace: true });
