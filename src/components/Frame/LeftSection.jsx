@@ -313,7 +313,7 @@ const LeftSection = ({
 
               {/* Risk Section */}
               {riskSection && (
-                <div className="order-10 md:order-2 mb-2 mt-1 w-full">
+                <div className="order-10 md:order-2 mb-2 mt-3 w-full">
                   <label
                     htmlFor="risk"
                     className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"

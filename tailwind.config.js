@@ -11,7 +11,7 @@ export default {
         "button-primary": "#00e701",
         dropdown: "#3D2C58",
         input: "#2C2852",
-        label: "#b1bad3",
+        label: "#64748b",
         primary: "rgb(25, 25, 57)",
         secondry: "rgb(9, 12, 29)",
         ter: "#2c2852",
