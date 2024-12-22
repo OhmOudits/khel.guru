@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from "react";
 import "../../../styles/Limbo.css";
 
-const BetCalculator = ({ setEstProfit, bet, setMultiplier }) => {
-  const [targetMultiplier, setTargetMultiplier] = useState(2.0);
-  const [winChance, setWinChance] = useState(49.500);
+const BetCalculator = ({
+  setEstProfit,
+  bet,
+  setMultiplier,
+  targetMultiplier,
+  setDefaultColor,
+  bettingStarted,
+  setTargetMultiplier,
+}) => {
+  const [winChance, setWinChance] = useState(98.9999);
 
   useEffect(() => {
     const newWinChance = calculateWinChance(targetMultiplier || 1.01);
@@ -18,14 +25,22 @@ const BetCalculator = ({ setEstProfit, bet, setMultiplier }) => {
 
   const handleMultiplierChange = (e) => {
     const value = e.target.value;
-    if (value === "" || (parseFloat(value) >= 1 && parseFloat(value) <= 100000)) {
-      setTargetMultiplier(value); 
+    setDefaultColor(true);
+    if (
+      value === "" ||
+      (parseFloat(value) >= 1 && parseFloat(value) <= 100000)
+    ) {
+      setTargetMultiplier(value);
       setMultiplier(value || 0);
     }
   };
 
   const handleBlur = () => {
-    if (targetMultiplier === "" || targetMultiplier == 1 || targetMultiplier === null) {
+    if (
+      targetMultiplier === "" ||
+      targetMultiplier == 1 ||
+      targetMultiplier === null
+    ) {
       setTargetMultiplier(1.01);
       setMultiplier(1.01);
     }
@@ -33,7 +48,7 @@ const BetCalculator = ({ setEstProfit, bet, setMultiplier }) => {
 
   const handleFocus = () => {
     if (targetMultiplier === 1.01) {
-      setTargetMultiplier(""); 
+      setTargetMultiplier("");
     }
   };
 
@@ -56,18 +71,21 @@ const BetCalculator = ({ setEstProfit, bet, setMultiplier }) => {
             step="0.01"
             max="100000"
             min="1.01"
+            disabled={bettingStarted}
             value={targetMultiplier}
             onChange={handleMultiplierChange}
-            onBlur={handleBlur} 
+            onBlur={handleBlur}
             onFocus={handleFocus}
             style={{
-              fontSize: "clamp(1.4rem, 1.5vw, 1.5rem)", 
-              lineHeight: "clamp(2rem, 1.5vw, 1.5rem)", 
+              fontSize: "clamp(1.4rem, 1.5vw, 1.5rem)",
+              lineHeight: "clamp(2rem, 1.5vw, 1.5rem)",
               padding: "clamp(0.4rem, 0.8vw, 0.3rem)",
             }}
             className="w-full px-3 text-left text-white bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 no-spin-on-hover"
           />
-          <span className="absolute right-3 top-[50%] transform -translate-y-1/2 text-gray-400">x</span>
+          <span className="absolute right-3 top-[50%] transform -translate-y-1/2 text-gray-400">
+            x
+          </span>
         </div>
       </div>
 
@@ -78,15 +96,18 @@ const BetCalculator = ({ setEstProfit, bet, setMultiplier }) => {
           <input
             type="text"
             value={winChance}
+            disabled={bettingStarted}
             readOnly
             style={{
-              fontSize: "clamp(1.4rem, 1.5vw, 1.5rem)", 
-              lineHeight: "clamp(2rem, 2vw, 1.5rem)", 
+              fontSize: "clamp(1.4rem, 1.5vw, 1.5rem)",
+              lineHeight: "clamp(2rem, 2vw, 1.5rem)",
               padding: "clamp(0.4rem, 0.8vw, 0.3rem)",
             }}
             className="w-full px-3 text-left text-white bg-gray-700 border border-gray-600 rounded focus:outline-none"
           />
-          <span className="absolute right-3 top-[50%] transform -translate-y-1/2 text-gray-400">%</span>
+          <span className="absolute right-3 top-[50%] transform -translate-y-1/2 text-gray-400">
+            %
+          </span>
         </div>
       </div>
     </div>

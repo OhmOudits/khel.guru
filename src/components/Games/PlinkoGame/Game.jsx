@@ -1,81 +1,54 @@
-import { useEffect, useState } from "react";
-import { segments } from "../../../constants";
+import React, { useEffect, useRef, useState } from "react";
+import { CircleNotch } from "phosphor-react";
+import BinsRow from "./BinsRow";
+import { binColorsByRowCount } from "./constant";
 
-// eslint-disable-next-line
-const Game = ({ risk, segment }) => {
-  const [riskSegment, setRiskSegment] = useState(null);
-  const [selectedSegmentData, setSelectedSegmentData] = useState(null);
-  const [segmentColors, setSegmentColors] = useState([]);
+const Game = ({ bet, rows, risk, engine, width, height, canvasRef }) => {
+  const [binColors, setBinColors] = useState(binColorsByRowCount(rows)); // State for bin colors based on rows
 
+  // Update bin colors when row count changes
   useEffect(() => {
-    const foundSegment = segments.find((s) => s.risk === risk);
-    setRiskSegment(foundSegment);
-  }, [risk]);
-
-  useEffect(() => {
-    if (riskSegment) {
-      const foundSegmentData = riskSegment.segment.find(
-        (s) => s.segments == segment
-      );
-      setSelectedSegmentData(foundSegmentData);
-    }
-  }, [riskSegment, segment]);
-
-  useEffect(() => {
-    if (selectedSegmentData) {
-      const colors = [];
-      selectedSegmentData.sections.forEach((section) => {
-        colors.push(...Array(section.terms).fill(section.color));
-      });
-
-      // Shuffle colors
-      for (let i = colors.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [colors[i], colors[j]] = [colors[j], colors[i]];
-      }
-
-      setSegmentColors(colors);
-    }
-  }, [selectedSegmentData]);
-
-  const [angle, setAngle] = useState(0);
-
-  useEffect(() => {
-    const totalSegments = segmentColors.length;
-    setAngle(360 / totalSegments);
-  }, [segmentColors]);
+    setBinColors(binColorsByRowCount(rows));
+  }, [rows]);
 
   return (
-    <div className="flex justify-center items-center relative">
-      {/* Indicator at the top */}
+    <div className="relative w-full h-full bg-gray-900">
       <div
-        className="absolute top-[-3.5%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-red-500 z-[10]"
-        style={{
-          clipPath: "polygon(25% 0, 75% 0, 50% 100%, 50% 100%)",
-        }}
-      ></div>
-
-      {/* Outer Circle */}
-      <div className="absolute w-80 h-80 max-lg:w-72 max-lg:h-72 rounded-full bg-inactive"></div>
-
-      {/* Inner Circle and Segments */}
-      <div className="relative w-72 h-72 max-lg:w-64 max-lg:h-64 rounded-full overflow-hidden">
-        {/* Segments */}
-        {segmentColors.map((color, index) => (
-          <div
-            key={index}
-            className="absolute w-full h-full"
-            style={{
-              backgroundColor: color,
-              clipPath: `polygon(50% 50%, 100% 0, 100% 100%)`,
-              transform: `rotate(${angle * index}deg)`,
-              transformOrigin: "50% 50%",
-            }}
-          ></div>
-        ))}
-
-        {/* Inner Circle */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] aspect-square rounded-full bg-primary z-[2] border border-activeHover"></div>
+        className="mx-auto flex h-full flex-col items-center justify-center px-4 pb-4"
+        style={{ maxWidth: `${width}px` }}
+      >
+        {/* Canvas container */}
+        <div
+          className="relative w-full h-full"
+          style={{
+            aspectRatio: `${width} / ${height}`,
+          }}
+        >
+          {/* Loader for engine initialization */}
+          {engine === null && (
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+              <CircleNotch
+                className="size-20 animate-spin text-slate-600"
+                weight="bold"
+              />
+            </div>
+          )}
+          {/* Canvas rendering the Plinko game */}
+          <canvas
+            ref={canvasRef}
+            width={width}
+            height={height}
+            className="absolute inset-0 h-full w-full"
+          />
+        </div>
+        {/* Bin row at the bottom */}
+        <BinsRow
+          plinkoEngine={engine}
+          rowCount={rows}
+          riskLevel={risk}
+          isAnimationOn={true}
+          binColors={binColors}
+        />
       </div>
     </div>
   );

@@ -23,15 +23,15 @@ const DiceFrame = () => {
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
-  const [start, setstart] = useState(false); // when game starts it will be true - karthik
-  const [Multipler, setMultipler] = useState(2.0);
+
   const [EstProfit, setEstProfit] = useState("0.000000");
-  const [rollover, setRollover] = useState(50.5);
+
   // options
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
   const [maxBetEnable, setMaxBetEnable] = useState(false);
   const [theatreMode, setTheatreMode] = useState(false);
+
   // left back side
   const [volume, setVolume] = useState(50);
   const [instantBet, setInstantBet] = useState(false);
@@ -41,13 +41,98 @@ const DiceFrame = () => {
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
 
-  // history will be temporatrly stored in memory here
-  const history = [
-    { value: 11.1, target: 2, chance: true, color: "#1FFF20" },
-    { value: 1.1, target: 2, chance: false, color: "#1FFF20" },
-  ];
+  const [rollUnder, setRollUnder] = useState(false);
+  const [bettingStarted, setBettingStarted] = useState(false);
+  const [start, setStart] = useState(false);
+  const [Multipler, setMultipler] = useState(2.0);
+  const [roll, setRoll] = useState("50");
 
-  console.log("Rollover", rollover);
+  const [fixedPosition, setFixedPosition] = useState(roll);
+  const [gameResult, setGameResult] = useState("");
+  const [targetPosition, setTargetPosition] = useState(fixedPosition);
+  const [dicePosition, setDicePosition] = useState(fixedPosition);
+
+  const [currentHistory, setCurrentHistory] = useState([]);
+  const [winChance, setWinChance] = useState("50");
+
+  const handleBetClick = () => {
+    setBettingStarted(true);
+    setStart(true);
+    setGameResult("");
+    setDicePosition(fixedPosition);
+    setTargetPosition(null);
+  };
+
+  useEffect(() => {
+    if (start) {
+      const randomPosition = Math.floor(Math.random() * 100) + 1;
+      setTargetPosition(randomPosition);
+      setStart(true);
+
+      setTimeout(() => {
+        setDicePosition(randomPosition);
+
+        setTimeout(() => {
+          checkResult(randomPosition);
+
+          const newHistoryItem = {
+            id: currentHistory.length + 1,
+            value: `${randomPosition}%`,
+            color: rollUnder
+              ? randomPosition < roll
+                ? "#15803D"
+                : "#B91C1C"
+              : randomPosition > roll
+              ? "#15803D"
+              : "#B91C1C",
+          };
+
+          setCurrentHistory([...currentHistory, newHistoryItem]);
+        }, 1000);
+      }, 500);
+    }
+  }, [start]);
+
+  const checkResult = (position) => {
+    if (rollUnder) {
+      if (position < roll) {
+        setGameResult("Winner! 🎉");
+      } else {
+        setGameResult("You Lost! 😔");
+      }
+    } else {
+      if (position > roll) {
+        setGameResult("Winner! 🎉");
+      } else {
+        setGameResult("You Lost! 😔");
+      }
+    }
+
+    setTimeout(() => resetGame(), 2000);
+  };
+
+  const resetGame = () => {
+    setStart(false);
+    setBettingStarted(false);
+  };
+
+  useEffect(() => {
+    const newWinChance = calculateWinChance(roll, rollUnder);
+    setWinChance(parseFloat(newWinChance).toFixed(2));
+
+    const newMultiplier = calculateMultiplier(winChance);
+    setMultipler(parseFloat(newMultiplier).toFixed(2));
+  }, [roll, rollUnder, Multipler]);
+
+  // Logic for Win Chance Calculation
+  const calculateWinChance = (roll, rollUnder) => {
+    return rollUnder ? roll : 100 - roll;
+  };
+
+  const calculateMultiplier = (winChance, houseEdge = 0) => {
+    if (winChance <= 0) return 0;
+    return (100 / winChance) * (1 - houseEdge);
+  };
 
   return (
     <>
@@ -84,12 +169,12 @@ const DiceFrame = () => {
                 onLoss={onLoss}
                 onWin={onWin}
                 EstProfit={EstProfit}
+                bettingStarted={!bettingStarted}
+                handleBetClick={handleBetClick}
                 onWinReset={onWinReset}
                 onLossReset={onLossReset}
                 setOnLossReset={setOnLossReset}
                 setOnWinReset={setOnWinReset}
-                setStart={setstart}
-                start={start}
               />
 
               {/* Right Section */}
@@ -100,21 +185,32 @@ const DiceFrame = () => {
                     : "lg:col-span-8 lg:order-2"
                 } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[450px]`}
               >
-                <div className="w-full px-10 relative text-white h-full  items-center justify-center text-3xl">
-                  <History list={history} />
+                <div className="w-full px-5 relative text-white h-full  items-center justify-center text-3xl">
+                  <History list={currentHistory} />
                   <GameComponent
+                    setRollover={setRoll}
+                    rollover={roll}
+                    fixedPosition={fixedPosition}
+                    setFixedPosition={setFixedPosition}
+                    gameResult={gameResult}
+                    setGameResult={setGameResult}
+                    dicePosition={dicePosition}
+                    setDicePosition={setDicePosition}
                     Start={start}
-                    setRollover={setRollover}
-                    rollover={rollover}
-                    setStart={setstart}
+                    rollUnder={rollUnder}
                   />
                   <div className="mb-5">
                     <BetCalculator
-                    setEstProfit={setEstProfit}
+                      setEstProfit={setEstProfit}
                       bet={bet}
-                      rolloveVal = {rollover}
                       setMultiplier={setMultipler}
-                      Rollover={setRollover}
+                      rollUnder={rollUnder}
+                      setRollUnder={setRollUnder}
+                      targetMultiplier={Multipler}
+                      setTargetMultiplier={setMultipler}
+                      roll={roll}
+                      setRoll={setRoll}
+                      winChance={winChance}
                     />
                   </div>
                 </div>

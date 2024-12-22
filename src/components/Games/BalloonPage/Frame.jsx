@@ -64,7 +64,7 @@ const Frame = () => {
           }`}
         >
           <div className="flex flex-col gap-[0.15rem] relative">
-            <div className="grid grid-cols-12 lg:min-h-[600px]">
+            <div className="grid grid-cols-12 lg:h-[600px]">
               {/* Left Section */}
               <SideBar
                 theatreMode={theatreMode}

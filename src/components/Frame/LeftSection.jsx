@@ -48,6 +48,8 @@ const LeftSection = ({
   // eslint-disable-next-line
   segmentSection = false,
   // eslint-disable-next-line
+  rowSection = false,
+  // eslint-disable-next-line
   risk,
   // eslint-disable-next-line
   setRisk,
@@ -55,6 +57,10 @@ const LeftSection = ({
   segment,
   // eslint-disable-next-line
   setSegment,
+  // eslint-disable-next-line
+  rows,
+  // eslint-disable-next-line
+  setRows,
   // eslint-disable-next-line
   checkoutBox,
   // eslint-disable-next-line
@@ -79,32 +85,35 @@ const LeftSection = ({
   setMines,
   // eslint-disable-next-line
   handleMineBet,
+  handleBetClick,
 }) => {
   return (
     <>
       <div
         className={`col-span-12 ${
           theatreMode ? "md:col-span-4 md:order-1" : "lg:col-span-4 lg:order-1"
-        } xl:col-span-3 order-2 max-lg:h-[fit-content]`}
+        } xl:col-span-3 order-2 lg:h-[600px] overflow-scroll`}
       >
-        <div className="my-4 px-3 flex flex-col">
+        <div className="mb-4 px-3 flex-col">
           {/* Manual and auto  */}
-          <div className="order-[100] max-lg:mt-2 lg:order-1 switch mb-4 w-full bg-secondry rounded-full p-1.5 pt-[0.45rem] grid grid-cols-2 gap-1">
-            <div
-              onClick={() => setBetMode("manual")}
-              className={`${
-                betMode === "manual" ? "bg-inactive scale-95" : ""
-              } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
-            >
-              Manual
-            </div>
-            <div
-              onClick={() => setBetMode("auto")}
-              className={`${
-                betMode === "auto" ? "bg-inactive scale-95" : ""
-              } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
-            >
-              Auto
+          <div className="sticky top-0 z-[1] bg-primary-1 py-3">
+            <div className="order-[100] max-lg:mt-2 lg:order-1 switch w-full bg-secondry rounded-full p-1.5 my-2 grid grid-cols-2 gap-1">
+              <div
+                onClick={() => setBetMode("manual")}
+                className={`${
+                  betMode === "manual" ? "bg-inactive scale-95" : ""
+                } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
+              >
+                Manual
+              </div>
+              <div
+                onClick={() => setBetMode("auto")}
+                className={`${
+                  betMode === "auto" ? "bg-inactive scale-95" : ""
+                } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
+              >
+                Auto
+              </div>
             </div>
           </div>
 
@@ -240,9 +249,38 @@ const LeftSection = ({
                 </div>
               )}
 
+              {/* Rows Section */}
+              {rowSection && (
+                <div className="order-10 md:order-2 mb-2 mt-1 w-full">
+                  <label
+                    htmlFor="rows"
+                    className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"
+                  >
+                    <h1>Rows</h1>
+                  </label>
+
+                  <select
+                    className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
+                    value={rows}
+                    id="rows"
+                    onChange={(e) => setRows(e.target.value)}
+                  >
+                    <option value={8}>8</option>
+                    <option value={9}>9</option>
+                    <option value={10}>10</option>
+                    <option value={11}>11</option>
+                    <option value={12}>12</option>
+                    <option value={13}>13</option>
+                    <option value={14}>14</option>
+                    <option value={15}>15</option>
+                    <option value={16}>16</option>
+                  </select>
+                </div>
+              )}
+
               {/* Bet button */}
               <div
-                className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold ${
+                className={`order-2 max-md:mb-2 mt-6 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold ${
                   !bettingStarted
                     ? "bg-inactive text-white"
                     : "bg-button-primary text-black cursor-pointer"
@@ -254,6 +292,9 @@ const LeftSection = ({
                   }
                   if (nminesSection) {
                     handleMineBet();
+                  }
+                  if (bettingStarted) {
+                    handleBetClick();
                   }
                 }}
               >
@@ -314,6 +355,35 @@ const LeftSection = ({
                     <option value={30}>30</option>
                     <option value={40}>40</option>
                     <option value={50}>50</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Rows Section */}
+              {rowSection && (
+                <div className="order-10 md:order-2 mb-2 mt-1 w-full">
+                  <label
+                    htmlFor="rows"
+                    className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"
+                  >
+                    <h1>Rows</h1>
+                  </label>
+
+                  <select
+                    className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
+                    value={rows}
+                    id="rows"
+                    onChange={(e) => setRows(e.target.value)}
+                  >
+                    <option value={8}>8</option>
+                    <option value={9}>9</option>
+                    <option value={10}>10</option>
+                    <option value={11}>11</option>
+                    <option value={12}>12</option>
+                    <option value={13}>13</option>
+                    <option value={14}>14</option>
+                    <option value={15}>15</option>
+                    <option value={16}>16</option>
                   </select>
                 </div>
               )}

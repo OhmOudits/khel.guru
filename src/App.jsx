@@ -130,7 +130,7 @@ function App() {
             <div
               className={`w-full ${
                 sideOpen ? "ml-[210px]" : "ml-[68px]"
-              } max-lg:ml-0 z-1 h-screen`}
+              } max-lg:ml-0 z-1 h-screen overflow-x-hidden`}
             >
               <div className="mt-[72px]"></div>
               <Routes>

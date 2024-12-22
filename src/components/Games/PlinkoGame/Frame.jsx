@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "../../../styles/Frame.css";
 import "../../../styles/Wheel.css";
 import FairnessModal from "../../Frame/FairnessModal";
@@ -8,8 +8,8 @@ import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
 import LeftSection from "../../Frame/LeftSection";
 import History from "../../Frame/History";
-import Chances from "./Chances";
 import Game from "./Game";
+import PlinkoEngine from "./PlinkoEngine";
 
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
@@ -23,7 +23,7 @@ const Frame = () => {
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
   const [risk, setRisk] = useState("Medium");
-  const [segment, setSegment] = useState(30);
+  const [rows, setRows] = useState(16);
 
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
@@ -37,6 +37,7 @@ const Frame = () => {
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
+  const [bettingStarted, setBettingStarted] = useState(true);
 
   const history = [
     { id: 1, value: "1.64", color: "#f7b32b" },
@@ -46,6 +47,33 @@ const Frame = () => {
     { id: 5, value: "2.94", color: "#f7b32b" },
     { id: 6, value: "0.64", color: "#28a745" },
   ];
+
+  const canvasRef = useRef(null); // Reference for the canvas element
+  const [engine, setEngine] = useState(null);
+
+  // Initialize and manage the PlinkoEngine instance
+  useEffect(() => {
+    if (canvasRef.current) {
+      const plinkoInstance = new PlinkoEngine(
+        canvasRef.current,
+        bet,
+        rows,
+        risk
+      );
+      setEngine(plinkoInstance);
+      plinkoInstance.start();
+
+      return () => {
+        plinkoInstance.stop();
+        setEngine(null);
+      };
+    }
+  }, [bet, rows, risk]);
+
+  const handleBetClick = () => {
+    setBettingStarted(true);
+    engine.dropBall();
+  };
 
   return (
     <>
@@ -61,7 +89,7 @@ const Frame = () => {
           }`}
         >
           <div className="flex flex-col gap-[0.15rem] relative">
-            <div className="grid grid-cols-12 lg:min-h-[600px]">
+            <div className="grid grid-cols-12 lg:h-[600px]">
               {/* Left Section */}
               <LeftSection
                 theatreMode={theatreMode}
@@ -86,11 +114,13 @@ const Frame = () => {
                 setOnLossReset={setOnLossReset}
                 setOnWinReset={setOnWinReset}
                 riskSection
-                segmentSection
+                rowSection
                 risk={risk}
                 setRisk={setRisk}
-                segment={segment}
-                setSegment={setSegment}
+                rows={rows}
+                setRows={setRows}
+                bettingStarted={bettingStarted}
+                handleBetClick={handleBetClick}
               />
 
               {/* Right Section */}
@@ -99,12 +129,19 @@ const Frame = () => {
                   theatreMode
                     ? "md:col-span-8 md:order-2"
                     : "lg:col-span-8 lg:order-2"
-                } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[470px]`}
+                } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[470px] h-[600px]`}
               >
                 <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
-                  <History list={history} />
-                  <Game risk={risk} segment={segment} />
-                  <Chances risk={risk} segment={segment} />
+                  {/* <History list={history} /> */}
+                  <Game
+                    bet={bet}
+                    risk={risk}
+                    rows={rows}
+                    engine={engine}
+                    canvasRef={canvasRef}
+                    width={PlinkoEngine.HEIGHT}
+                    height={PlinkoEngine.WIDTH}
+                  />
                 </div>
               </div>
             </div>

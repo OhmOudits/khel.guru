@@ -1,46 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 
-const Game = ({Start , setStart , rollover , setRollover}) => {
-  const [fixedPosition, setFixedPosition] = useState(rollover); // Blue Box Position
-  const [gameResult, setGameResult] = useState("");
-  const [targetPosition, setTargetPosition] = useState(fixedPosition);
-  const [dicePosition, setDicePosition] = useState(fixedPosition);
+const Game = ({
+  rollover,
+  setRollover,
+  fixedPosition,
+  setFixedPosition,
+  gameResult,
+  setGameResult,
+  dicePosition,
+  setDicePosition,
+  Start,
+  rollUnder,
+}) => {
   const draggingRef = useRef(false);
-
-  // Start Game Logic
-  const handleStart = () => {
-
-    const randomPosition = Math.floor(Math.random() * 100) + 1; // Dice rolls randomly
-    setTargetPosition(randomPosition);
-    setStart(true);
-
-    // Animate dice movement
-    setTimeout(() => {
-      setTimeout(() => {
-        checkResult(randomPosition);
-      }, 1000); // Delay for showing the result
-      setDicePosition(randomPosition);
-    }, 500);
-  };
-
-  // Check Win/Loss based on dice position
-  const checkResult = (position) => {
-    if (position > rollover) {
-      setGameResult("Winner! 🎉");
-    } else {
-      setGameResult("You Lost! 😔");
-    }
-
-    setTimeout(() => resetGame(), 2000);
-  };
-
-  // Reset the game
-  const resetGame = () => {
-    setStart(false);
-    setGameResult("");
-    setDicePosition(fixedPosition);
-    setTargetPosition(null);
-  };
 
   // Handle dragging the blue box
   const handleMouseDown = () => {
@@ -48,27 +20,21 @@ const Game = ({Start , setStart , rollover , setRollover}) => {
       draggingRef.current = true;
     }
   };
-  useEffect(()=>{
-    setFixedPosition(rollover)
 
-    
-  }, [rollover])
-  useEffect(()=>{
-    if(Start){
-
-      handleStart()
-    }
-  } , [Start])
+  useEffect(() => {
+    setFixedPosition(rollover);
+  }, [rollover]);
 
   const handleMouseMove = (e) => {
     if (draggingRef.current && !Start) {
       const rect = e.target.parentElement.getBoundingClientRect();
+      setGameResult("");
       let newLeft = ((e.clientX - rect.left) / rect.width) * 100;
 
       // Clamp position between 0 and 100
       newLeft = Math.max(0, Math.min(100, newLeft));
       setFixedPosition(newLeft);
-      setRollover(newLeft)
+      setRollover(newLeft);
       setDicePosition(newLeft);
     }
   };
@@ -84,7 +50,6 @@ const Game = ({Start , setStart , rollover , setRollover}) => {
 
   return (
     <div className="flex flex-col items-center justify-center h-[48vh] bg-gray-900 text-white">
-
       {/* Numbers at the Top */}
       <div className="relative w-full max-w-2xl flex justify-between px-2 text-sm mb-1">
         <span>0</span>
@@ -96,19 +61,26 @@ const Game = ({Start , setStart , rollover , setRollover}) => {
 
       {/* Scrollable Line */}
       <div
-        className="relative w-full max-w-2xl h-16 bg-gray-700 rounded-full overflow-hidden"
+        className="relative w-full max-w-2xl h-16 bg-gray-700 rounded-lg overflow-hidden"
         onMouseMove={handleMouseMove}
       >
         {/* Left Red Region */}
-        <div  
-          className="absolute top-1/2 -translate-y-1/2 h-2 bg-red-500"
+        <div
+          className={`absolute top-1/2 -translate-y-1/2 h-2 ${
+            rollUnder ? "bg-green-500" : "bg-red-500"
+          }`}
           style={{ width: `${fixedPosition}%` }}
         ></div>
 
         {/* Right Green Region */}
         <div
-          className="absolute top-1/2 -translate-y-1/2 h-2 bg-green-500"
-          style={{ left: `${fixedPosition}%`, width: `${100 - fixedPosition}%` }}
+          className={`absolute top-1/2 -translate-y-1/2 h-2 ${
+            rollUnder ? "bg-red-500" : "bg-green-500"
+          }`}
+          style={{
+            left: `${fixedPosition}%`,
+            width: `${100 - fixedPosition}%`,
+          }}
         ></div>
 
         {/* Draggable Blue Box */}
@@ -121,7 +93,7 @@ const Game = ({Start , setStart , rollover , setRollover}) => {
         {/* Dice */}
         {Start && (
           <div
-            className="absolute top-1/2 w-12 h-12 bg-white text-black font-bold flex items-center justify-center rounded-lg -translate-y-1/2 transition-all duration-1000 ease-in-out"
+            className="absolute top-1/2 w-12 h-12 text-black font-bold flex items-center justify-center rounded-lg -translate-y-1/2 -translate-x-1/2 transition-all duration-1000 ease-in-out"
             style={{ left: `${dicePosition}%`, zIndex: 10 }}
           >
             🎲
@@ -129,11 +101,22 @@ const Game = ({Start , setStart , rollover , setRollover}) => {
         )}
       </div>
 
-      
-
       {/* Result */}
       {gameResult && (
-        <div className="mt-4 text-xl font-semibold text-yellow-300">
+        <div className="mt-4 flex flex-col items-center justify-center gap-1 text-xl font-semibold text-yellow-300">
+          <span
+            className={`text-2xl ${
+              rollUnder
+                ? dicePosition < rollover
+                  ? "text-green-500"
+                  : "text-red-500"
+                : dicePosition > rollover
+                ? "text-green-500"
+                : "text-red-500"
+            } `}
+          >
+            {dicePosition}%
+          </span>
           {gameResult}
         </div>
       )}

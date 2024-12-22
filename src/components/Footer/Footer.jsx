@@ -20,7 +20,7 @@ const Footer = () => {
       )}
 
       <div
-        className="absolute text-white bottom-0 left-0 right-0 lg:hidden w-full bg-inactive py-3 flex items-center justify-around"
+        className="absolute text-white z-40 bottom-0 left-0 right-0 lg:hidden w-full bg-inactive py-3 flex items-center justify-around"
         style={{ position: "fixed" }}
       >
         {/* item 1 */}

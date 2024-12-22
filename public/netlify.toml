@@ -24,6 +24,16 @@
   status = 200
 
 [[redirects]]
+  from = "/game/dice"
+  to = "/index.html?redirect=game/dice"
+  status = 200
+
+[[redirects]]
+  from = "/game/limbo"
+  to = "/index.html?redirect=game/limbo"
+  status = 200
+
+[[redirects]]
   from = "/sports"
   to = "/index.html?redirect=sports"
   status = 200

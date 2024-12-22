@@ -55,26 +55,28 @@ const SideBar = ({
       <div
         className={`col-span-12 ${
           theatreMode ? "md:col-span-4 md:order-1" : "lg:col-span-4 lg:order-1"
-        } xl:col-span-3 order-2 max-lg:h-[fit-content]`}
+        } xl:col-span-3 order-2 max-lg:h-[fit-content] lg:h-[600px] overflow-auto`}
       >
         <div className="my-4 px-3 flex flex-col">
           {/* Manual and auto  */}
-          <div className="order-[100] max-lg:mt-2 lg:order-1 switch mb-4 w-full bg-secondry rounded-full p-1.5 pt-[0.45rem] grid grid-cols-2 gap-1">
-            <div
-              onClick={() => setBetMode("manual")}
-              className={`${
-                betMode === "manual" ? "bg-inactive scale-95" : ""
-              } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
-            >
-              Manual
-            </div>
-            <div
-              onClick={() => setBetMode("auto")}
-              className={`${
-                betMode === "auto" ? "bg-inactive scale-95" : ""
-              } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
-            >
-              Auto
+          <div className="sticky top-0 z-[1] bg-primary-1 py-3">
+            <div className="order-[100] max-lg:mt-2 lg:order-1 switch w-full bg-secondry rounded-full p-1.5 my-2 grid grid-cols-2 gap-1">
+              <div
+                onClick={() => setBetMode("manual")}
+                className={`${
+                  betMode === "manual" ? "bg-inactive scale-95" : ""
+                } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
+              >
+                Manual
+              </div>
+              <div
+                onClick={() => setBetMode("auto")}
+                className={`${
+                  betMode === "auto" ? "bg-inactive scale-95" : ""
+                } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
+              >
+                Auto
+              </div>
             </div>
           </div>
 
