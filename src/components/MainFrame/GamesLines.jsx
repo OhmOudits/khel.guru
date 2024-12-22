@@ -89,9 +89,9 @@ const GamesLines = ({ title, link, icon, games, hoverEffect = false }) => {
         className="relative flex overflow-x-scroll mb-2 mt-0.5"
       >
         {/* Right Side Gradient Overlay */}
-        {!scrollState.canScrollRight && (
+        {/* {scrollState.canScrollRight && (
           <div className="absolute z-10 top-0 right-0 h-full w-[15%] bg-gradient-to-l from-black/75 to-transparent pointer-events-none"></div>
-        )}
+        )} */}
 
         {/* Game Cards */}
         {/* eslint-disable-next-line */}

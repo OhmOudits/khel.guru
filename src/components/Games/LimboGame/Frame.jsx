@@ -82,7 +82,7 @@ const Frame = () => {
         setNumber(result);
         setStart(false);
         setBetCompleted(true);
-      }, 3000);
+      }, 1500);
     }
 
     return () => clearInterval(interval);

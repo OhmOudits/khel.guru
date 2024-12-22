@@ -1,10 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { FaSyncAlt } from "react-icons/fa"; // Import rotate icon
 
 const BetCalculator = ({
-  setEstProfit,
-  bet,
-  setMultiplier,
   rollUnder,
   setRollUnder,
   roll,
@@ -13,6 +10,19 @@ const BetCalculator = ({
   setTargetMultiplier,
   winChance,
 }) => {
+  const calculateRollFromMultiplier = (multiplier) => {
+    const houseEdge = 1;
+    const winChance = (1 / multiplier) * (100 - houseEdge);
+    return rollUnder ? winChance : 100 - winChance;
+  };
+
+  useEffect(() => {
+    if (targetMultiplier) {
+      const newRoll = calculateRollFromMultiplier(targetMultiplier);
+      setRoll(newRoll.toFixed(2));
+    }
+  }, [targetMultiplier, rollUnder]);
+
   return (
     <div className="flex justify-between p-2 bg-gray-800 rounded-lg w-[98%] mx-auto text-white font-sans">
       {/* Target Multiplier Input */}
@@ -32,7 +42,13 @@ const BetCalculator = ({
             max="100"
             min="1.01"
             value={targetMultiplier}
-            readOnly
+            onChange={(e) => {
+              if (e.target.value > 9990 || e.target.value < 1) {
+                return;
+              } else {
+                setTargetMultiplier(e.target.value);
+              }
+            }}
             className="w-full px-3 py-1.5 text-left text-white bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 no-spin-on-hover"
             style={{
               fontSize: "clamp(1rem, 1.5vw, 1.5rem)",
@@ -46,7 +62,10 @@ const BetCalculator = ({
       </div>
 
       {/* Roll Over/Under Input with Rotate Icon */}
-      <div className="flex flex-col w-1/3 pr-2">
+      <div
+        className="flex flex-col cursor-pointer w-1/3 pr-2"
+        onClick={() => setRollUnder((prev) => !prev)}
+      >
         <label
           className="mb-1 text-sm text-gray-400"
           style={{
@@ -65,10 +84,7 @@ const BetCalculator = ({
               height: "40px",
             }}
           />
-          <FaSyncAlt
-            onClick={() => setRollUnder((prev) => !prev)}
-            className="absolute cursor-pointer right-3 top-[50%] transform -translate-y-1/2 text-gray-400 text-sm"
-          />
+          <FaSyncAlt className="absolute cursor-pointer right-3 top-[50%] transform -translate-y-1/2 text-gray-400 text-sm" />
         </div>
       </div>
 

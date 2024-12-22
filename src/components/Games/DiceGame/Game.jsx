@@ -11,6 +11,9 @@ const Game = ({
   setDicePosition,
   Start,
   rollUnder,
+  setMultipler,
+  calculateMultiplier,
+  winChance,
 }) => {
   const draggingRef = useRef(false);
 
@@ -29,13 +32,22 @@ const Game = ({
     if (draggingRef.current && !Start) {
       const rect = e.target.parentElement.getBoundingClientRect();
       setGameResult("");
+
+      // Calculate new position as percentage
       let newLeft = ((e.clientX - rect.left) / rect.width) * 100;
 
       // Clamp position between 0 and 100
       newLeft = Math.max(0, Math.min(100, newLeft));
-      setFixedPosition(newLeft);
-      setRollover(newLeft);
-      setDicePosition(newLeft);
+
+      // Round to the nearest integer
+      const roundedLeft = Math.round(newLeft);
+
+      // Update state with rounded position
+      setFixedPosition(roundedLeft);
+      setRollover(roundedLeft);
+      const newMultiplier = calculateMultiplier(winChance);
+      setMultipler(parseFloat(newMultiplier).toFixed(4));
+      setDicePosition(roundedLeft);
     }
   };
 
@@ -61,7 +73,7 @@ const Game = ({
 
       {/* Scrollable Line */}
       <div
-        className="relative w-full max-w-2xl h-16 bg-gray-700 rounded-lg overflow-hidden"
+        className="relative w-full max-w-2xl h-16 bg-gray-700 rounded-lg overflow-x-hidden overflow-y-visible"
         onMouseMove={handleMouseMove}
       >
         {/* Left Red Region */}
@@ -90,6 +102,23 @@ const Game = ({
           onMouseDown={handleMouseDown}
         ></div>
 
+        {gameResult && (
+          <div
+            className={`absolute top-[10%] w-12 py-0.5 text-black font-bold flex items-center justify-center rounded-sm -translate-y-1/2 -translate-x-1/2 transition-all duration-1000 ease-in-out px-2 text-lg bg-primary ${
+              rollUnder
+                ? dicePosition < rollover
+                  ? "text-green-500"
+                  : "text-red-500"
+                : dicePosition > rollover
+                ? "text-green-500"
+                : "text-red-500"
+            } `}
+            style={{ left: `${dicePosition}%`, zIndex: 11 }}
+          >
+            {dicePosition}%
+          </div>
+        )}
+
         {/* Dice */}
         {Start && (
           <div
@@ -100,26 +129,6 @@ const Game = ({
           </div>
         )}
       </div>
-
-      {/* Result */}
-      {gameResult && (
-        <div className="mt-4 flex flex-col items-center justify-center gap-1 text-xl font-semibold text-yellow-300">
-          <span
-            className={`text-2xl ${
-              rollUnder
-                ? dicePosition < rollover
-                  ? "text-green-500"
-                  : "text-red-500"
-                : dicePosition > rollover
-                ? "text-green-500"
-                : "text-red-500"
-            } `}
-          >
-            {dicePosition}%
-          </span>
-          {gameResult}
-        </div>
-      )}
     </div>
   );
 };

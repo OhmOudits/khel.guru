@@ -44,8 +44,9 @@ const DiceFrame = () => {
   const [rollUnder, setRollUnder] = useState(false);
   const [bettingStarted, setBettingStarted] = useState(false);
   const [start, setStart] = useState(false);
+
   const [Multipler, setMultipler] = useState(2.0);
-  const [roll, setRoll] = useState("50");
+  const [roll, setRoll] = useState("50.5");
 
   const [fixedPosition, setFixedPosition] = useState(roll);
   const [gameResult, setGameResult] = useState("");
@@ -119,19 +120,16 @@ const DiceFrame = () => {
   useEffect(() => {
     const newWinChance = calculateWinChance(roll, rollUnder);
     setWinChance(parseFloat(newWinChance).toFixed(2));
-
-    const newMultiplier = calculateMultiplier(winChance);
-    setMultipler(parseFloat(newMultiplier).toFixed(2));
-  }, [roll, rollUnder, Multipler]);
+  }, [roll, rollUnder]);
 
   // Logic for Win Chance Calculation
   const calculateWinChance = (roll, rollUnder) => {
     return rollUnder ? roll : 100 - roll;
   };
 
-  const calculateMultiplier = (winChance, houseEdge = 0) => {
-    if (winChance <= 0) return 0;
-    return (100 / winChance) * (1 - houseEdge);
+  const calculateMultiplier = (winChance) => {
+    const houseEdge = 1;
+    return (100 - houseEdge) / winChance;
   };
 
   return (
@@ -198,12 +196,12 @@ const DiceFrame = () => {
                     setDicePosition={setDicePosition}
                     Start={start}
                     rollUnder={rollUnder}
+                    setMultipler={setMultipler}
+                    calculateMultiplier={calculateMultiplier}
+                    winChance={winChance}
                   />
                   <div className="mb-5">
                     <BetCalculator
-                      setEstProfit={setEstProfit}
-                      bet={bet}
-                      setMultiplier={setMultipler}
                       rollUnder={rollUnder}
                       setRollUnder={setRollUnder}
                       targetMultiplier={Multipler}
