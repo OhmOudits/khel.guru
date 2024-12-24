@@ -1,13 +1,20 @@
-import React, { useEffect } from "react";
-import { FaSyncAlt } from "react-icons/fa"; // Import rotate icon
+import { useEffect } from "react";
+import { FaSyncAlt } from "react-icons/fa";
 
 const BetCalculator = ({
+  // eslint-disable-next-line
   rollUnder,
+  // eslint-disable-next-line
   setRollUnder,
+  // eslint-disable-next-line
   roll,
+  // eslint-disable-next-line
   setRoll,
+  // eslint-disable-next-line
   targetMultiplier,
+  // eslint-disable-next-line
   setTargetMultiplier,
+  // eslint-disable-next-line
   winChance,
 }) => {
   const calculateRollFromMultiplier = (multiplier) => {
@@ -43,11 +50,15 @@ const BetCalculator = ({
             min="1.01"
             value={targetMultiplier}
             onChange={(e) => {
-              if (e.target.value > 9990 || e.target.value < 1) {
-                return;
-              } else {
-                setTargetMultiplier(e.target.value);
-              }
+              // if (
+              //   e.target.value > 9990 ||
+              //   e.target.value < 1 ||
+              //   e.target.value === ""
+              // ) {
+              //   return;
+              // } else {
+              setTargetMultiplier(e.target.value);
+              // }
             }}
             className="w-full px-3 py-1.5 text-left text-white bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 no-spin-on-hover"
             style={{
@@ -78,7 +89,7 @@ const BetCalculator = ({
           <input
             value={parseFloat(roll).toFixed(2)}
             readOnly
-            className="w-full px-3 py-1.5 text-left text-white bg-gray-700 border border-gray-600 rounded focus:outline-none"
+            className="w-full px-3 cursor-pointer py-1.5 text-left text-white bg-gray-700 border border-gray-600 rounded focus:outline-none"
             style={{
               fontSize: "clamp(1rem, 1.5vw, 1.5rem)",
               height: "40px",
@@ -105,8 +116,8 @@ const BetCalculator = ({
             readOnly
             className="w-full px-3 py-1.5 text-left text-white bg-gray-700 border border-gray-600 rounded focus:outline-none"
             style={{
-              fontSize: "clamp(1rem, 1.5vw, 1.5rem)", // Responsive font size
-              height: "40px", // Reduced height for win chance input
+              fontSize: "clamp(1rem, 1.5vw, 1.5rem)",
+              height: "40px",
             }}
           />
           <span className="absolute right-3 top-[50%] transform -translate-y-1/2 text-gray-400 text-lg">

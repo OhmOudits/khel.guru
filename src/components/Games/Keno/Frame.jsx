@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
 import "../../../styles/Frame.css";
-import "../../../styles/Wheel.css";
 import FairnessModal from "../../Frame/FairnessModal";
 import FrameFooter from "../../Frame/FrameFooter";
 import HotKeysModal from "../../Frame/HotKeysModal";
 import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
-import LeftSection from "../../Frame/LeftSection";
-import GameComponent from "./Game";
-import History from "../../Frame/History";
-import BetCalculator from "./Chances";
-import { toast } from "react-toastify";
+import SideBar from "./SideBar";
+import Game from "./Game";
+import { useSelector } from "react-redux";
+import { chances } from "./constants";
+import Chances from "./Chances";
 
-const DiceFrame = () => {
-  // main states
+const Frame = () => {
+  const user = useSelector((state) => state?.auth?.user?.user);
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [nbets, setNBets] = useState(0);
@@ -24,16 +23,24 @@ const DiceFrame = () => {
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
+  const [Risk, setRisk] = useState("Low");
+  const [checkedBoxes, setCheckecdBoxes] = useState([]);
+  const [gifts, setGifts] = useState([]);
+  const [betStarted, setBettingStarted] = useState(false);
+  // eslint-disable-next-line
+  const [loading, setLoading] = useState(false);
+  // eslint-disable-next-line
+  const [totalProfit, setTotalProfit] = useState("0.000000");
 
-  const [EstProfit, setEstProfit] = useState("0.000000");
+  const [AutoPick, setAutoPick] = useState(false);
+  const [clearTable, setClearTable] = useState(false);
+  const [winnedGifts, setWinnedGifts] = useState(-1);
 
-  // options
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
   const [maxBetEnable, setMaxBetEnable] = useState(false);
   const [theatreMode, setTheatreMode] = useState(false);
 
-  // left back side
   const [volume, setVolume] = useState(50);
   const [instantBet, setInstantBet] = useState(false);
   const [animations, setAnimations] = useState(true);
@@ -41,107 +48,100 @@ const DiceFrame = () => {
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
+  const [randomSelect, setRandomSelect] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
 
-  const [rollUnder, setRollUnder] = useState(false);
-  const [bettingStarted, setBettingStarted] = useState(false);
-  const [start, setStart] = useState(false);
+  const [valid, setValid] = useState(false);
+  const [things, setThings] = useState([]);
 
-  const [Multipler, setMultipler] = useState(2.0);
-  const [roll, setRoll] = useState("50.5");
+  useEffect(() => {
+    setThings(chances(Risk));
+  }, [Risk]);
 
-  const [fixedPosition, setFixedPosition] = useState(roll);
-  const [gameResult, setGameResult] = useState("");
-  const [targetPosition, setTargetPosition] = useState(fixedPosition);
-  const [dicePosition, setDicePosition] = useState(fixedPosition);
-
-  const [currentHistory, setCurrentHistory] = useState([]);
-  const [winChance, setWinChance] = useState("50");
-
-  const handleBetClick = () => {
-    if (Multipler > 1 && Multipler < 9990) {
+  const handleMineBet = () => {
+    if (!betStarted && valid) {
       setBettingStarted(true);
-      setStart(true);
-      setGameResult("");
-      setDicePosition(fixedPosition);
-      setTargetPosition(null);
-    } else {
-      toast.error("Enter a Valid Multiplier", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-      });
+      setWinnedGifts(-1);
+      setGameOver(false);
+      setGifts([]);
     }
   };
 
+  const handleRandomSelect = () => {
+    setRandomSelect(true);
+  };
+
   useEffect(() => {
-    if (start) {
-      const randomPosition = Math.floor(Math.random() * 100) + 1;
-      setTargetPosition(randomPosition);
-      setStart(true);
+    if (clearTable) {
+      setCheckecdBoxes([]);
+    }
+    setClearTable(false);
+    setGifts([]);
+    setGameOver(false);
+  }, [clearTable]);
+
+  useEffect(() => {
+    if (betStarted) {
+      function generateRandomNumbers(count, min, max) {
+        const numbers = [];
+        while (numbers.length < count) {
+          const randomNumber =
+            Math.floor(Math.random() * (max - min + 1)) + min;
+          if (!numbers.includes(randomNumber)) {
+            numbers.push(randomNumber);
+          }
+        }
+        return numbers;
+      }
+
+      const randomNumbers = generateRandomNumbers(10, 0, 39);
+      if (betStarted && checkedBoxes.length > 0) {
+        setGifts(randomNumbers);
+
+        const commonNumbers = randomNumbers.filter((num) =>
+          checkedBoxes.includes(num)
+        );
+
+        setWinnedGifts(commonNumbers.length);
+        console.log(winnedGifts);
+      }
+
+      setGameOver(true);
 
       setTimeout(() => {
-        setDicePosition(randomPosition);
-
-        setTimeout(() => {
-          checkResult(randomPosition);
-
-          const newHistoryItem = {
-            id: currentHistory.length + 1,
-            value: `${randomPosition}%`,
-            color: rollUnder
-              ? randomPosition < roll
-                ? "#15803D"
-                : "#B91C1C"
-              : randomPosition > roll
-              ? "#15803D"
-              : "#B91C1C",
-          };
-
-          setCurrentHistory([...currentHistory, newHistoryItem]);
-        }, 1000);
-      }, 500);
+        setBettingStarted(false);
+        // setGameOver(false);
+      }, 2500);
     }
-  }, [start]);
-
-  const checkResult = (position) => {
-    if (rollUnder) {
-      if (position < roll) {
-        setGameResult("Winner! 🎉");
-      } else {
-        setGameResult("You Lost! 😔");
-      }
-    } else {
-      if (position > roll) {
-        setGameResult("Winner! 🎉");
-      } else {
-        setGameResult("You Lost! 😔");
-      }
-    }
-
-    setTimeout(() => resetGame(), 2000);
-  };
-
-  const resetGame = () => {
-    setStart(false);
-    setBettingStarted(false);
-  };
+  }, [betStarted, checkedBoxes]);
 
   useEffect(() => {
-    const newWinChance = calculateWinChance(roll, rollUnder);
-    setWinChance(parseFloat(newWinChance).toFixed(2));
-  }, [roll, rollUnder]);
+    if (AutoPick) {
+      setCheckecdBoxes([]);
+      function generateRandomNumbers(count, min, max) {
+        const numbers = [];
+        while (numbers.length < count) {
+          const randomNumber =
+            Math.floor(Math.random() * (max - min + 1)) + min;
+          if (!numbers.includes(randomNumber)) {
+            numbers.push(randomNumber);
+          }
+        }
+        return numbers;
+      }
 
-  // Logic for Win Chance Calculation
-  const calculateWinChance = (roll, rollUnder) => {
-    return rollUnder ? roll : 100 - roll;
-  };
+      const randomNumbers = generateRandomNumbers(10, 0, 39);
+      setCheckecdBoxes(randomNumbers);
+    }
+  }, [AutoPick]);
 
-  const calculateMultiplier = (winChance) => {
-    const houseEdge = 1;
-    return (100 - houseEdge) / winChance;
-  };
+  useEffect(() => {
+    if (checkedBoxes.length >= 1) {
+      setValid(true);
+    } else {
+      setValid(false);
+    }
+  }, [checkedBoxes]);
 
   return (
     <>
@@ -153,13 +153,13 @@ const DiceFrame = () => {
       >
         <div
           className={`my-12 rounded mx-auto bg-primary w-[96%] max-w-[1400px] max-md:max-w-[450px] ${
-            theatreMode ? "max-w-[100%] " : "max-lg:max-w-[450px]"
+            theatreMode ? "max-w-[100%] max-h-screen" : "max-lg:max-w-[450px]"
           }`}
         >
           <div className="flex flex-col gap-[0.15rem] relative">
             <div className="grid grid-cols-12 lg:min-h-[600px]">
               {/* Left Section */}
-              <LeftSection
+              <SideBar
                 theatreMode={theatreMode}
                 setTheatreMode={setTheatreMode}
                 setBet={setBet}
@@ -177,13 +177,20 @@ const DiceFrame = () => {
                 setOnWin={setOnWin}
                 onLoss={onLoss}
                 onWin={onWin}
-                EstProfit={EstProfit}
-                bettingStarted={!bettingStarted}
-                handleBetClick={handleBetClick}
                 onWinReset={onWinReset}
                 onLossReset={onLossReset}
                 setOnLossReset={setOnLossReset}
                 setOnWinReset={setOnWinReset}
+                Risk={Risk}
+                valid={valid}
+                setRisk={setRisk}
+                handleMineBet={handleMineBet}
+                bettingStarted={betStarted}
+                totalprofit={totalProfit}
+                handleRandomSelect={handleRandomSelect}
+                AutoPick={AutoPick}
+                setAutoPick={setAutoPick}
+                setClearTable={setClearTable}
               />
 
               {/* Right Section */}
@@ -192,36 +199,38 @@ const DiceFrame = () => {
                   theatreMode
                     ? "md:col-span-8 md:order-2"
                     : "lg:col-span-8 lg:order-2"
-                } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[450px]`}
+                } xl:col-span-9 bg-gray-900 order-1`}
               >
-                <div className="w-full px-5 relative text-white h-full  items-center justify-center text-3xl">
-                  <History list={currentHistory} />
-                  <GameComponent
-                    setRollover={setRoll}
-                    rollover={roll}
-                    fixedPosition={fixedPosition}
-                    setFixedPosition={setFixedPosition}
-                    gameResult={gameResult}
-                    setGameResult={setGameResult}
-                    dicePosition={dicePosition}
-                    setDicePosition={setDicePosition}
-                    Start={start}
-                    rollUnder={rollUnder}
-                    setMultipler={setMultipler}
-                    calculateMultiplier={calculateMultiplier}
-                    winChance={winChance}
+                <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
+                  {loading ? (
+                    <>
+                      <h1 className="text-xl font-semibold">Loading...</h1>
+                    </>
+                  ) : (
+                    <div className="mb-20">
+                      <Game
+                        mines={Risk}
+                        randomSelect={randomSelect}
+                        setRandomSelect={setRandomSelect}
+                        betStarted={betStarted}
+                        setBetStarted={setBettingStarted}
+                        userEmail={user?.email}
+                        checkedBoxes={checkedBoxes}
+                        setCheckecdBoxes={setCheckecdBoxes}
+                        gifts={gifts}
+                        gameOver={gameOver}
+                        winnedGifts={winnedGifts}
+                        things={things}
+                        arrayLength={checkedBoxes.length || 0}
+                      />
+                    </div>
+                  )}
+                  <div className="h-[100px] mt-10"></div>
+                  <Chances
+                    things={things}
+                    arrayLength={checkedBoxes.length || 0}
+                    winlength={winnedGifts}
                   />
-                  <div className="mb-5">
-                    <BetCalculator
-                      rollUnder={rollUnder}
-                      setRollUnder={setRollUnder}
-                      targetMultiplier={Multipler}
-                      setTargetMultiplier={setMultipler}
-                      roll={roll}
-                      setRoll={setRoll}
-                      winChance={winChance}
-                    />
-                  </div>
                 </div>
               </div>
             </div>
@@ -339,4 +348,4 @@ const DiceFrame = () => {
   );
 };
 
-export default DiceFrame;
+export default Frame;

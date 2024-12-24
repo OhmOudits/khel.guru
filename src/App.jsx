@@ -15,6 +15,7 @@ import BalloonPage from "./components/Games/BalloonPage/Balloon";
 import CrashPage from "./components/Games/CrashGame/Crash";
 import PlinkoPage from "./components/Games/PlinkoGame/Plinko";
 import LimboPage from "./components/Games/LimboGame/Limbo";
+import KenoPage from "./components/Games/Keno/Keno";
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { SportsBet, Sports, SportsCricket, SportsFootball } from "./pages";
@@ -23,6 +24,9 @@ import Search from "./components/tabs/Search";
 import WalletSettings from "./components/tabs/WalletSettings";
 import DicePage from "./components/Games/DiceGame/Dice";
 const socket = io("http://localhost:3000");
+
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const user = useSelector((state) => state.auth?.user?.user);
@@ -147,11 +151,13 @@ function App() {
                 <Route path="/game/plinko" element={<PlinkoPage />} />
                 <Route path="/game/limbo" element={<LimboPage />} />
                 <Route path="/game/dice" element={<DicePage />} />
+                <Route path="/game/keno" element={<KenoPage />} />
                 <Route path="*" element={<LandingPage />} />
               </Routes>
             </div>
 
             <Footer />
+            <ToastContainer />
           </div>
         </>
       )}
