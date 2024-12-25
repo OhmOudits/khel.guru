@@ -34,6 +34,11 @@
   status = 200
 
 [[redirects]]
+  from = "/game/keno"
+  to = "/index.html?redirect=game/keno"
+  status = 200
+
+[[redirects]]
   from = "/sports"
   to = "/index.html?redirect=sports"
   status = 200
