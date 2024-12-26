@@ -1,6 +1,6 @@
 import Frame from "./Frame";
 
-const WheelPage = () => {
+const Plinko = () => {
   return (
     <div className="w-full bg-secondry min-h-screen">
       <div className="max-w-[1200px] mx-auto">
@@ -10,4 +10,4 @@ const WheelPage = () => {
   );
 };
 
-export default WheelPage;
+export default Plinko;

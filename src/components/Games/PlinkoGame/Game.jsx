@@ -41,8 +41,9 @@ const Game = ({ bet, rows, risk, engine, width, height, canvasRef }) => {
             className="absolute inset-0 h-full w-full"
           />
         </div>
-        {/* Bin row at the bottom */}
-        <BinsRow
+         
+        {/*Bin row at the bottom */}
+         <BinsRow
           plinkoEngine={engine}
           rowCount={rows}
           riskLevel={risk}

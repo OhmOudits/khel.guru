@@ -41,7 +41,7 @@ const BinRow = ({
   }
 
   return (
-    <div className="flex h-[50px] w-full justify-center mt-4">
+    <div className="flex h-[50px] w-full justify-center mt-1">
       <div
         className="flex gap-[1%]"
         // style={{ width: `${binsWidthPercentage}%` }}
@@ -50,8 +50,10 @@ const BinRow = ({
           <div
             key={binIndex}
             ref={(node) => node && initAnimation(node, binIndex)}
-            className="flex flex-1 items-center justify-center rounded-sm text-[clamp(6px,2.784px+0.87vw,8px)] font-bold text-gray-950 shadow-[0_2px_var(--shadow-color)] lg:rounded-md lg:text-[clamp(10px,-16.944px+2.632vw,12px)] lg:shadow-[0_3px_var(--shadow-color)] w-9 h-7"
+            className="flex flex-1 items-center justify-center rounded-sm text-[clamp(6px,2.784px+0.87vw,8px)] font-bold text-gray-950 shadow-[0_2px_var(--shadow-color)] lg:rounded-md lg:text-[clamp(10px,-16.944px+2.632vw,12px)] lg:shadow-[0_3px_var(--shadow-color)]"
             style={{
+              width: `clamp(10px, 4vw, 40px)`, // Responsive width
+              height: `clamp(15px, 3vw, 25px)`, // Adjusted height
               backgroundColor: `rgb(${binColors.background[binIndex]["r"]},${binColors.background[binIndex]["g"]},${binColors.background[binIndex]["b"]})`,
               "--shadow-color": binColors.shadow[binIndex],
             }}

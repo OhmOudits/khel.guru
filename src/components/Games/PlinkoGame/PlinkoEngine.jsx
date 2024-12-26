@@ -144,7 +144,7 @@ class PlinkoEngine {
   }
 
   placePinsAndWalls() {
-    const pinRadius = this.pinRadius;
+    const pinRadius = (24 - this.rowCount) / 2;
 
     // Calculate the vertical spacing between rows based on the available height
     const availableHeight =
@@ -153,33 +153,33 @@ class PlinkoEngine {
       PlinkoEngine.PADDING_BOTTOM;
     const verticalSpacing = availableHeight / (this.rowCount - 1);
 
+    const pinDistanceX = (PlinkoEngine.WIDTH - PlinkoEngine.PADDING_X * 2) / (this.rowCount + 2);
+
     for (let row = 0; row < this.rowCount; row++) {
       const pinCount = row + 3; // Number of pins in this row
       const y = PlinkoEngine.PADDING_TOP + row * verticalSpacing; // Y-coordinate for this row
 
       // Calculate the total width occupied by the pins in this row
-      const rowWidth = (pinCount - 1) * this.pinDistanceX;
-
+      const rowPaddingX = PlinkoEngine.PADDING_X + ((this.rowCount - 1 - row) * pinDistanceX) / 2;
       // Calculate the starting x position to center the row
-      const startX = (this.canvas.width - rowWidth) / 2;
 
       const rowXCoords = [];
 
       for (let col = 0; col < pinCount; col++) {
-        const x = startX + col * this.pinDistanceX;
+        const x = rowPaddingX + ((PlinkoEngine.WIDTH - rowPaddingX * 2) / (3 + row - 1)) * col;
 
         const pin = Matter.Bodies.circle(x, y, pinRadius, {
           isStatic: true,
-          collisionFilter: { category: PlinkoEngine.PIN_CATEGORY },
+          collisionFilter: { category: PlinkoEngine.PIN_CATEGORY,  mask: PlinkoEngine.BALL_CATEGORY },
           render: { fillStyle: "#ffffff" },
         });
 
         Matter.Composite.add(this.engine.world, pin);
-        rowXCoords.push(x);
-      }
+        rowXCoords.push(pin);
 
-      if (row === this.rowCount - 1) {
-        this.pinsLastRowXCoords = rowXCoords;
+        if (row === this.rowCount - 1) {
+          this.pinsLastRowXCoords.push(x);
+        }
       }
     }
   }

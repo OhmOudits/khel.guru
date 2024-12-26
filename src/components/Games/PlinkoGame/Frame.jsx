@@ -139,8 +139,8 @@ const Frame = () => {
                     rows={rows}
                     engine={engine}
                     canvasRef={canvasRef}
-                    width={PlinkoEngine.HEIGHT}
-                    height={PlinkoEngine.WIDTH}
+                    width={PlinkoEngine.WIDTH}
+                    height={PlinkoEngine.HEIGHT}
                   />
                 </div>
               </div>
