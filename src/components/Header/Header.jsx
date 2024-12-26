@@ -30,8 +30,8 @@ const Header = () => {
   const dropdownRef = useRef(null);
   const dropdownRef2 = useRef(null);
   const dropdownRef3 = useRef(null);
-  // eslint-disable-next-line
-  const [loggedIn, setLoggedIn] = useState(true);
+
+  const [loggedIn, setLoggedIn] = useState(false);
   const user = useSelector((state) => state.auth?.user?.user);
   const [search, setSearch] = useState("");
   const [sortedCurrencies, setSortedCurrencies] = useState(currencies);
@@ -41,6 +41,7 @@ const Header = () => {
 
   const handleTabNavigation = (tab) => {
     navigate(`?tab=${tab}`, { replace: true });
+    setLoggedIn(true);
   };
 
   // Handle search filtering
@@ -254,7 +255,10 @@ const Header = () => {
       {!loggedIn && (
         <div className="flex items-stretch gap-1.5">
           <div className="max-md:hidden p-1 rounded-xl bg-secondary">
-            <div className="py-2 px-3 w-full h-full flex items-center justify-center text-white hover:bg-terHover cursor-pointer rounded-xl bg-ter">
+            <div
+              onClick={() => handleTabNavigation("search")}
+              className="py-2 px-3 w-full h-full flex items-center justify-center text-white hover:bg-terHover cursor-pointer rounded-md bg-ter"
+            >
               <FaSearch size={12} />
             </div>
           </div>
@@ -267,13 +271,13 @@ const Header = () => {
             {!user && (
               <>
                 <div
-                  className="cursor-pointer login py-2 px-4 bg-ter flex items-center justify-center hover:bg-terHover rounded-xl font-semibold"
+                  className="cursor-pointer login py-2 px-4 bg-ter flex items-center justify-center hover:bg-terHover rounded-md font-semibold"
                   onClick={() => handleTabNavigation("login")}
                 >
                   Login
                 </div>
                 <div
-                  className="cursor-pointer register py-2 px-4 rounded-xl bg-button font-bold"
+                  className="cursor-pointer register py-2 px-4 rounded-md bg-button font-bold"
                   onClick={() => handleTabNavigation("register")}
                 >
                   Register

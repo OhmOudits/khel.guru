@@ -39,6 +39,26 @@
   status = 200
 
 [[redirects]]
+  from = "/game/plinko"
+  to = "/index.html?redirect=game/plinko"
+  status = 200
+
+[[redirects]]
+  from = "/game/cards"
+  to = "/index.html?redirect=game/cards"
+  status = 200
+
+[[redirects]]
+  from = "/game/baccarat"
+  to = "/index.html?redirect=game/baccarat"
+  status = 200
+
+[[redirects]]
+  from = "/game/hilo"
+  to = "/index.html?redirect=game/hilo"
+  status = 200
+
+[[redirects]]
   from = "/sports"
   to = "/index.html?redirect=sports"
   status = 200

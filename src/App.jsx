@@ -9,6 +9,7 @@ import Login from "./components/Login/Login";
 import Register from "./components/Login/Register";
 import { Routes, Route } from "react-router-dom";
 import Frame from "./components/Frame/Frame";
+
 import WheelPage from "./components/Games/WheelGame/WheelPage";
 import DiamondPage from "./components/Games/DiamondGame/Diamond";
 import BalloonPage from "./components/Games/BalloonPage/Balloon";
@@ -16,6 +17,10 @@ import CrashPage from "./components/Games/CrashGame/Crash";
 import PlinkoPage from "./components/Games/PlinkoGame/Plinko";
 import LimboPage from "./components/Games/LimboGame/Limbo";
 import KenoPage from "./components/Games/Keno/Keno";
+import CardsPage from "./components/Games/Cards/Cards";
+import HiloPage from "./components/Games/Hilo/Hilo";
+import BaccaratPage from "./components/Games/Baccarat/Baccarat";
+
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { SportsBet, Sports, SportsCricket, SportsFootball } from "./pages";
@@ -152,6 +157,9 @@ function App() {
                 <Route path="/game/limbo" element={<LimboPage />} />
                 <Route path="/game/dice" element={<DicePage />} />
                 <Route path="/game/keno" element={<KenoPage />} />
+                <Route path="/game/cards" element={<CardsPage />} />
+                <Route path="/game/hilo" element={<HiloPage />} />
+                <Route path="/game/baccarat" element={<BaccaratPage />} />
                 <Route path="*" element={<LandingPage />} />
               </Routes>
             </div>
