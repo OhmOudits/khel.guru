@@ -1,0 +1,79 @@
+* {
+    box-sizing: border-box;
+  }
+  
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--gem-size, 1px); /* Default gem size */
+    height: var(--gem-size, 1px); /* Adjust with --gem-size */
+  }
+  
+  .sapphire {
+    position: relative;
+    width: 100%;
+    height: 80%;
+  }
+  
+  .shape {
+    position: absolute;
+  }
+  
+  .shape.top-left {
+    border-left: calc(var(--gem-size) * 0.25) solid transparent;
+    border-bottom: calc(var(--gem-size) * 0.25) solid #5f6fcf;
+  }
+  
+  .shape.top-right {
+    left: calc(var(--gem-size) * 0.25);
+    border-right: calc(var(--gem-size) * 0.25) solid transparent;
+    border-bottom: calc(var(--gem-size) * 0.25) solid #74acdd;
+  }
+  
+  .shape.left {
+    top: calc(var(--gem-size) * 0.25);
+    width: calc(var(--gem-size) * 0.15);
+    height: calc(var(--gem-size) * 0.4);
+    background: #5a5ab6;
+  }
+  
+  .shape.right {
+    top: calc(var(--gem-size) * 0.25);
+    left: calc(var(--gem-size) * 0.3);
+    width: calc(var(--gem-size) * 0.15);
+    height: calc(var(--gem-size) * 0.4);
+    background: #5f6fcf;
+  }
+  
+  .shape.bottom-left {
+    top: calc(var(--gem-size) * 0.65);
+    border-top: calc(var(--gem-size) * 0.25) solid #594c8a;
+    border-left: calc(var(--gem-size) * 0.25) solid transparent;
+  }
+  
+  .shape.bottom-right {
+    top: calc(var(--gem-size) * 0.65);
+    left: calc(var(--gem-size) * 0.25);
+    border-top: calc(var(--gem-size) * 0.25) solid #5a5ab6;
+    border-right: calc(var(--gem-size) * 0.25) solid transparent;
+  }
+  
+  .hexagon {
+    position: absolute;
+  }
+  
+  
+  .hexagon.middle {
+    top: calc(var(--gem-size) * 0.25);
+    left: calc(var(--gem-size) * 0.1);
+    width: calc(var(--gem-size) * 0.4);
+    height: calc(var(--gem-size) * 0.5);
+    background: #6382d6;
+  }
+  
+  .text-sm {
+    font-size: clamp(10px, 0.8vw, 14px);
+    line-height: 1; /* Aligns text vertically */
+    vertical-align: middle;
+  }
