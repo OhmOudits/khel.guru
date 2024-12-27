@@ -10,6 +10,7 @@ import LeftSection from "../../Frame/LeftSection";
 import History from "../../Frame/History";
 import Game from "./Game";
 import PlinkoEngine from "./PlinkoEngine";
+import usePlinkoStore from "./store";
 
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
@@ -23,7 +24,7 @@ const Frame = () => {
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
   const [risk, setRisk] = useState("Medium");
-  const [rows, setRows] = useState(16);
+  const [rows, setRows] = useState(12);
 
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
@@ -51,6 +52,9 @@ const Frame = () => {
   const canvasRef = useRef(null); // Reference for the canvas element
   const [engine, setEngine] = useState(null);
 
+  const setCurrentBinIndex = usePlinkoStore((state) => state.setCurrentBinIndex);
+
+
   // Initialize and manage the PlinkoEngine instance
   useEffect(() => {
     if (canvasRef.current) {
@@ -58,7 +62,8 @@ const Frame = () => {
         canvasRef.current,
         bet,
         rows,
-        risk
+        risk,
+        setCurrentBinIndex
       );
       setEngine(plinkoInstance);
       plinkoInstance.start();

@@ -1,14 +1,16 @@
 import Matter from "matter-js";
+// eslint-disable-next-line no-unused-vars
 import { v4 as uuidv4 } from "uuid";
 import { getRandomBetween } from "../../../utils/plinko";
 import { binPayouts } from "./constant";
+
 
 class PlinkoEngine {
   static WIDTH = 760;
   static HEIGHT = 500;
 
   static PADDING_X = 52;
-  static PADDING_TOP = 36;
+  static PADDING_TOP = 40;
   static PADDING_BOTTOM = 28;
 
   static PIN_CATEGORY = 0x0001;
@@ -29,11 +31,15 @@ class PlinkoEngine {
     },
   };
 
-  constructor(canvas, bet, rows, risk) {
+  constructor(canvas, bet, rows, risk, setCurrentBinIndex) {
     this.canvas = canvas;
     this.betAmount = bet;
     this.rowCount = rows;
     this.riskLevel = risk;
+
+    this.updateBinIndex = setCurrentBinIndex;
+
+    this.updateRowCount(rows);
 
     this.engine = Matter.Engine.create({ timing: { timeScale: 1 } });
     this.render = Matter.Render.create({
@@ -42,7 +48,7 @@ class PlinkoEngine {
       options: {
         width: PlinkoEngine.WIDTH,
         height: PlinkoEngine.HEIGHT,
-        background: "#0f1728",
+        background: "rgb(17 24 39)",
         wireframes: false,
       },
     });
@@ -53,6 +59,7 @@ class PlinkoEngine {
     this.balls = []; // Track active balls
     this.sensor = null;
     this.pinsLastRowXCoords = [];
+    this.winsIndex = [];
 
     this.placePinsAndWalls();
 
@@ -89,7 +96,7 @@ class PlinkoEngine {
 
   dropBall() {
     const ballOffsetRangeX = this.pinDistanceX * 0.8;
-    const ballRadius = this.pinRadius * 2;
+    const ballRadius = this.pinRadius * 2 - 1;
     const { friction, frictionAirByRowCount } = PlinkoEngine.ballFrictions;
 
     const ball = Matter.Bodies.circle(
@@ -97,7 +104,7 @@ class PlinkoEngine {
         this.canvas.width / 2 - ballOffsetRangeX,
         this.canvas.width / 2 + ballOffsetRangeX
       ),
-      PlinkoEngine.PADDING_TOP,
+      0,
       ballRadius,
       {
         restitution: 0.8,
@@ -116,15 +123,38 @@ class PlinkoEngine {
   }
 
   get pinDistanceX() {
-    const lastRowPinCount = 3 + this.rowCount - 1;
-    return (
-      (this.canvas.width - PlinkoEngine.PADDING_X * 2) / (lastRowPinCount - 1)
-    );
+    const list = {
+      8: 75.31,
+      9: 67.62,
+      10: 60.00,
+      11: 55.46,
+      12: 51.08,
+      13: 46.85,
+      14: 43.77,
+      15: 40.85,
+      16: 38.08
+    };
+    return list[this.rowCount];
+}
+
+  updateRowCount(rowCount) {
+    if (rowCount === this.rowCount) {
+      return;
+    }
+
+    this.rowCount = rowCount;
+    this.placePinsAndWalls();
+  }
+
+  get binsWidthPercentage(){
+    const lastPinX = this.pinsLastRowXCoords[this.pinsLastRowXCoords.length - 1];
+    return (lastPinX - this.pinsLastRowXCoords[0]) / PlinkoEngine.WIDTH;
   }
 
   get pinRadius() {
     return (24 - this.rowCount) / 2;
   }
+
 
   handleBallEnterBin(ball) {
     const binIndex = this.pinsLastRowXCoords.findLastIndex(
@@ -136,6 +166,7 @@ class PlinkoEngine {
       const payoutValue = this.betAmount * multiplier;
 
       console.log(`Ball entered bin ${binIndex}, payout: ${payoutValue}`);
+      this.updateBinIndex(binIndex);
     }
 
     // Remove ball from the engine
@@ -144,44 +175,83 @@ class PlinkoEngine {
   }
 
   placePinsAndWalls() {
-    const pinRadius = (24 - this.rowCount) / 2;
+    const pinRadius = (24 - this.rowCount - 1) / 2;
 
     // Calculate the vertical spacing between rows based on the available height
-    const availableHeight =
-      PlinkoEngine.HEIGHT -
-      PlinkoEngine.PADDING_TOP -
-      PlinkoEngine.PADDING_BOTTOM;
+    const availableHeight = PlinkoEngine.HEIGHT - PlinkoEngine.PADDING_TOP - PlinkoEngine.PADDING_BOTTOM;
     const verticalSpacing = availableHeight / (this.rowCount - 1);
 
-    const pinDistanceX = (PlinkoEngine.WIDTH - PlinkoEngine.PADDING_X * 2) / (this.rowCount + 2);
+    if (this.pins.length > 0) {
+      Matter.Composite.remove(this.engine.world, this.pins);
+      this.pins = [];
+    }
+    if (this.pinsLastRowXCoords.length > 0) {
+      this.pinsLastRowXCoords = [];
+    }
+    if (this.walls.length > 0) {
+      Matter.Composite.remove(this.engine.world, this.walls);
+      this.walls = [];
+    }
+
 
     for (let row = 0; row < this.rowCount; row++) {
       const pinCount = row + 3; // Number of pins in this row
-      const y = PlinkoEngine.PADDING_TOP + row * verticalSpacing; // Y-coordinate for this row
+      const rowY = PlinkoEngine.PADDING_TOP + row * verticalSpacing; // Y-coordinate for this row
 
       // Calculate the total width occupied by the pins in this row
-      const rowPaddingX = PlinkoEngine.PADDING_X + ((this.rowCount - 1 - row) * pinDistanceX) / 2;
+      const rowPaddingX = PlinkoEngine.PADDING_X + ((this.rowCount - 1 - row) * this.pinDistanceX) / 2;
       // Calculate the starting x position to center the row
-
-      const rowXCoords = [];
-
       for (let col = 0; col < pinCount; col++) {
-        const x = rowPaddingX + ((PlinkoEngine.WIDTH - rowPaddingX * 2) / (3 + row - 1)) * col;
+        const colX = rowPaddingX + ((PlinkoEngine.WIDTH - rowPaddingX * 2) / (3 + row - 1)) * col;
 
-        const pin = Matter.Bodies.circle(x, y, pinRadius, {
+        const pin = Matter.Bodies.circle(colX, rowY, pinRadius, {
           isStatic: true,
           collisionFilter: { category: PlinkoEngine.PIN_CATEGORY,  mask: PlinkoEngine.BALL_CATEGORY },
           render: { fillStyle: "#ffffff" },
         });
 
-        Matter.Composite.add(this.engine.world, pin);
-        rowXCoords.push(pin);
+        
+        this.pins.push(pin);
 
         if (row === this.rowCount - 1) {
-          this.pinsLastRowXCoords.push(x);
+          this.pinsLastRowXCoords.push(colX);
         }
       }
     }
+    Matter.Composite.add(this.engine.world, this.pins);
+
+    const firstPinX = this.pins[0].position.x;
+    const leftWallAngle = Math.atan2(
+      firstPinX - this.pinsLastRowXCoords[0],
+      PlinkoEngine.HEIGHT - PlinkoEngine.PADDING_TOP - PlinkoEngine.PADDING_BOTTOM,
+    );
+    const leftWallX =
+      firstPinX - (firstPinX - this.pinsLastRowXCoords[0]) / 2 - this.pinDistanceX * 0.25;
+
+    const leftWall = Matter.Bodies.rectangle(
+      leftWallX,
+      PlinkoEngine.HEIGHT / 2,
+      10,
+      PlinkoEngine.HEIGHT,
+      {
+        isStatic: true,
+        angle: leftWallAngle,
+        render: { visible: false },
+      },
+    );
+    const rightWall = Matter.Bodies.rectangle(
+      PlinkoEngine.WIDTH - leftWallX,
+      PlinkoEngine.HEIGHT / 2,
+      10,
+      PlinkoEngine.HEIGHT,
+      {
+        isStatic: true,
+        angle: -leftWallAngle,
+        render: { visible: false },
+      },
+    );
+    this.walls.push(leftWall, rightWall);
+    Matter.Composite.add(this.engine.world, this.walls);
   }
 }
 

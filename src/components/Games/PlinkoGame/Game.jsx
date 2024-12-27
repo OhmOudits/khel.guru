@@ -3,7 +3,9 @@ import { CircleNotch } from "phosphor-react";
 import BinsRow from "./BinsRow";
 import { binColorsByRowCount } from "./constant";
 
+
 const Game = ({ bet, rows, risk, engine, width, height, canvasRef }) => {
+
   const [binColors, setBinColors] = useState(binColorsByRowCount(rows)); // State for bin colors based on rows
 
   // Update bin colors when row count changes
