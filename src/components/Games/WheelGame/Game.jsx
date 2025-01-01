@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { segments } from "../../../constants";
 
-// eslint-disable-next-line
-const Game = ({ risk, segment }) => {
+// eslint-disable-next-line react/prop-types
+const Game = ({ risk, segment, targetIndex, betStarted, setBetStarted }) => {
   const [riskSegment, setRiskSegment] = useState(null);
   const [selectedSegmentData, setSelectedSegmentData] = useState(null);
   const [segmentColors, setSegmentColors] = useState([]);
+  const [rotation, setRotation] = useState(0);
+  const [spinning, setSpinning] = useState(false);
+
+  const radius = 100;
 
   useEffect(() => {
     const foundSegment = segments.find((s) => s.risk === risk);
@@ -24,59 +28,127 @@ const Game = ({ risk, segment }) => {
   useEffect(() => {
     if (selectedSegmentData) {
       const colors = [];
-      selectedSegmentData.sections.forEach((section) => {
-        colors.push(...Array(section.terms).fill(section.color));
+      selectedSegmentData.list.forEach((item) => {
+        colors.push(selectedSegmentData.colors[item]);
       });
-
-      // Shuffle colors
-      for (let i = colors.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [colors[i], colors[j]] = [colors[j], colors[i]];
-      }
-
       setSegmentColors(colors);
     }
   }, [selectedSegmentData]);
 
-  const [angle, setAngle] = useState(0);
+  useEffect(()=>{
+    console.log("called spin")
+    if (betStarted){
+      spinWheel();
+    }
+  }, [betStarted, targetIndex])
 
-  useEffect(() => {
-    const totalSegments = segmentColors.length;
-    setAngle(360 / totalSegments);
-  }, [segmentColors]);
+  useEffect(()=>{
+    if (!spinning){
+      setBetStarted(false);
+    }
+  }, [spinning])
+
+  const totalSegments = segmentColors.length;
+
+  const calculateArcPath = (index, total, radius) => {
+    const angle = (index / total) * 2 * Math.PI;
+    const nextAngle = ((index + 1) / total) * 2 * Math.PI;
+    const largeArc = nextAngle - angle > Math.PI ? 1 : 0;
+
+    const startX = radius * Math.cos(angle);
+    const startY = radius * Math.sin(angle);
+    const endX = radius * Math.cos(nextAngle);
+    const endY = radius * Math.sin(nextAngle);
+
+    return `
+      M ${startX} ${startY}
+      A ${radius} ${radius} 0 ${largeArc} 1 ${endX} ${endY}
+      L 0 0
+      Z
+    `;
+  };
+
+
+
+  const spinWheel = () => {
+    if (spinning) return;
+    setSpinning(true);
+
+    let extraspin;
+    if (segment%20 == 0){
+      extraspin = 5;
+    }else{
+      extraspin = 0;
+    }
+
+    const heavySpins = 5 * 360; // Extra spins for visual effect
+    const segmentAngle = 360 / totalSegments; // Angle of each segment
+    const targetAngle = targetIndex * segmentAngle; // Angle for the target index
+    const finalRotation = rotation + heavySpins + targetAngle + 0; // Final rotation
+
+    setRotation(finalRotation);
+
+    setTimeout(() => {
+      setSpinning(false);
+    }, 4000); // Spin duration
+  };
 
   return (
-    <div className="flex justify-center items-center relative">
-      {/* Indicator at the top */}
+    <div className="flex flex-col justify-center items-center absolute">
+      {/* Outer Circle */}
       <div
-        className="absolute top-[-3.5%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-red-500 z-[10]"
+        className="absolute w-[400px] h-[400px] max-lg:w-[320px] max-lg:h-[320px] rounded-full bg-gray-800"
+        style={{
+          borderRadius: "50%",
+          zIndex: 1,
+        }}
+      ></div>
+
+      {/* Rotating Circle */}
+      <div className="relative w-[360px] h-[360px] max-lg:w-[290px] max-lg:h-[290px] z-10">
+        {/* Segments */}
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "100%",
+            transform: `rotate(${rotation+2}deg)`,
+            transition: "transform 4s ease-out",
+          }}
+        >
+          {segmentColors.map((color, index) => {
+            const arcPath = calculateArcPath(index, totalSegments, radius);
+            return (
+              <svg
+                key={index}
+                width="100%"
+                height="100%"
+                viewBox="-100 -100 200 200"
+                style={{
+                  position: "absolute",
+                  top: "0",
+                  left: "0",
+                }}
+              >
+                <path d={arcPath} fill={color} />
+              </svg>
+            );
+          })}
+        </div>
+
+        {/* Inner Circle */}
+        <div
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] aspect-square rounded-full bg-primary z-[2] border border-activeHover"
+        ></div>
+      </div>
+
+      {/* Pointer */}
+      <div
+        className="absolute top-[-3.5%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-red-500 z-[15]"
         style={{
           clipPath: "polygon(25% 0, 75% 0, 50% 100%, 50% 100%)",
         }}
       ></div>
-
-      {/* Outer Circle */}
-      <div className="absolute w-80 h-80 max-lg:w-72 max-lg:h-72 rounded-full bg-inactive"></div>
-
-      {/* Inner Circle and Segments */}
-      <div className="relative w-72 h-72 max-lg:w-64 max-lg:h-64 rounded-full overflow-hidden">
-        {/* Segments */}
-        {segmentColors.map((color, index) => (
-          <div
-            key={index}
-            className="absolute w-full h-full"
-            style={{
-              backgroundColor: color,
-              clipPath: `polygon(50% 50%, 100% 0, 100% 100%)`,
-              transform: `rotate(${angle * index}deg)`,
-              transformOrigin: "50% 50%",
-            }}
-          ></div>
-        ))}
-
-        {/* Inner Circle */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] aspect-square rounded-full bg-primary z-[2] border border-activeHover"></div>
-      </div>
     </div>
   );
 };
