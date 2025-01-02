@@ -96,7 +96,7 @@ class PlinkoEngine {
 
   dropBall() {
     const ballOffsetRangeX = this.pinDistanceX * 0.8;
-    const ballRadius = this.pinRadius * 2 - 1;
+    const ballRadius = this.pinRadius * 2;
     const { friction, frictionAirByRowCount } = PlinkoEngine.ballFrictions;
 
     const ball = Matter.Bodies.circle(
