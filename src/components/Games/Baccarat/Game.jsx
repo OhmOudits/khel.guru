@@ -19,6 +19,12 @@ const CARD_VALUES = [
   "A",
 ];
 
+const CardBack = () => (
+  <div className="w-24 h-36 rounded-md shadow-lg bg-blue-600 border-2 border-white flex items-center justify-center">
+    <h1 className="text-white font-bold">BACK</h1>
+  </div>
+);
+
 const DeckPile = ({ deckCount = 10 }) => (
   <div className="absolute right-28 z-10">
     {[...Array(Math.min(5, Math.ceil(deckCount / 10)))].map((_, i) => (
@@ -39,6 +45,14 @@ const DeckPile = ({ deckCount = 10 }) => (
 
 const Game = () => {
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth > 1024);
+  const [flipped, setFlipped] = useState([
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+  ]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -49,11 +63,65 @@ const Game = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    flipped.forEach((_, index) => {
+      setTimeout(() => {
+        setFlipped((prev) => {
+          const updated = [...prev];
+          updated[index] = true;
+          return updated;
+        });
+      }, index * 300);
+    });
+  }, []);
+
+  const renderCard = (value, suit, index, top, left) => (
+    <motion.div
+      initial={{ scale: 0.5, top: "-4.5rem", left: "calc(100% - 6rem)" }}
+      animate={{
+        scale: 1,
+        top: isLargeScreen ? `${top}%` : `${top}%`,
+        left: `${left}%`,
+      }}
+      transition={{ duration: 0.3 }}
+      className="absolute"
+    >
+      <motion.div
+        className="relative w-24 h-36"
+        initial={{ rotateY: 180 }}
+        animate={{ rotateY: flipped[index] ? 0 : 180 }}
+        transition={{ duration: 0.6 }}
+        style={{ transformStyle: "preserve-3d" }}
+      >
+        {/* Front and Back of the Card */}
+        <div
+          className="absolute backface-hidden"
+          style={{
+            backfaceVisibility: "hidden",
+            transform: "rotateY(0deg)",
+          }}
+        >
+          <Card small={!isLargeScreen} value={value} suit={suit} />
+        </div>
+        <div
+          className="absolute backface-hidden"
+          style={{
+            backfaceVisibility: "hidden",
+            transform: "rotateY(180deg)",
+          }}
+        >
+          <CardBack />
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+
   return (
     <div className="relative w-full h-[600px] max-lg:h-[500px] text-base text-white overflow-hidden">
       <div className="w-full h-[450px] relative">
         <DeckPile />
 
+        {/* Player and Dealer Score */}
         <div className="absolute px-2 py-1.5 rounded bg-gray-800 top-[9%] max-lg:top-[5.5rem] left-[25%] max-lg:left-[10%]">
           Player : 0
         </div>
@@ -61,115 +129,17 @@ const Game = () => {
           Dealer : 0
         </div>
 
-        {/* Card 1 (Topmost Card) */}
-        <motion.div
-          initial={{ scale: 0.5, top: "-4.5rem", left: "calc(100% - 6rem)" }}
-          animate={{
-            scale: 1,
-            top: isLargeScreen ? "20%" : "32%",
-            left: isLargeScreen ? "22%" : "6%",
-          }}
-          transition={{ duration: 0.3 }}
-          className="absolute"
-        >
-          <Card
-            small={!isLargeScreen}
-            value={CARD_VALUES[4]}
-            suit={CARD_SUITS[2]}
-          />
-        </motion.div>
+        {/* Render Cards */}
+        {renderCard(CARD_VALUES[4], CARD_SUITS[2], 0, 20, 22)}
+        {renderCard(CARD_VALUES[5], CARD_SUITS[3], 1, 28, 25)}
+        {renderCard(CARD_VALUES[6], CARD_SUITS[1], 2, 36, 28)}
 
-        {/* Card 2 */}
-        <motion.div
-          initial={{ scale: 0.5, top: "-4.5rem", left: "calc(100% - 6rem)" }}
-          animate={{
-            scale: 1,
-            top: isLargeScreen ? "28%" : "40%",
-            left: isLargeScreen ? "25%" : "9%",
-          }}
-          transition={{ duration: 0.3, delay: 0.6 }}
-          className="absolute"
-        >
-          <Card
-            small={!isLargeScreen}
-            value={CARD_VALUES[5]}
-            suit={CARD_SUITS[3]}
-          />
-        </motion.div>
-
-        {/* Card 3 */}
-        <motion.div
-          initial={{ scale: 0.5, top: "-4.5rem", left: "calc(100% - 6rem)" }}
-          animate={{
-            scale: 1,
-            top: isLargeScreen ? "36%" : "48%",
-            left: isLargeScreen ? "28%" : "12%",
-          }}
-          transition={{ duration: 0.3, delay: 1.2 }}
-          className="absolute"
-        >
-          <Card
-            small={!isLargeScreen}
-            value={CARD_VALUES[6]}
-            suit={CARD_SUITS[1]}
-          />
-        </motion.div>
-
-        {/* Card 1 (Second Section) */}
-        <motion.div
-          initial={{ scale: 0.5, top: "-4.5rem", left: "calc(100% - 6rem)" }}
-          animate={{
-            scale: 1,
-            top: isLargeScreen ? "20%" : "32%",
-            left: "57%",
-          }}
-          transition={{ duration: 0.3, delay: 0.3 }}
-          className="absolute"
-        >
-          <Card
-            small={!isLargeScreen}
-            value={CARD_VALUES[4]}
-            suit={CARD_SUITS[2]}
-          />
-        </motion.div>
-
-        {/* Card 2 */}
-        <motion.div
-          initial={{ scale: 0.5, top: "-4.5rem", left: "calc(100% - 6rem)" }}
-          animate={{
-            scale: 1,
-            top: isLargeScreen ? "28%" : "40%",
-            left: "60%",
-          }}
-          transition={{ duration: 0.3, delay: 0.9 }}
-          className="absolute"
-        >
-          <Card
-            small={!isLargeScreen}
-            value={CARD_VALUES[5]}
-            suit={CARD_SUITS[3]}
-          />
-        </motion.div>
-
-        {/* Card 3 */}
-        <motion.div
-          initial={{ scale: 0.5, top: "-4.5rem", left: "calc(100% - 6rem)" }}
-          animate={{
-            scale: 1,
-            top: isLargeScreen ? "36%" : "48%",
-            left: "63%",
-          }}
-          transition={{ duration: 0.3, delay: 1.5 }}
-          className="absolute"
-        >
-          <Card
-            small={!isLargeScreen}
-            value={CARD_VALUES[6]}
-            suit={CARD_SUITS[1]}
-          />
-        </motion.div>
+        {renderCard(CARD_VALUES[4], CARD_SUITS[2], 3, 20, 57)}
+        {renderCard(CARD_VALUES[5], CARD_SUITS[3], 4, 28, 60)}
+        {renderCard(CARD_VALUES[6], CARD_SUITS[1], 5, 36, 63)}
       </div>
 
+      {/* Bottom Action Section */}
       <div className="absolute bottom-10 left-0 right-0">
         <div className="w-full px-3 flex items-center justify-center gap-3 max-md:gap-2">
           <div className="relative bg-primary py-6 px-20 max-lg:px-8 max-lg:py-3 max-md:text-xs flex flex-col items-center justify-center border border-gray-500 cursor-pointer rounded hover:bg-primary/10 transition duration-300 ease-in-out">

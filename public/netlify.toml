@@ -54,6 +54,11 @@
   status = 200
 
 [[redirects]]
+  from = "/game/blackjack"
+  to = "/index.html?redirect=game/blackjack"
+  status = 200
+
+[[redirects]]
   from = "/game/hilo"
   to = "/index.html?redirect=game/hilo"
   status = 200
