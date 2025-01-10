@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { io } from "socket.io-client";
 import bomb from "../../../assets/boom.png";
 import diamond from "../../../assets/diamond.png";
-
-const socket = io("http://localhost:3000"); // Replace with your backend URL
 
 const Game = ({
   mines,
@@ -15,13 +12,12 @@ const Game = ({
   randomSelect,
   gameCheckout,
   setGameCheckout,
-  userEmail,
 }) => {
   const [grid, setGrid] = useState([]);
   const [gameOver, setGameOver] = useState(false);
   const [gameWon, setGameWon] = useState(false);
 
-  // Helper function to create grid
+  // Helper function to create the grid
   useEffect(() => {
     const createGrid = () => {
       const initialGrid = Array.from({ length: 25 }, () => ({
@@ -39,65 +35,38 @@ const Game = ({
       }
       return initialGrid;
     };
+
     setGrid(createGrid());
   }, [mines]);
 
-  // Set up socket event listeners and emitters for the Mines game
-  useEffect(() => {
-    if (betStarted && userEmail) {
-      socket.emit("startMinesGame", userEmail); // Start game on backend
-    }
-
-    // Handle game started event from backend
-    socket.on("minesGameStarted", ({ bombPosition }) => {
-      setGrid((prevGrid) => {
-        const newGrid = [...prevGrid];
-        if (newGrid[bombPosition]) {
-          newGrid[bombPosition].type = "bomb"; // Place bomb according to backend
-        }
-        return newGrid;
-      });
-    });
-
-    // Handle game over event from backend
-    socket.on("minesGameOver", ({ bombHit }) => {
-      setGameOver(bombHit);
-      setBetStarted(false);
-    });
-
-    // Handle safe box click event from backend
-    socket.on("minesBoxSafe", ({ bombHit, index }) => {
-      setGrid((prevGrid) => {
-        const newGrid = [...prevGrid];
-        if (newGrid[index] && !bombHit) {
-          newGrid[index].revealed = true; // Reveal the safe box
-          setGems((prev) => prev - 1);
-          const diamondsLeft = newGrid.filter(
-            (box) => box.type === "diamond" && !box.revealed
-          ).length;
-
-          if (diamondsLeft === 0) {
-            setGameWon(true);
-            setBetStarted(false);
-          }
-        }
-        return newGrid;
-      });
-    });
-
-    // Cleanup listeners on component unmount
-    return () => {
-      socket.off("minesGameStarted");
-      socket.off("minesGameOver");
-      socket.off("minesBoxSafe");
-    };
-  }, [betStarted, userEmail]);
-
   const handleBoxClick = (index) => {
     if (gameOver || gameWon || grid[index]?.revealed) return;
+    console.log("Clicked index:", index, "Type:", grid[index]?.type);
 
-    // Emit box clicked event to backend
-    socket.emit("minesBoxClicked", { index, email: userEmail });
+    setGrid((prevGrid) =>
+      prevGrid.map((box, idx) => {
+        if (idx === index) {
+          if (box.type === "bomb") {
+            setGameOver(true);
+            setBetStarted(false);
+            return { ...box, revealed: true };
+          } else if (box.type === "diamond") {
+            setGems((prev) => prev - 1);
+
+            const diamondsLeft = prevGrid.filter(
+              (b, i) => b.type === "diamond" && !b.revealed && i !== index
+            ).length;
+
+            if (diamondsLeft === 0) {
+              setGameWon(true);
+              setBetStarted(false);
+            }
+            return { ...box, revealed: true };
+          }
+        }
+        return box;
+      })
+    );
   };
 
   useEffect(() => {
@@ -113,22 +82,16 @@ const Game = ({
       }
       setRandomSelect(false);
     }
-  }, [randomSelect, grid, gameOver, gameWon, setRandomSelect]);
+  }, [randomSelect, gameOver, gameWon, grid, setRandomSelect]);
 
-  // Handle game over and win modals with timers
+  // Handle game modals with timers
   useEffect(() => {
-    if (gameOver) {
-      const timeoutId = setTimeout(() => setGameOver(false), 3000);
-      return () => clearTimeout(timeoutId);
-    }
-
-    if (gameWon) {
-      const timeoutId = setTimeout(() => setGameWon(false), 3000);
-      return () => clearTimeout(timeoutId);
-    }
-
-    if (gameCheckout) {
-      const timeoutId = setTimeout(() => setGameCheckout(false), 3000);
+    if (gameOver || gameWon || gameCheckout) {
+      const timeoutId = setTimeout(() => {
+        setGameOver(false);
+        setGameWon(false);
+        setGameCheckout(false);
+      }, 3000);
       return () => clearTimeout(timeoutId);
     }
   }, [gameWon, gameOver, gameCheckout, setGameCheckout]);
@@ -183,7 +146,6 @@ const Game = ({
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
-            onClick={() => setGameOver(false)}
           >
             <img src={bomb} alt="Bomb" className="w-32 sm:w-40 md:w-48" />
             <h2 className="text-xl md:text-2xl font-bold text-white mb-4">
@@ -193,7 +155,6 @@ const Game = ({
         </div>
       )}
 
-      {/* Win Modal */}
       {gameWon && (
         <div className="absolute top-0 left-0 w-full h-full inset-0 bg-[rgba(0,0,0,0.6)] bg-opacity-75 flex items-center justify-center">
           <motion.div
@@ -201,7 +162,6 @@ const Game = ({
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
-            onClick={() => setGameWon(false)}
           >
             <img src={diamond} alt="Diamond" className="w-16 mb-2" />
             <h2 className="text-xl text-center md:text-2xl font-bold text-white mb-4">

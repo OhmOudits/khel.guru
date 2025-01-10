@@ -1,220 +1,215 @@
 .card-container {
-      display: grid;
-      grid-gap: .5em;
-      grid-template-columns: repeat(auto-fit, minmax(100%, 1fr));
-      justify-content: center;
+  display: grid;
+  grid-gap: 0.5em;
+  grid-template-columns: repeat(auto-fit, minmax(100%, 1fr));
+  justify-content: center;
 }
 
 .card {
-      overflow: hidden;
-      position: relative;
-      width: 140px;
-      height: 210px;
-      border-radius: 5px;
-      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-      background: linear-gradient(to left top, #ec014b, #06cced);
-      isolation: isolate;
-      margin: 0 auto;
-      /* Ensures cards are centered if smaller */
+  overflow: hidden;
+  position: relative;
+  border-radius: 5px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(to left top, #ec014b, #06cced);
+  isolation: isolate;
+  margin: 0 auto;
 }
 
 .card::before,
 .card::after {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  content: "";
 }
 
 .card::before {
-      background: var(--pattern, repeating-linear-gradient(45deg, #000, #999, #000 5%)),
-            var(--map, linear-gradient(45deg, #777, #000));
-      background-blend-mode: screen;
-      filter: contrast(19);
-      mix-blend-mode: multiply;
+  background: var(
+      --pattern,
+      repeating-linear-gradient(45deg, #000, #999, #000 5%)
+    ),
+    var(--map, linear-gradient(45deg, #777, #000));
+  background-blend-mode: screen;
+  filter: contrast(19);
+  mix-blend-mode: multiply;
 }
 
 .card::after {
-      background: linear-gradient(90deg, #251967, #d0135e);
-      mix-blend-mode: screen;
+  background: linear-gradient(90deg, #251967, #d0135e);
+  mix-blend-mode: screen;
 }
 
-.card:nth-child(2)::before {
-      --pattern:
-            repeating-radial-gradient(circle at 0 50%, #000, #999, #000 5%);
-      --map:
-            radial-gradient(circle at 0 50%, #777, #000)
+.card1::before {
+  --pattern: repeating-linear-gradient(45deg, #000, #999, #000 5%);
+  --map: linear-gradient(45deg, #777, #000);
 }
 
-.card:nth-child(3)::before {
-      --pattern:
-            repeating-conic-gradient(at -9% 25%, #000, #999, #000 2.5%);
-      --map:
-            conic-gradient(at -9% 25%, #000, #777 50%)
+.card2::before {
+  --pattern: repeating-radial-gradient(circle at 0 50%, #000, #999, #000 5%);
+  --map: radial-gradient(circle at 0 50%, #777, #000);
 }
 
-.card:nth-child(4)::before {
-      --pattern:
-            repeating-linear-gradient(30deg, #000, #999, #000 5%),
-            repeating-linear-gradient(-60deg, #000, #999, #000 5%);
-      --map: linear-gradient(30deg, #777, #000)
+.card3::before {
+  --pattern: repeating-conic-gradient(at -9% 25%, #000, #999, #000 2.5%);
+  --map: conic-gradient(at -9% 25%, #000, #777 50%);
 }
 
-.card:nth-child(5)::before {
-      background: var(--map), var(--pattern);
-      --map:
-            linear-gradient(#777, #000);
-      --pattern:
-            repeating-radial-gradient(circle at -35% 0, #000, #999, #000 5%),
-            repeating-radial-gradient(circle at -35% 100%, #000, #999, #000 5%);
-      background-blend-mode: screen, difference;
+.card4::before {
+  --pattern: repeating-linear-gradient(30deg, #000, #999, #000 5%),
+    repeating-linear-gradient(-60deg, #000, #999, #000 5%);
+  --map: linear-gradient(30deg, #777, #000);
 }
 
-.card:nth-child(6)::before {
-      background: var(--map), var(--pattern);
-      --map:
-            linear-gradient(30deg, #777, #000),
-            repeating-linear-gradient(30deg, #000, #999, #000 5%);
-      --pattern:
-            repeating-linear-gradient(-60deg, #000, #999, #000 5%);
-      background-blend-mode: screen, difference;
+.card5::before {
+  --map: linear-gradient(#777, #000);
+  --pattern: repeating-radial-gradient(circle at -35% 0, #000, #999, #000 5%),
+    repeating-radial-gradient(circle at -35% 100%, #000, #999, #000 5%);
+  background-blend-mode: screen, difference;
 }
 
-.card:nth-child(7)::before {
-      background: var(--map), var(--pattern);
-      --map:
-            linear-gradient(30deg, #777, #000);
-      --pattern:
-            repeating-linear-gradient(30deg, #000, #999, #000 5%),
-            repeating-conic-gradient(#000, #999, #000 5%);
-      background-blend-mode: screen, difference;
+.card6::before {
+  --map: linear-gradient(30deg, #777, #000),
+    repeating-linear-gradient(30deg, #000, #999, #000 5%);
+  --pattern: repeating-linear-gradient(-60deg, #000, #999, #000 5%);
+  background-blend-mode: screen, difference;
 }
 
-.card:nth-child(8)::before {
-      background: var(--map), var(--pattern);
-      --map:
-            linear-gradient(30deg, #777, #000);
-      --pattern:
-            repeating-linear-gradient(30deg, #000, #999, #000 5%),
-            repeating-radial-gradient(circle at 100% 50%, #000, #999, #000 5%);
-      background-blend-mode: screen, difference;
+.card7::before {
+  --map: linear-gradient(30deg, #777, #000);
+  --pattern: repeating-linear-gradient(30deg, #000, #999, #000 5%),
+    repeating-conic-gradient(#000, #999, #000 5%);
+  background-blend-mode: screen, difference;
 }
 
-.card:nth-child(9)::before {
-      background: var(--map), var(--pattern);
-      --map:
-            radial-gradient(circle, #777, #000);
-      --pattern:
-            repeating-linear-gradient(-45deg, #000, #999, #000 5%),
-            repeating-linear-gradient(45deg, #000, #999, #000 5%);
-      background-blend-mode: screen, difference;
+.card8::before {
+  --map: linear-gradient(30deg, #777, #000);
+  --pattern: repeating-linear-gradient(30deg, #000, #999, #000 5%),
+    repeating-radial-gradient(circle at 100% 50%, #000, #999, #000 5%);
+  background-blend-mode: screen, difference;
 }
 
-.card:nth-child(10)::before {
-      background: var(--map), var(--pattern);
-      --map:
-            conic-gradient(#777, #000);
-      --pattern:
-            repeating-linear-gradient(-45deg, #000, #999, #000 5%),
-            repeating-linear-gradient(45deg, #000, #999, #000 5%);
-      background-blend-mode: screen, difference;
+.card9::before {
+  --map: radial-gradient(circle, #777, #000);
+  --pattern: repeating-linear-gradient(-45deg, #000, #999, #000 5%),
+    repeating-linear-gradient(45deg, #000, #999, #000 5%);
+  background-blend-mode: screen, difference;
 }
 
-.card:nth-child(11)::before {
-      background: var(--map), var(--pattern);
-      --map:
-            radial-gradient(circle, #000, #666 70%);
-      --pattern:
-            radial-gradient(circle, #000, #fff, #000 71%) 0 0/ 2em 2em round,
-            radial-gradient(circle, #000, #fff, #000 71%) 1em 1em/ 2em 2em round;
-      background-blend-mode: difference;
+.card10::before {
+  --map: conic-gradient(#777, #000);
+  --pattern: repeating-linear-gradient(-45deg, #000, #999, #000 5%),
+    repeating-linear-gradient(45deg, #000, #999, #000 5%);
+  background-blend-mode: screen, difference;
 }
 
-.card:nth-child(12)::before {
-      background: var(--map), var(--pattern);
-      --map:
-            linear-gradient(-15deg, #000, #666);
-      --pattern:
-            radial-gradient(circle, #fff, #000 65%) 0 0/ 2em 2em round,
-            radial-gradient(circle, #000, #fff, #000 65%) 1em 1em/ 2em 2em round;
-      background-blend-mode: difference;
+.card11::before {
+  --map: radial-gradient(circle, #000, #666 70%);
+  --pattern: radial-gradient(circle, #000, #fff, #000 71%) 0 0/ 2em 2em round,
+    radial-gradient(circle, #000, #fff, #000 71%) 1em 1em/ 2em 2em round;
+  background-blend-mode: difference;
 }
 
-.card:nth-child(13)::before {
-      background: var(--map), var(--pattern);
-      --map:
-            linear-gradient(#777, #000);
-      --pattern:
-            radial-gradient(circle, #000, #999, #000 65%) 0 0/ 2em 2em round,
-            radial-gradient(circle, #000, #999, #000 65%) 1em 1em/ 2em 2em round;
-      background-blend-mode: screen, difference;
+.card12::before {
+  --map: linear-gradient(-15deg, #000, #666);
+  --pattern: radial-gradient(circle, #fff, #000 65%) 0 0/ 2em 2em round,
+    radial-gradient(circle, #000, #fff, #000 65%) 1em 1em/ 2em 2em round;
+  background-blend-mode: difference;
 }
 
-.card:nth-child(14)::before {
-      background: var(--map), var(--pattern);
-      --map:
-            conic-gradient(at 0 50%, #777, #000);
-      --pattern:
-            repeating-radial-gradient(circle at 0 0, #000, #999, #000 5%),
-            repeating-conic-gradient(at -5% 50%, #000, #999, #000 5%);
-      background-blend-mode: screen, difference;
+.card13::before {
+  --map: linear-gradient(#777, #000);
+  --pattern: radial-gradient(circle, #000, #999, #000 65%) 0 0/ 2em 2em round,
+    radial-gradient(circle, #000, #999, #000 65%) 1em 1em/ 2em 2em round;
+  background-blend-mode: screen, difference;
 }
 
-.card:nth-child(15)::before {
-      --pattern:
-            repeating-linear-gradient(45deg, #000, #999, #000 5%) 0/ 50% no-repeat,
-            repeating-linear-gradient(-45deg, #000, #999, #000 5%) 100%/ 50% no-repeat;
-      --map: linear-gradient(#777, #000)
+.card14::before {
+  --map: conic-gradient(at 0 50%, #777, #000);
+  --pattern: repeating-radial-gradient(circle at 0 0, #000, #999, #000 5%),
+    repeating-conic-gradient(at -5% 50%, #000, #999, #000 5%);
+  background-blend-mode: screen, difference;
 }
 
-.card:nth-child(16)::before {
-      background: var(--map), var(--pattern);
-      --map:
-            radial-gradient(circle, #888, #000);
-      --pattern:
-            repeating-radial-gradient(circle at 0 100%, #000, #888, #000 5%) 0 0/ 100% 50% no-repeat,
-            repeating-radial-gradient(circle at 100% 0, #000, #888, #000 5%) 0 100%/ 100% 50% no-repeat;
-      background-blend-mode: screen;
+.card15::before {
+  --map: linear-gradient(#777, #000);
+  --pattern: repeating-linear-gradient(45deg, #000, #999, #000 5%) 0/ 50% no-repeat,
+    repeating-linear-gradient(-45deg, #000, #999, #000 5%) 100%/ 50% no-repeat;
 }
 
-.card:nth-child(17)::before {
-      background: radial-gradient(#000, #fff 70%) 0.75em 0.75em, conic-gradient(from -90deg at 15% 50%, #fff, #000 5% 30%, #fff 35%), conic-gradient(at 50% 15%, #fff, #000 5% 30%, #fff 35%), conic-gradient(from 90deg at 85% 50%, #fff, #000 5% 30%, #fff 35%), conic-gradient(from 180deg at 50% 85%, #fff, #000 5% 30%, #fff 35%);
-      background-size: 1.5em 1.5em;
-      background-blend-mode: difference, multiply, multiply, multiply;
+.card16::before {
+  --map: radial-gradient(circle, #888, #000);
+  --pattern: repeating-radial-gradient(circle at 0 100%, #000, #888, #000 5%) 0
+      0/ 100% 50% no-repeat,
+    repeating-radial-gradient(circle at 100% 0, #000, #888, #000 5%) 0 100%/ 100%
+      50% no-repeat;
+  background-blend-mode: screen;
 }
 
-.card:nth-child(18)::before {
-      --map:
-            linear-gradient(#777, #000);
-      --pattern:
-            repeating-conic-gradient(#ddd, #000 12.5% 37.5%, #ddd 50%) 0/ 1em 1em
+.card17::before {
+  background: radial-gradient(#000, #fff 70%) 0.75em 0.75em,
+    conic-gradient(from -90deg at 15% 50%, #fff, #000 5% 30%, #fff 35%),
+    conic-gradient(at 50% 15%, #fff, #000 5% 30%, #fff 35%),
+    conic-gradient(from 90deg at 85% 50%, #fff, #000 5% 30%, #fff 35%),
+    conic-gradient(from 180deg at 50% 85%, #fff, #000 5% 30%, #fff 35%);
+  background-size: 1.5em 1.5em;
+  background-blend-mode: difference, multiply, multiply, multiply;
 }
 
-.card:nth-child(19)::before {
-      --map:
-            radial-gradient(circle, #000, #777);
-      --pattern:
-            repeating-radial-gradient(circle, #ddd, #000, #ddd 5%),
-            repeating-conic-gradient(#ddd, #000, #ddd 5%);
-      background-blend-mode: screen, difference;
+.card18::before {
+  --map: linear-gradient(#777, #000);
+  --pattern: repeating-conic-gradient(#ddd, #000 12.5% 37.5%, #ddd 50%) 0/ 1em 1em;
 }
 
-.card:nth-child(20)::before {
-      background: var(--map), var(--pattern);
-      --map:
-            repeating-linear-gradient(45deg, #000, #666, #000 20%);
-      --pattern:
-            repeating-radial-gradient(circle, #ddd, #000, #ddd 5%),
-            repeating-conic-gradient(#ddd, #000, #ddd 5%);
-      background-blend-mode: screen, difference;
+.card19::before {
+  --map: radial-gradient(circle, #000, #777);
+  --pattern: repeating-radial-gradient(circle, #ddd, #000, #ddd 5%),
+    repeating-conic-gradient(#ddd, #000, #ddd 5%);
+  background-blend-mode: screen, difference;
+}
+
+.card20::before {
+  --map: repeating-linear-gradient(45deg, #000, #666, #000 20%);
+  --pattern: repeating-radial-gradient(circle, #ddd, #000, #ddd 5%),
+    repeating-conic-gradient(#ddd, #000, #ddd 5%);
+  background-blend-mode: screen, difference;
 }
 
 .card-text {
-      position: absolute;
-      top: -170px;
-      right: 10px;
-      color: #fff;
-      font-size: 12px;
-      z-index: 1;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-    }
+  position: absolute;
+  top: -170px;
+  right: 10px;
+  color: #fff;
+  font-size: 12px;
+  z-index: 1;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.flip-container {
+  perspective: 1000px;
+}
+
+.flip-card {
+  width: 6rem;
+  height: 9rem;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+  position: relative;
+}
+
+.flip-card.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-front,
+.card-back {
+  backface-visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.card-front {
+  transform: rotateY(180deg);
+}

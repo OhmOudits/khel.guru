@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import Card from "./Card";
 import "./styles.css";
-import { motion } from "framer-motion";
 
 const CARD_SUITS = ["♦", "♥", "♠", "♣", "↑", "↓"];
 const CARD_VALUES = [
@@ -20,148 +20,163 @@ const CARD_VALUES = [
   "A",
 ];
 
-const DeckPile = ({ deckCount = 10 }) => (
-  <div className="absolute right-28 top-[-55px] z-10">
-    {[...Array(Math.min(10, Math.ceil(deckCount / 2)))].map((_, i) => (
-      <motion.div
-        key={i}
-        initial={{ y: `-${i * 2}px`, opacity: 0, scale: 0.9 }}
-        animate={{
-          y: `${-i * 4}px`,
-          opacity: 1,
-          scale: 1 - i * 0.02,
-        }}
-        transition={{ duration: 0.2, delay: i * 0.1 }}
-        className="absolute"
-        style={{
-          zIndex: 10 - i,
-          transform: `rotate(${i % 2 === 0 ? i : -i}deg)`,
-        }}
-      >
-        <CardBack />
-      </motion.div>
-    ))}
-  </div>
-);
+const createDeck = () =>
+  [...Array(10)].map((_, i) => ({
+    suit: CARD_SUITS[i % (CARD_SUITS.length - 2)],
+    value: CARD_VALUES[i % CARD_VALUES.length],
+    id: i,
+    rand: Math.floor(Math.random() * 20) + 1,
+  }));
 
-const CardBack = () => (
-  <div className="w-24 h-36 rounded-md shadow-lg bg-blue-600 border-2 border-white flex items-center justify-center">
-    <h1 className="text-white font-bold">
-      Khel <br /> <span className="pl-2">Guru</span>
+// eslint-disable-next-line
+const CardBack = ({ rand, top = "50%" }) => (
+  <div
+    className={`w-24 h-36 card card${rand} rounded-md shadow-lg bg-blue-600 border-2 border-white flex items-center justify-center`}
+  >
+    <h1
+      className={`text-white font-bold absolute top-[${top}] left-1/2 -translate-x-1/2 -translate-y-1/2`}
+    >
+      Khel
+      <br />
+      Guru
     </h1>
   </div>
 );
 
-const Game = () => {
-  const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth > 1024);
-  const [flipped, setFlipped] = useState([
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-  ]);
+// eslint-disable-next-line
+const FlippableCard = ({ card, position }) => {
+  const [flipped, setFlipped] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsLargeScreen(window.innerWidth > 1024);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const timer = setTimeout(() => setFlipped(true), 700);
+    return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    flipped.forEach((_, index) => {
-      setTimeout(() => {
-        setFlipped((prev) => {
-          const updated = [...prev];
-          updated[index] = true;
-          return updated;
-        });
-      }, index * 300);
-    });
-  }, []);
-
-  const renderCard = (value, suit, index, top, left) => (
+  return (
     <motion.div
       initial={{ scale: 0.5, top: "-4.5rem", left: "calc(100% - 6rem)" }}
       animate={{
         scale: 1,
-        top: isLargeScreen ? `${top}%` : `${top}%`,
-        left: `${left}%`,
+        // eslint-disable-next-line
+        top: `${position.top}%`,
+        // eslint-disable-next-line
+        left: `${position.left}%`,
       }}
-      transition={{ duration: 0.3 }}
-      className="absolute"
+      transition={{ duration: 0.4 }}
+      className="absolute flip-container"
     >
-      <motion.div
-        className="relative w-24 h-36"
-        initial={{ rotateY: 180 }}
-        animate={{ rotateY: flipped[index] ? 0 : 180 }}
-        transition={{ duration: 0.6 }}
-        style={{ transformStyle: "preserve-3d" }}
-      >
-        {/* Front and Back of the Card */}
-        <div
-          className="absolute backface-hidden"
-          style={{
-            backfaceVisibility: "hidden",
-            transform: "rotateY(0deg)",
-          }}
-        >
-          <Card
-            medium={isLargeScreen}
-            small={!isLargeScreen}
-            value={value}
-            suit={suit}
-          />
+      <div className={`flip-card ${flipped ? "flipped" : ""}`}>
+        <div className="card-back">
+          {/* eslint-disable-next-line */}
+          <CardBack rand={card.rand} />
         </div>
-        <div
-          className="absolute backface-hidden"
-          style={{
-            backfaceVisibility: "hidden",
-            transform: "rotateY(180deg)",
-          }}
-        >
-          <CardBack />
+        <div className="card-front">
+          {/* eslint-disable-next-line */}
+          <Card medium={true} value={card.value} suit={card.suit} />
         </div>
-      </motion.div>
+      </div>
     </motion.div>
   );
+};
+
+// eslint-disable-next-line
+const Game = ({ cardsNumber = 6 }) => {
+  const [deck, setDeck] = useState(createDeck());
+  const [userCards, setUserCards] = useState([]);
+  const [dealerCards, setDealerCards] = useState([]);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    const dealCards = () => {
+      if (deck.length > 0 && !isAnimating) {
+        const totalDealtCards = userCards.length + dealerCards.length;
+
+        if (totalDealtCards >= cardsNumber) return;
+
+        setIsAnimating(true);
+        const newCard = deck[0]; // Take the first card from the deck
+        setDeck((prevDeck) => prevDeck.slice(1)); // Remove the first card
+
+        // Alternating card distribution: Player first, then Dealer
+        if (userCards.length <= dealerCards.length) {
+          setUserCards((prev) => [...prev, newCard]);
+        } else {
+          setDealerCards((prev) => [...prev, newCard]);
+        }
+
+        // Simulate animation delay
+        setTimeout(() => {
+          setIsAnimating(false);
+        }, 800);
+      }
+    };
+
+    if (deck.length > 0) {
+      const interval = setInterval(dealCards, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [deck, userCards, dealerCards, isAnimating, cardsNumber]);
 
   return (
     <div className="relative w-full h-[600px] max-lg:h-[580px] text-base text-white overflow-hidden">
-      <DeckPile />
+      {/* DeckPile */}
+      <div className="absolute right-28 top-[-85px] z-10">
+        {deck.map((card, i) => (
+          <motion.div
+            key={card.id}
+            initial={{ y: `-${i * 2}px`, opacity: 0, scale: 0.9 }}
+            animate={{
+              opacity: 1,
+              scale: 1 - i * 0.02,
+            }}
+            transition={{ duration: 0.2, delay: i * 0.1 }}
+            className="absolute"
+            style={{
+              zIndex: 10 - i,
+              transform: `rotate(${i % 2 === 0 ? i : -i}deg)`,
+            }}
+          >
+            <CardBack rand={card.rand} />
+          </motion.div>
+        ))}
+      </div>
 
       <div className="w-full h-[600px] relative">
-        {/* Player cards */}
-        {renderCard(CARD_VALUES[4], CARD_SUITS[2], 0, 8, 38)}
-        {renderCard(CARD_VALUES[5], CARD_SUITS[3], 1, 12, 43)}
-        {renderCard(CARD_VALUES[6], CARD_SUITS[1], 2, 16, 48)}
+        {/* User Cards */}
+        {userCards.map((card, index) => (
+          <FlippableCard
+            key={card.id}
+            card={card}
+            position={{ top: 10 + index * 4, left: 40 + index * 5 }}
+          />
+        ))}
 
-        {/* Player Marks */}
-        <div className="absolute top-[6%] left-[25%] max-lg:left-[16%]">
+        {/* Dealer Cards */}
+        {dealerCards.map((card, index) => (
+          <FlippableCard
+            key={card.id}
+            card={card}
+            position={{ top: 60 + index * 4, left: 40 + index * 5 }}
+          />
+        ))}
+
+        {/* Player Score */}
+        <div className="absolute top-[4%] left-[20%] max-lg:left-[16%]">
           <h1 className="font-semibold text-[0.9rem] px-5 py-0.5 rounded bg-gray-50/10">
-            27
+            Player: 27
           </h1>
         </div>
 
-        {/* Results */}
+        {/* Baccarat Wins */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center flex-col font-semibold text-zinc-400 text-[0.9rem]">
           <h1>Baccarat Pays 3 to 1</h1>
           <h1 className="mt-[-5px]">Insurance Pays 3 to 1</h1>
         </div>
 
-        {/* Dealer cards */}
-        {renderCard(CARD_VALUES[4], CARD_SUITS[2], 3, 60, 38)}
-        {renderCard(CARD_VALUES[5], CARD_SUITS[3], 4, 64, 43)}
-        {renderCard(CARD_VALUES[6], CARD_SUITS[1], 5, 68, 48)}
-
-        {/* Dealer Marks */}
-        <div className="absolute top-[58%] left-[25%] max-lg:left-[16%]">
+        {/* Dealer Score */}
+        <div className="absolute top-[54%] left-[20%] max-lg:left-[16%]">
           <h1 className="font-semibold text-[0.9rem] px-5 py-0.5 rounded bg-gray-50/10">
-            27
+            Dealer: 27
           </h1>
         </div>
       </div>

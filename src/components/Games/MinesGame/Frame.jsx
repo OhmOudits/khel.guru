@@ -7,10 +7,10 @@ import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 
 const Frame = () => {
-  const user = useSelector((state) => state.auth.user.user);
+  // const user = useSelector((state) => state.auth.user.user);
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [nbets, setNBets] = useState(0);
@@ -25,6 +25,7 @@ const Frame = () => {
   const [gems, setGems] = useState(25 - mines);
   const [betStarted, setBettingStarted] = useState(false);
   const [loading, setLoading] = useState(false);
+  // eslint-disable-next-line
   const [totalProfit, setTotalProfit] = useState("0.000000");
 
   const [isFairness, setIsFairness] = useState(false);
@@ -127,7 +128,7 @@ const Frame = () => {
                     : "lg:col-span-8 lg:order-2"
                 } xl:col-span-9 bg-gray-900 order-1`}
               >
-                <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
+                <div className="w-full relative text-white h-full flex items-center justify-center text-3xl min-h-[450px]">
                   {loading ? (
                     <>
                       <h1 className="text-xl font-semibold">Loading...</h1>
@@ -142,7 +143,7 @@ const Frame = () => {
                       setBetStarted={setBettingStarted}
                       gameCheckout={gameCheckout}
                       setGameCheckout={setGameCheckout}
-                      userEmail={user.email}
+                      // userEmail={user.email}
                     />
                   )}
                 </div>

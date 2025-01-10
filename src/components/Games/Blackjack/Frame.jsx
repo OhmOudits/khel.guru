@@ -7,7 +7,7 @@ import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 
 // constansts
 export const balloonTypes = [
@@ -19,7 +19,7 @@ export const balloonTypes = [
 ];
 
 const Frame = () => {
-  const user = useSelector((state) => state?.auth?.user?.user);
+  // const user = useSelector((state) => state?.auth?.user?.user);
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [nbets, setNBets] = useState(0);
@@ -31,10 +31,13 @@ const Frame = () => {
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
   const [Risk, setRisk] = useState("Low"); // risk of the game so that we can set the gifts accordingly
+  // eslint-disable-next-line
   const [checkedBoxes, setCheckecdBoxes] = useState([]);
-  const [gifts, setGifts] = useState([]); // once clicked on bet we can
+  // const [gifts, setGifts] = useState([]);
   const [betStarted, setBettingStarted] = useState(false);
+  // eslint-disable-next-line
   const [loading, setLoading] = useState(false);
+  // eslint-disable-next-line
   const [totalProfit, setTotalProfit] = useState("0.000000");
   // for game
 
@@ -52,8 +55,10 @@ const Frame = () => {
   const [maxBet, setMaxBet] = useState(false);
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
-  const [hotkeysEnableddiamondCounts, setHotkeysEnabled] = useState(false);
+  const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
+  // eslint-disable-next-line
   const [randomSelect, setRandomSelect] = useState(false);
+  // eslint-disable-next-line
   const [gameCheckout, setGameCheckout] = useState(false);
 
   const handleMineBet = () => {
@@ -64,7 +69,6 @@ const Frame = () => {
   const handleCheckout = () => {
     setGameCheckout(true);
     setBettingStarted(false);
-    setWinnedGifts(99);
     setAutoPick(false);
     setReset(true);
     setBettingStarted(false);

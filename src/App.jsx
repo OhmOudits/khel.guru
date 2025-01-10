@@ -11,7 +11,7 @@ import { Routes, Route } from "react-router-dom";
 import Frame from "./components/Frame/Frame";
 
 import WheelPage from "./components/Games/WheelGame/WheelPage";
-import DiamondPage from "./components/Games/DiamondGame/Diamond";
+import MinesPage from "./components/Games/MinesGame/Diamond";
 import BalloonPage from "./components/Games/BalloonPage/Balloon";
 import CrashPage from "./components/Games/CrashGame/Crash";
 import PlinkoPage from "./components/Games/PlinkoGame/Plinko";
@@ -151,7 +151,7 @@ function App() {
                 <Route path="/sports/cricket/bet" element={<SportsBet />} />
                 <Route path="/sports/football" element={<SportsFootball />} />
                 <Route path="/game/wheel" element={<WheelPage />} />
-                <Route path="/game/diamond" element={<DiamondPage />} />
+                <Route path="/game/mines" element={<MinesPage />} />
                 <Route path="/game/balloon" element={<BalloonPage />} />
                 <Route path="/game/crash" element={<CrashPage />} />
                 <Route path="/game/plinko" element={<PlinkoPage />} />
