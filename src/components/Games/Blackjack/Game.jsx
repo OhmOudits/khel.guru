@@ -33,8 +33,9 @@ const CardBack = ({ rand, top = "50%" }) => (
   <div
     className={`w-24 h-36 card card${rand} rounded-md shadow-lg bg-blue-600 border-2 border-white flex items-center justify-center`}
   >
+    <div className="absolute top-0 left-0 w-full h-full bg-black/30 z-10"></div>
     <h1
-      className={`text-white font-bold absolute top-[${top}] left-1/2 -translate-x-1/2 -translate-y-1/2`}
+      className={`text-white font-bold absolute top-[${top}] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20`}
     >
       Khel
       <br />
@@ -85,6 +86,7 @@ const Game = ({ cardsNumber = 6 }) => {
   const [userCards, setUserCards] = useState([]);
   const [dealerCards, setDealerCards] = useState([]);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth > 1024);
 
   useEffect(() => {
     const dealCards = () => {
@@ -117,8 +119,17 @@ const Game = ({ cardsNumber = 6 }) => {
     }
   }, [deck, userCards, dealerCards, isAnimating, cardsNumber]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsLargeScreen(window.innerWidth > 1024);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
-    <div className="relative w-full h-[600px] max-lg:h-[580px] text-base text-white overflow-hidden">
+    <div className="relative w-full h-[600px] max-lg:h-[600px] text-base text-white overflow-hidden">
       {/* DeckPile */}
       <div className="absolute right-28 top-[-85px] z-10">
         {deck.map((card, i) => (
@@ -147,7 +158,10 @@ const Game = ({ cardsNumber = 6 }) => {
           <FlippableCard
             key={card.id}
             card={card}
-            position={{ top: 10 + index * 4, left: 40 + index * 5 }}
+            position={{
+              top: 12 + index * 4,
+              left: isLargeScreen ? 40 + index * 5 : 30 + index * 5,
+            }}
           />
         ))}
 
@@ -156,7 +170,10 @@ const Game = ({ cardsNumber = 6 }) => {
           <FlippableCard
             key={card.id}
             card={card}
-            position={{ top: 60 + index * 4, left: 40 + index * 5 }}
+            position={{
+              top: 64 + index * 4,
+              left: isLargeScreen ? 40 + index * 5 : 30 + index * 5,
+            }}
           />
         ))}
 
@@ -174,7 +191,7 @@ const Game = ({ cardsNumber = 6 }) => {
         </div>
 
         {/* Dealer Score */}
-        <div className="absolute top-[54%] left-[20%] max-lg:left-[16%]">
+        <div className="absolute top-[56%] left-[20%] max-lg:left-[16%]">
           <h1 className="font-semibold text-[0.9rem] px-5 py-0.5 rounded bg-gray-50/10">
             Dealer: 27
           </h1>

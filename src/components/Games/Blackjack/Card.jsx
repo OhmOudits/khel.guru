@@ -57,14 +57,14 @@ const Card = ({
       <div className="p-3 flex flex-col h-full justify-between">
         <div
           className={`${
-            small ? "text-base" : medium ? "text-lg" : "text-xl"
+            small ? "text-base" : medium ? "text-lg max-lg:text-sm" : "text-xl"
           } font-bold`}
         >
           {value}
           <span className="ml-1">{suit}</span>
         </div>
         <div className="text-center text-6xl max-lg:text-4xl">{suit}</div>
-        <div className={`text-xl font-bold self-end rotate-180`}>
+        <div className={`text-xl max-lg:text-sm font-bold self-end rotate-180`}>
           {value}
           <span className="ml-1">{suit}</span>
         </div>

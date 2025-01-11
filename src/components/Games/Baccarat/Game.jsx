@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Card from "./Card";
 import { motion } from "framer-motion";
 
@@ -30,10 +30,11 @@ const createDeck = () =>
 // eslint-disable-next-line
 const CardBack = ({ rand, top = "50%" }) => (
   <div
-    className={`w-24 h-36 card card${rand} rounded-md shadow-lg bg-blue-600 border-2 border-white flex items-center justify-center`}
+    className={`w-24 h-36 card card${rand} relative rounded-md shadow-lg bg-blue-600 border-2 border-white flex items-center justify-center`}
   >
+    <div className="absolute top-0 left-0 w-full h-full bg-black/30 z-10"></div>
     <h1
-      className={`text-white font-bold absolute top-[${top}] left-1/2 -translate-x-1/2 -translate-y-1/2`}
+      className={`text-white font-bold absolute top-[${top}] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20`}
     >
       Khel
       <br />
@@ -80,7 +81,6 @@ const FlippableCard = ({ card, position }) => {
 
 // eslint-disable-next-line
 const Game = ({ cardsNumber = 6 }) => {
-  // eslint-disable-next-line
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth > 1024);
   const [deck, setDeck] = useState(createDeck());
   const [userCards, setUserCards] = useState([]);
@@ -164,7 +164,10 @@ const Game = ({ cardsNumber = 6 }) => {
           <FlippableCard
             key={card.id}
             card={card}
-            position={{ top: 35 + index * 6, left: 20 + index * 4 }}
+            position={{
+              top: 35 + index * 6,
+              left: isLargeScreen ? 20 + index * 4 : 10 + index * 4,
+            }}
           />
         ))}
 
