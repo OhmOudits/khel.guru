@@ -1,0 +1,22 @@
+.main {
+    background: linear-gradient(to right, #000, #000000);
+    /* Linear gradient for rectangular background */
+    box-shadow: 0 0 40px rgb(0, 0, 0),
+        0 0 120px rgb(0, 0, 0),
+        0 0 200px rgb(0, 0, 0);
+    /* Star-like glowing effect */
+    animation: zoom 16s alternate infinite;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes zoom {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.01);
+    }
+    100% {
+        transform: scale(1);
+    }
+}

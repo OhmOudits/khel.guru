@@ -74,6 +74,16 @@
   status = 200
 
 [[redirects]]
+  from = "/game/tower"
+  to = "/index.html?redirect=game/tower"
+  status = 200
+
+[[redirects]]
+  from = "/game/twist"
+  to = "/index.html?redirect=game/twist"
+  status = 200
+
+[[redirects]]
   from = "/sports"
   to = "/index.html?redirect=sports"
   status = 200
