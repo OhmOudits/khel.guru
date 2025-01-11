@@ -69,8 +69,8 @@
   status = 200
 
 [[redirects]]
-  from = "/sports"
-  to = "/index.html?redirect=sports"
+  from = "/game/scratch"
+  to = "/index.html?redirect=game/scratch"
   status = 200
 
 [[redirects]]

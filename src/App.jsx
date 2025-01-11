@@ -20,6 +20,7 @@ import KenoPage from "./components/Games/Keno/Keno";
 import CardsPage from "./components/Games/Cards/Cards";
 import HiloPage from "./components/Games/Hilo/Hilo";
 import BaccaratPage from "./components/Games/Baccarat/Baccarat";
+import ScratchPage from "./components/Games/BallonScratch/BallonScratch";
 
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
@@ -162,6 +163,7 @@ function App() {
                 <Route path="/game/hilo" element={<HiloPage />} />
                 <Route path="/game/baccarat" element={<BaccaratPage />} />
                 <Route path="/game/blackjack" element={<BlackjackGame />} />
+                <Route path="/game/scratch" element={<ScratchPage />} />
                 <Route path="*" element={<LandingPage />} />
               </Routes>
             </div>
