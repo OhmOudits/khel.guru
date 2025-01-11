@@ -35,11 +35,10 @@ const CardBack = ({ rand, top = "50%" }) => (
   >
     <div className="absolute top-0 left-0 w-full h-full bg-black/30 z-10"></div>
     <h1
-      className={`text-white font-bold absolute top-[${top}] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20`}
+      className={`text-white font-medium absolute top-[${top}] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 text-[0.9rem]`}
     >
-      Khel
-      <br />
-      Guru
+      Khel <br />
+      <span className="pl-2 pt-[-10px]"> Guru</span>
     </h1>
   </div>
 );
@@ -147,7 +146,7 @@ const Game = ({ cardsNumber = 6 }) => {
               transform: `rotate(${i % 2 === 0 ? i : -i}deg)`,
             }}
           >
-            <CardBack rand={card.rand} />
+            <CardBack top={"75%"} rand={card.rand} />
           </motion.div>
         ))}
       </div>
