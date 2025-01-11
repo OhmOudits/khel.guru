@@ -125,7 +125,7 @@ const GamesLines = ({ title, link, icon, games, hoverEffect = false }) => {
               )}
 
               {game.img === "" && (
-                <span className="absolute top-2 left-2 bg-green-700 text-black text-xs font-bold px-2 py-1 rounded-lg">
+                <span className="absolute top-2 left-2 text-lg font-bold px-2 py-1 rounded-lg">
                   {game.name}
                 </span>
               )}
