@@ -1,71 +1,81 @@
-const WHEEL_NUMBERS = [
-  0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24,
-  16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26,
-];
+import { useState, useEffect } from "react";
+import "../../../../styles/Roulette.css";
 
-const getNumberColor = (num) => {
-  if (num === 0) return "bg-green-600 z-10";
-  return WHEEL_NUMBERS.indexOf(num) % 2 === 0 ? "bg-red-600" : "bg-zinc-900";
-};
+// eslint-disable-next-line
+const Roulette = ({ redNumbers, defaultNumber = 23 }) => {
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [result, setResult] = useState(null);
+  const [spinNumber, setSpinNumber] = useState(-1);
 
-export function RouletteWheel({ spinning, currentNumber }) {
+  const numbers = [
+    32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24,
+    16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26, 0,
+  ];
+
+  const spinRoulette = () => {
+    if (isSpinning) return;
+
+    setIsSpinning(true);
+    const randomIndex = Math.floor(Math.random() * numbers.length);
+    const targetNumber = numbers[randomIndex];
+    console.log(targetNumber);
+    setSpinNumber(targetNumber);
+
+    setTimeout(() => {
+      setResult({
+        number: targetNumber,
+        color:
+          targetNumber === 0
+            ? "green"
+            : // eslint-disable-next-line
+            redNumbers.includes(targetNumber)
+            ? "red"
+            : "black",
+      });
+      setIsSpinning(false);
+    }, 9000);
+  };
+
+  useEffect(() => {
+    spinRoulette();
+    // eslint-disable-next-line
+  }, []);
+
   return (
-    <div className="relative w-[400px]  h-[400px]">
-      <div className="absolute inset-0 rounded-full border-[12px] border-zinc-800" />
+    <div className="roulette-container">
+      <div className={`plate `} data-spinto={spinNumber}>
+        {numbers.map((num, index) => (
+          <div
+            key={index}
+            className="number"
+            style={{ transform: `rotateZ(${(index * 360) / 37}deg)` }}
+          >
+            <div className="pit">{num}</div>
+          </div>
+        ))}
+        <div
+          className={`inner ${spinNumber === -1 && "inner-hide"}`}
+          data-spinto={spinNumber}
+        ></div>
+      </div>
 
-      <div className="absolute inset-[24px] rounded-full overflow-hidden">
-        <div className="absolute inset-0 ml-5">
-          {WHEEL_NUMBERS.map((number, index) => {
-            const angle = (index * 360) / WHEEL_NUMBERS.length;
-            const rotation = `rotate(${angle}deg)`;
-
-            return (
-              <div
-                key={number}
-                className={`absolute left-1/2 top-0 h-1/2 -ml-6 w-7 origin-bottom ${getNumberColor(
-                  number
-                )}`}
-                style={{ transform: rotation }}
+      <div>
+        <div className="result absolute top-[50%] text-lg left-1/2 -translate-x-1/2 -translate-y-1/2">
+          {result ? (
+            <div>
+              <span
+                className={`result-color p-4 px-6 rounded text-lg color-${result.color}`}
               >
-                <span
-                  className="absolute top-3 left-1/2 -translate-x-1/2 text-white text-sm font-bold transform -rotate-[${angle}deg]"
-                  style={{ transform: `translateX(-50%) rotate(-${angle}deg)` }}
-                >
-                  {number}
-                </span>
-              </div>
-            );
-          })}
+                {result.number}
+              </span>
+            </div>
+          ) : (
+            <span className="text-gray-500">Spinning...</span>
+          )}
         </div>
       </div>
-      {/* CENTre ring */}
-      <div className="absolute inset-0 flex items-center justify-center z-10">
-        <div className="w-20 h-20 rounded-full bg-zinc-800  flex items-center justify-center z-50"></div>
-      </div>
-
-      <div className="absolute inset-[16px] rounded-full border-4 border-zinc-700" />
-
-      <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 origin-bottom transition-all duration-[4000ms] ease-out"
-        style={{
-          transform: spinning
-            ? `rotate(${
-                2160 +
-                WHEEL_NUMBERS.indexOf(currentNumber) *
-                  (350 / WHEEL_NUMBERS.length)
-              }deg)`
-            : `rotate(${
-                WHEEL_NUMBERS.indexOf(currentNumber) *
-                (360 / WHEEL_NUMBERS.length)
-              }deg)`,
-        }}
-      >
-        <div className="w-4 h-[180px] flex justify-center">
-          <div className="w-3 h-3 rounded-full bg-white shadow-lg" />
-        </div>
-      </div>
-
-      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 z-10 h-6 bg-yellow-400" />
     </div>
   );
-}
+};
+
+export default Roulette;

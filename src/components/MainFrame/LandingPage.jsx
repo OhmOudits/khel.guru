@@ -28,7 +28,7 @@ const MainFrame = () => {
     >
       <div className="max-w-[1200px] mx-auto">
         {/* Sign In / Register */}
-        <div className="py-3 max-md:mb-2 grid grid-cols-12 mb-[-10px] w-full bg-secondry rounded-xl">
+        {/* <div className="py-3 max-md:mb-2 grid grid-cols-12 mb-[-10px] w-full bg-secondry rounded-xl">
           <div
             className="w-full max-md:min-h-[180px] min-h-[260px] rounded-tl-xl rounded-tr-xl md:rounded-tr-none md:rounded-bl-xl col-span-12 md:col-span-7 xl:col-span-8 bg-center bg-cover bg-no-repeat"
             style={{
@@ -49,7 +49,7 @@ const MainFrame = () => {
               Register Now
             </div>
           </div>
-        </div>
+        </div> */}
 
         <Link to="/">
           <Credits
@@ -104,7 +104,7 @@ const MainFrame = () => {
           </div>
         </div>
 
-        <div className="mt-4"></div>
+        <div className="mt-6"></div>
         {/* Games */}
         <GamesLines games={originals} title="Originals" link="/original" />
         <GamesLines games={originals} title="Slots" link="/slots" />

@@ -116,6 +116,14 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
               </span>
             </div>
 
+            <div className="w-fit group p-2.5 relative hover:bg-activeHover cursor-pointer rounded-tr-xl rounded-tl-xl py-3.5 ">
+              <HiSpeakerphone size={18} className="text-purple-300" />
+              <span className="absolute text-sm font-semibold text-textColor top-1.5 left-full ml-2 py-1.5 px-3 bg-inactive rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+                Raffle
+                <span className="absolute left-[-5px] top-[8%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-inactive"></span>
+              </span>
+            </div>
+
             <div className="w-fit group p-2.5 relative hover:bg-activeHover cursor-pointer">
               <FaDollarSign size={18} className="text-purple-300" />
               <span className="absolute text-sm font-semibold text-textColor top-1.5 left-full ml-2 py-1.5 px-3 bg-inactive rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
@@ -250,6 +258,12 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
                   <HiSpeakerphone size={18} className="text-purple-300" />
                   <h1 className="text-textColor font-bold text-[0.89rem]">
                     Promotions
+                  </h1>
+                </div>
+                <div className="px-2.5 py-2.5 cursor-pointer hover:bg-activeHover rounded-xl flex items-center gap-3 ">
+                  <HiSpeakerphone size={18} className="text-purple-300" />
+                  <h1 className="text-textColor font-bold text-[0.89rem]">
+                    Raffle
                   </h1>
                 </div>
                 <div className="px-2.5 py-2.5 cursor-pointer hover:bg-activeHover rounded-xl flex items-center gap-3 ">

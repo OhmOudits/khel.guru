@@ -1,22 +1,75 @@
-import React from "react";
+import { useState } from "react";
 
+// Array representing numbers on the betting board (0 to 36)
 const numbers = Array.from({ length: 37 }, (_, i) => i);
 
-const getNumberColor = (num) => {
+// Function to get color classes for a number
+const getNumberColor = (num, redNumbers) => {
   if (num === 0) return "bg-green-600 hover:bg-green-700";
-  return num % 2 === 0
+  return redNumbers.includes(num)
     ? "bg-red-600 hover:bg-red-700"
-    : "bg-zinc-900 hover:bg-zinc-800";
+    : "bg-black hover:bg-gray-800";
 };
 
-export function BettingBoard({ onPlaceBet, currentBets }) {
+// The BettingBoard component
+// eslint-disable-next-line
+export function BettingBoard({ onPlaceBet, currentBets, red }) {
+  const [hoverRange, setHoverRange] = useState(null);
+
+  // Function to handle hovering over a range
+  const handleHover = (range) => {
+    setHoverRange(range);
+  };
+
+  // Function to reset hover state
+  const handleMouseLeave = () => {
+    setHoverRange(null);
+  };
+
+  const isHighlighted = (number) => {
+    if (!hoverRange) return false;
+
+    const groupHighlights = {
+      red: (n) => red.includes(n),
+      black: (n) => !red.includes(n) && n !== 0,
+      even: (n) => n % 2 === 0,
+      odd: (n) => n % 2 !== 0,
+      "1-18": (n) => n >= 1 && n <= 18,
+      "19-36": (n) => n >= 19 && n <= 36,
+    };
+
+    if (hoverRange in groupHighlights) {
+      return groupHighlights[hoverRange](number);
+    }
+
+    if (typeof hoverRange === "string" && hoverRange.includes("-")) {
+      const [start, end] = hoverRange.split("-").map(Number);
+      return number >= start && number <= end;
+    }
+
+    return false;
+  };
+
   return (
-    <div className="w-[90%] max-w-3xl mx-auto mt-8">
-      <div className="grid grid-cols-3 gap-2">
+    <div className="w-[98%] lg:w-[90%] max-w-4xl mx-auto mt-4">
+      {/* Clear button */}
+      {Object.values(currentBets).some((bet) => bet > 0) && (
+        <div
+          className="absolute top-2.5 cursor-pointer right-6 text-medium text-[1.05rem] font-medium px-5 rounded-sm bg-gray-800 hover:bg-gray-700"
+          onClick={() => onPlaceBet("clear")}
+        >
+          Clear
+        </div>
+      )}
+
+      {/* Top row for 0 */}
+      <div className="grid grid-cols-12 gap-1">
         <button
           onClick={() => onPlaceBet(0)}
-          className={`${getNumberColor(0)} text-white font-bold py-12 rounded-lg
-            transition-colors relative`}
+          className={`${getNumberColor(
+            0,
+            red
+          )} col-span-1 text-white font-bold py-8 rounded transition-colors relative`}
         >
           0
           {currentBets[0] > 0 && (
@@ -26,19 +79,25 @@ export function BettingBoard({ onPlaceBet, currentBets }) {
           )}
         </button>
 
-        <div className="col-span-2 grid grid-cols-12 gap-1">
+        {/* Numbers 1 to 36 */}
+        <div className="col-span-11 grid grid-cols-12 gap-1">
           {numbers.slice(1).map((number) => (
             <button
               key={number}
               onClick={() => onPlaceBet(number)}
-              className={`${getNumberColor(
-                number
-              )} text-white font-bold py-0 px-2 max-lg:px-0.5 rounded
-                transition-colors relative`}
+              onMouseEnter={() => handleHover(number)}
+              onMouseLeave={handleMouseLeave}
+              className={`${getNumberColor(number, red)} ${
+                isHighlighted(number) ? "bg-gray-800" : ""
+              } ${
+                getNumberColor(number, red) === "bg-red-600 hover:bg-red-700" &&
+                isHighlighted(number) &&
+                "bg-red-800"
+              } text-white font-bold rounded transition-colors relative`}
             >
-              <div className="text-sm">{number}</div>
+              <div className="text-[0.8rem]">{number}</div>
               {currentBets[number] > 0 && (
-                <span className="absolute top-0 right-0 bg-white text-black text-xs px-1 rounded">
+                <span className="absolute top-1 right-1 bg-white text-black text-xs px-1 rounded">
                   ${currentBets[number]}
                 </span>
               )}
@@ -47,16 +106,41 @@ export function BettingBoard({ onPlaceBet, currentBets }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 mt-4 text-lg max-lg:text-base">
-        <button className="bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded transition-colors">
-          1 to 18
-        </button>
-        <button className="bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded transition-colors">
-          Even
-        </button>
-        <button className="bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded transition-colors">
-          Odd
-        </button>
+      {/* Row for group bets */}
+      <div className="grid grid-cols-5 gap-2 mt-4 text-[0.8rem]">
+        {["1-12", "13-24", "25-36", "red", "black"].map((group) => (
+          <button
+            key={group}
+            className="bg-zinc-800 hover:bg-zinc-700 text-white py-0 rounded transition-colors relative"
+            onMouseEnter={() => handleHover(group)}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => onPlaceBet(group)}
+          >
+            {group === "red" || group === "black" ? group.toUpperCase() : group}
+            {currentBets[group] > 0 && (
+              <span className="absolute top-1 right-1 bg-white text-black text-xs px-1 rounded">
+                ${currentBets[group]}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Bottom row for additional bets */}
+      <div className="grid grid-cols-4 gap-2 mt-1.5 text-[0.8rem]">
+        {["1-18", "even", "odd", "19-36"].map((group) => (
+          <button
+            key={group}
+            className="bg-zinc-800 hover:bg-zinc-700 text-white py-0 rounded transition-colors"
+            onMouseEnter={() => handleHover(group)}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => onPlaceBet(group)}
+          >
+            {group === "even" || group === "odd"
+              ? group.charAt(0).toUpperCase() + group.slice(1)
+              : group}
+          </button>
+        ))}
       </div>
     </div>
   );

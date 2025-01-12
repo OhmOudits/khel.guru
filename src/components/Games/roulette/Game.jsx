@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
-import { RouletteWheel } from "./comp/roulettewheel";
 import { BettingBoard } from "./comp/BettingBoard";
+import Roulette from "./comp/roulettewheel";
 
 // eslint-disable-next-line
 function Game({ betStarted, setBettingStarted }) {
@@ -16,6 +16,7 @@ function Game({ betStarted, setBettingStarted }) {
 
     // eslint-disable-next-line
   }, [betStarted]);
+
   const handleSpin = useCallback(() => {
     console.log("triggering", betStarted);
     if (spinning) return;
@@ -38,6 +39,10 @@ function Game({ betStarted, setBettingStarted }) {
     if (spinning) return;
     const betAmount = 10;
 
+    if (number === "clear") {
+      setCurrentBets([]);
+    }
+
     setCurrentBets((prev) => ({
       ...prev,
       [number]: (prev[number] || 0) + betAmount,
@@ -46,18 +51,26 @@ function Game({ betStarted, setBettingStarted }) {
     // eslint-disable-next-line
   }, []);
 
+  const redNumbers = [
+    32, 19, 21, 25, 34, 27, 36, 30, 23, 5, 16, 1, 14, 9, 18, 7, 12, 3,
+  ];
+
   return (
-    <div className="text-white p-8">
-      <div className="w-full max-w-4xl mx-auto">
-        <div className="text-center mb-5 max-lg:mb-0">
-          <p className="text-xl">Number: {currentNumber}</p>
+    <div className="text-white w-full py-8 max-h-[600px] relative">
+      <div className="w-full mx-auto">
+        <div className="flex scale-75 mt-[-50px] mb-[-10px] flex-col items-center">
+          <Roulette
+            redNumbers={redNumbers}
+            spinning={spinning}
+            currentNumber={currentNumber}
+          />
         </div>
 
-        <div className="flex max-lg:scale-[.8] flex-col items-center mb-8">
-          <RouletteWheel spinning={spinning} currentNumber={currentNumber} />
-        </div>
-
-        <BettingBoard onPlaceBet={handlePlaceBet} currentBets={currentBets} />
+        <BettingBoard
+          red={redNumbers}
+          onPlaceBet={handlePlaceBet}
+          currentBets={currentBets}
+        />
       </div>
     </div>
   );
