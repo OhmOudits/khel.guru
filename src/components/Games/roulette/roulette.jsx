@@ -1,8 +1,8 @@
 import Frame from "./Frame";
 
-const Cards = () => {
+const Roulette = () => {
   return (
-    <div className="w-full bg-secondry min-h-screen">
+    <div className="w-full bg-secondry ">
       <div className="max-w-[1200px] mx-auto">
         <Frame />
       </div>
@@ -10,4 +10,4 @@ const Cards = () => {
   );
 };
 
-export default Cards;
+export default Roulette;

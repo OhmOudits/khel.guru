@@ -12,17 +12,17 @@ import Frame from "./components/Frame/Frame";
 
 import WheelPage from "./components/Games/WheelGame/WheelPage";
 import MinesPage from "./components/Games/MinesGame/Diamond";
-import BalloonPage from "./components/Games/BalloonPage/Balloon";
+import BalloonPage from "./components/Games/Parachute/Balloon";
 import CrashPage from "./components/Games/CrashGame/Crash";
 import PlinkoPage from "./components/Games/PlinkoGame/Plinko";
 import LimboPage from "./components/Games/LimboGame/Limbo";
 import KenoPage from "./components/Games/Keno/Keno";
-import CardsPage from "./components/Games/Cards/Cards";
 import HiloPage from "./components/Games/Hilo/Hilo";
 import BaccaratPage from "./components/Games/Baccarat/Baccarat";
 import ScratchPage from "./components/Games/BallonScratch/BallonScratch";
 import TowerPage from "./components/Games/tower/tower";
 import TwistPage from "./components/Games/twist/Twist";
+import RoulettePage from "./components/Games/roulette/roulette";
 
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
@@ -74,7 +74,7 @@ function App() {
   }, [location, navigate]);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
   }, [location.pathname]);
 
   useEffect(() => {
@@ -103,6 +103,16 @@ function App() {
       socket.off("connect");
     };
   }, [user?.email]);
+
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const scrollToTop = () => {
+      window.scrollTo(0, 0);
+    };
+
+    scrollToTop();
+  }, [pathname]);
 
   return (
     <>
@@ -155,19 +165,19 @@ function App() {
                 <Route path="/sports/football" element={<SportsFootball />} />
                 <Route path="/game/wheel" element={<WheelPage />} />
                 <Route path="/game/mines" element={<MinesPage />} />
-                <Route path="/game/balloon" element={<BalloonPage />} />
+                <Route path="/game/parachute" element={<BalloonPage />} />
                 <Route path="/game/crash" element={<CrashPage />} />
                 <Route path="/game/plinko" element={<PlinkoPage />} />
                 <Route path="/game/limbo" element={<LimboPage />} />
                 <Route path="/game/dice" element={<DicePage />} />
                 <Route path="/game/keno" element={<KenoPage />} />
-                <Route path="/game/cards" element={<CardsPage />} />
                 <Route path="/game/hilo" element={<HiloPage />} />
                 <Route path="/game/baccarat" element={<BaccaratPage />} />
                 <Route path="/game/blackjack" element={<BlackjackGame />} />
                 <Route path="/game/scratch" element={<ScratchPage />} />
                 <Route path="/game/tower" element={<TowerPage />} />
                 <Route path="/game/twist" element={<TwistPage />} />
+                <Route path="/game/roulette" element={<RoulettePage />} />
                 <Route path="*" element={<LandingPage />} />
               </Routes>
             </div>

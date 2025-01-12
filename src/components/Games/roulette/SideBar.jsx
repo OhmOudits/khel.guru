@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 const SideBar = ({
   //   eslint-disable-next-line
   theatreMode,
@@ -50,11 +52,11 @@ const SideBar = ({
   // eslint-disable-next-line
   betStarts,
   // eslint-disable-next-line
-  Risk,
+  Difficulty,
   // eslint-disable-next-line
-  setRisk,
+  setDifficulty,
   // eslint-disable-next-line
-  handleMineBet,
+  handleBetstarted,
   // eslint-disable-next-line
   // gems,
   // // eslint-disable-next-line
@@ -64,15 +66,26 @@ const SideBar = ({
   // eslint-disable-next-line
   handleCheckout,
   // eslint-disable-next-line
+  
   AutoPick,
   // eslint-disable-next-line
   setAutoPick,
-    // eslint-disable-next-line
-    Reset , 
   // eslint-disable-next-line
-  setReset 
-
+  setClearTable,
 }) => {
+  const options = [
+    { value: "Easy", label: "Easy", extra: ["❌" , "✅" , "✅" , "✅" , ]},
+    { value: "Medium", label: " Medium" , extra: ["❌" , "✅" , "✅" ,] },
+    { value: "Hard", label: " Hard"  , extra:[ "❌" ,  "✅" ,]},
+    { value: "Extreme", label: "Extreme"  , extra: ["❌", "❌" ,  "✅" ,]},
+    { value: "Nightmare", label: " Nightmare"  , extra: ["❌" , "❌", "❌" ,  "✅" ,]},
+  ];
+  const handleSelect = (value) => {
+    setDifficulty(value);
+    setIsOpen(false);
+  };
+
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <>
       <div
@@ -145,35 +158,60 @@ const SideBar = ({
                   )}
                 </div>
               </div>
+              <div className="order-10 md:order-2 mb-2 mt-1 w-full flex items-center gap-3">
+                <div className="w-full">
+                  <label
+                    htmlFor="Difficulty"
+                    className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"
+                  >
+                    <h1>Difficulty</h1>
+                  </label>
+                  <div className="relative w-full">
+                    <button
+                      className="w-full mt-2  h-full flex justify-between  rounded-md bg-black p-3 text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
+                      onClick={() => setIsOpen(!isOpen)}
+                      disabled={bettingStarted}
+                    >
+                      {options.find((opt) => opt.value === Difficulty)?.label ||
+                        "Select Difficulty"}
+                    </button>
 
-              {/* <div
-                className={`order-2 text-white md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold bg-inactive hover:bg-activeHover cursor-pointer`}
-                onClick={() => {
-                  if (!AutoPick) {
-                    setBettingStarted(true)
-                    setAutoPick(true);
-                    setTimeout(() => {
-                      setAutoPick(false);
-                    }, 2000);
-                  }
-                }}
-              >
-                AutoPick
-              </div> */}
+                    {isOpen && (
+                      <div className="absolute z-10 mt-2 w-full bg-black border border-primary-4 rounded-md shadow-lg">
+                        {options.map((opt) => (
+                          <div
+                            key={opt.value}
+                            className="flex items-center text-sm justify-between p-3 hover:bg-primary-4 cursor-pointer text-white"
+                            onClick={() => handleSelect(opt.value)}
+                          >
+                            <span>{opt.label}</span>
+                            {/* {opt.extra && (
+                              <span className=" text-sm  flex gap-x-3 ">{opt.extra.map((x)=><div className="bg-gray-700 rounded-md p-[3px]">{x}</div>)}</span>
+                            )} */}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-              <div
-                className={`order-2 text-white md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold ${bettingStarted} bg-inactive hover:bg-activeHover cursor-pointer`}
-                onClick={() => {
-                  if (!Reset && bettingStarted) {
-                    setReset(true);
-                    setBettingStarted(false)
-                    setTimeout(() => {
-                      setReset(false);
-                    }, 2000);
-                  }
-                }}
-              >
-                Reset
+                {/* {bettingStarted && (
+                  <div className="w-full">
+                    <label
+                      htmlFor="gems"
+                      className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"
+                    >
+                      <h1>Gems</h1>
+                    </label>
+                    <input
+                      type="text"
+                      value={gems}
+                      id="gems"
+                      disabled
+                      className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
+                    />
+                  </div>
+                )} */}
               </div>
 
               {bettingStarted && (
@@ -189,7 +227,7 @@ const SideBar = ({
               {!bettingStarted && (
                 <div
                   className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold bg-button-primary text-black cursor-pointer`}
-                  onClick={handleMineBet}
+                  onClick={handleBetstarted}
                 >
                   Bet
                 </div>

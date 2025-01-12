@@ -26,7 +26,7 @@ export const originals = [
     img: "/games/balloons.avif",
     exclusive: true,
     new: false,
-    link: "/game/balloon",
+    link: "/game/parachute",
   },
   {
     id: 4,
@@ -98,7 +98,7 @@ export const originals = [
     img: "",
     exclusive: false,
     new: false,
-    link: "",
+    link: "/game/baccarat",
   },
   {
     id: 12,
@@ -107,7 +107,7 @@ export const originals = [
     img: "",
     exclusive: false,
     new: false,
-    link: "",
+    link: "/game/blackjack",
   },
   {
     id: 13,
@@ -116,7 +116,25 @@ export const originals = [
     img: "",
     exclusive: false,
     new: false,
-    link: "",
+    link: "/game/roulette",
+  },
+  {
+    id: 14,
+    name: "Limbo",
+    creator: "Khel Guru",
+    img: "",
+    exclusive: false,
+    new: false,
+    link: "/game/limbo",
+  },
+  {
+    id: 13,
+    name: "Dice",
+    creator: "Khel Guru",
+    img: "",
+    exclusive: false,
+    new: false,
+    link: "/game/dice",
   },
 ];
 
