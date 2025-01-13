@@ -38,7 +38,7 @@ const List = () => {
   return (
     <>
       {/* Tabs Section */}
-      <div className="relative mt-8 flex w-full max-w-[500px]">
+      <div className="relative mt-8 flex w-full max-w-[500px] ">
         <div
           className={`max-md:text-sm w-1/3 text-center px-2 py-3 cursor-pointer text-textColor font-semibold hover:text-white ${
             category === "all" ? "text-white" : ""
@@ -72,7 +72,7 @@ const List = () => {
 
       {/* Table Header */}
       <div className="mb-8 w-full">
-        <div className="w-full py-3 bg-inactive grid grid-cols-12 gap-2 px-4 text-left font-semibold xl:grid-cols-[14]">
+        <div className="w-full py-3 bg-[#2a2a2a] grid grid-cols-12 gap-2 px-4 text-left font-semibold xl:grid-cols-[14]">
           <div className="col-span-6 md:col-span-5 xl:col-span-2">Game</div>
           <div className="hidden md:block md:col-span-5 xl:col-span-2">
             Username
@@ -84,11 +84,11 @@ const List = () => {
         </div>
 
         {/* Render Visible Items with Animation */}
-        <div className="relative w-full py-3 bg-primary ">
+        <div className="relative w-full py-3 bg-inactive ">
           {visibleItems.map((w) => (
             <motion.div
               key={w.id}
-              className="w-full py-1.5 bg-primary grid grid-cols-12 gap-2 px-4 text-left font-semibold xl:grid-cols-[14]"
+              className="w-full py-1.5 bg-inactive grid grid-cols-12 gap-2 px-4 text-left font-semibold xl:grid-cols-[14]"
               initial={{ opacity: 0, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}

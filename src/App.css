@@ -49,8 +49,31 @@
   margin: 0;
 }
 
+.button-primary,
+.button {
+  color: black;
+}
+
+.bg-ter {
+  background-image: linear-gradient(
+    90deg,
+    rgb(36, 238, 137),
+    rgb(159, 232, 113)
+  );
+  box-shadow: rgba(35, 238, 136, 0.3) 0px 0px 12px,
+    rgb(29, 202, 106) 0px -2px inset;
+  color: black;
+  font-weight: bold;
+}
+
+input,
+select {
+  background-color: #1a1a1a;
+}
+
 body {
   @apply bg-primary;
+  font-size: 16px;
 }
 
 ::-webkit-scrollbar {

@@ -104,7 +104,7 @@ const Header = () => {
         <>
           <div className="flex">
             <div
-              className="flex relative px-3 py-1.5 bg-inactive rounded-tl rounded-bl cursor-pointer hover:bg-secondary font-semibold items-center gap-2"
+              className="flex relative px-3 py-1.5 bg-[#2a2a2a] rounded-tl rounded-bl cursor-pointer font-semibold items-center gap-2"
               onClick={() => setIsDropdownOpen((prev) => !prev)}
               ref={dropdownRef}
             >
@@ -169,7 +169,7 @@ const Header = () => {
 
             <div
               onClick={() => handleTabNavigation("wallet")}
-              className="px-3 py-1.5 rounded-tr rounded-br transition active:scale-[0.92] bg-button cursor-pointer hover:bg-button-primary"
+              className="px-3 py-1.5 rounded-tr rounded-br transition active:scale-[0.92] bg-ter cursor-pointer"
             >
               <FaWallet className="mt-1" />
             </div>
@@ -254,15 +254,15 @@ const Header = () => {
 
       {!loggedIn && (
         <div className="flex items-stretch gap-1.5">
-          <div className="max-md:hidden p-1 rounded-xl bg-secondary">
+          <div className="max-md:hidden p-1 rounded-xl ">
             <div
               onClick={() => handleTabNavigation("search")}
-              className="py-2 px-3 w-full h-full flex items-center justify-center text-white hover:bg-terHover cursor-pointer rounded-md bg-ter"
+              className="py-2 px-3 w-full h-full flex items-center justify-center text-black  cursor-pointer rounded-md bg-ter"
             >
               <FaSearch size={12} />
             </div>
           </div>
-          <div className="p-1 text-[0.8rem] rounded-xl bg-secondary flex gap-1 text-white">
+          <div className="p-1 text-[0.8rem] rounded-xl flex gap-1 text-white">
             {user && (
               <div className="font-semibold px-2 py-1 text-2xl text-purple-600">
                 {user.username}
@@ -271,13 +271,13 @@ const Header = () => {
             {!user && (
               <>
                 <div
-                  className="cursor-pointer login py-2 px-4 bg-ter flex items-center justify-center hover:bg-terHover rounded-md font-semibold"
+                  className="cursor-pointer login py-2 px-4 bg-ter flex text-black items-center justify-center  rounded-md font-semibold"
                   onClick={() => handleTabNavigation("login")}
                 >
                   Login
                 </div>
                 <div
-                  className="cursor-pointer register py-2 px-4 rounded-md bg-button font-bold"
+                  className="cursor-pointer register py-2 px-4 rounded-md bg-ter text-black font-bold"
                   onClick={() => handleTabNavigation("register")}
                 >
                   Register

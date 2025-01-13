@@ -1,9 +1,8 @@
 import { FaStopwatch } from "react-icons/fa";
 import Credits from "./Credits";
 import { FaTicket } from "react-icons/fa6";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import GamesLines from "./GamesLines";
-import register from "../../assets/landing/register.jpg";
 
 import casinobg from "../../assets/casinobg.png";
 import sportsbg from "../../assets/sportsbg.png";
@@ -13,12 +12,6 @@ import List from "./List";
 import { IoIosBasketball } from "react-icons/io";
 
 const MainFrame = () => {
-  const navigate = useNavigate();
-
-  const handleTabNavigation = (tab) => {
-    navigate(`?tab=${tab}`, { replace: true });
-  };
-
   return (
     <div
       className="mt-1 max-lg:pb-[90px] text-white lg:rounded-lg bg-secondry py-2 px-6 max-md:px-3"

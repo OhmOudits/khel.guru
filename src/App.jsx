@@ -134,7 +134,7 @@ function App() {
             <Sidebar setSideOpen={setSideOpen} sideOpen={sideOpen} />
 
             <div
-              className={`bg-primary ${
+              className={`bg-inactive ${
                 sideOpen ? "lg:pl-[220px]" : "lg:pl-[60px]"
               } z-[12] fixed max-lg:left-0 right-0 px-6 max-md:px-2 py-1 w-full flex items-center justify-center`}
             >
@@ -144,8 +144,8 @@ function App() {
                   className={`absolute max-lg:hidden ${
                     sideOpen
                       ? "bottom-[-0.40rem] left-[-0.95rem]"
-                      : "bottom-[-0.75rem] left-[-0.65rem]"
-                  } rounded-2xl w-6 h-6 bg-primary`}
+                      : "bottom-[-0.75rem] left-[-0.95rem]"
+                  } rounded-2xl w-6 h-6 bg-inactive`}
                 ></div>
               </div>
             </div>

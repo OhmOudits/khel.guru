@@ -4,25 +4,28 @@ export default {
   theme: {
     extend: {
       colors: {
-        "primary-1": "rgb(25, 25, 57)",
-        "primary-2": "rgb(9, 12, 29)",
-        "primary-3": "rgb(9, 12, 29)",
-        "primary-4": "rgb(9, 12, 29)",
-        "button-primary": "#00e701",
-        dropdown: "#3D2C58",
-        input: "#2C2852",
-        label: "#64748b",
-        primary: "rgb(25, 25, 57)",
-        secondry: "rgb(9, 12, 29)",
-        ter: "#2c2852",
-        terHover: "rgb(70, 62, 122)",
-        button: "rgb(86, 196, 0)",
-        active: "#7841ee",
-        inactive: "#2C2852",
-        textColor: "#b4a6e2",
-        activeHover: "rgb(70, 62, 122)",
-        iconActive: "rgba(255,206,0,1)",
-        hoverActive: "rgb(123, 108, 185)",
+        "primary-1": "#1E1E1E", // Solana black
+        "primary-2": "#1E1E1E", // Solana black
+        "primary-3": "#1E1E1E", // Solana black
+        "primary-4": "#1E1E1E", // Solana black
+        "button-primary": "#14F195", // Solana green
+        dropdown: "#2C2E3E", // Dark dropdown background
+        input: "#1F2128", // Dark input background
+        label: "#9CA3AF", // Neutral text
+        primary: "rgb(50 55 56)", // Solana black
+        secondary: "#252525", // Solana purple
+        primary2: "#2a2a2a",
+        // ter: "#14F195", // Solana green
+        terHover: "#5A4E99", // Purple hover
+        button: "#14F195", // Solana green
+        active: "#512DA8", // Deep purple for active states
+        inactive: "#2C2E3E", // Dark inactive background
+        textColor: "#121212", // Light text
+        activeHover: "#7C4DFF", // Bright hover purple
+        iconActive: "#FACC15", // Yellow accent
+        hoverActive: "#7C4DFF", // Bright hover accent
+        sectionBg: "#252525",
+        smallInactive: "#2C2C2C",
       },
     },
   },

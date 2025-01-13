@@ -38,7 +38,7 @@ const Frame = () => {
   return (
     <>
       <div
-        className="w-full bg-secondry pt-[1px] pb-[12px] max-lg:pb-[36px]"
+        className="w-full bg-sectionBg pt-[1px] pb-[12px] max-lg:pb-[36px]"
         style={{
           minHeight: "calc(100vh - 70px)",
         }}

@@ -216,186 +216,227 @@
 
 .inner[data-spinto="0"]:before {
   transform: rotateZ(-3610deg);
+
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="32"]:before {
   transform: rotateZ(-3600deg);
+
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="15"]:before {
   transform: rotateZ(-3590.27027deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="19"]:before {
   transform: rotateZ(-3580.54054deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="4"]:before {
   transform: rotateZ(-3570.81081deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="21"]:before {
   transform: rotateZ(-3561.08108deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="2"]:before {
   transform: rotateZ(-3551.35135deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="25"]:before {
   transform: rotateZ(-3541.62162deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="17"]:before {
   transform: rotateZ(-3531.89189deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="34"]:before {
   transform: rotateZ(-3522.16216deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="6"]:before {
   transform: rotateZ(-3512.43243deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="27"]:before {
   transform: rotateZ(-3502.7027deg);
+
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="13"]:before {
   transform: rotateZ(-3492.97297deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="36"]:before {
   transform: rotateZ(-3483.24324deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="11"]:before {
   transform: rotateZ(-3473.51351deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="30"]:before {
   transform: rotateZ(-3463.78378deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="8"]:before {
   transform: rotateZ(-3454.05405deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="23"]:before {
   transform: rotateZ(-3444.32432deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="10"]:before {
   transform: rotateZ(-3434.59459deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="5"]:before {
   transform: rotateZ(-3424.86486deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="24"]:before {
   transform: rotateZ(-3415.13514deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="16"]:before {
   transform: rotateZ(-3405.40541deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="33"]:before {
   transform: rotateZ(-3395.67568deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="1"]:before {
   transform: rotateZ(-3385.94595deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="20"]:before {
   transform: rotateZ(-3376.21622deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="14"]:before {
   transform: rotateZ(-3366.48649deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="31"]:before {
   transform: rotateZ(-3356.75676deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="9"]:before {
   transform: rotateZ(-3347.02703deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="22"]:before {
   transform: rotateZ(-3337.2973deg);
+
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="18"]:before {
   transform: rotateZ(-3327.56757deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="29"]:before {
   transform: rotateZ(-3317.83784deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="7"]:before {
   transform: rotateZ(-3308.10811deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="28"]:before {
   transform: rotateZ(-3298.37838deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="12"]:before {
   transform: rotateZ(-3288.64865deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="35"]:before {
   transform: rotateZ(-3278.91892deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="3"]:before {
   transform: rotateZ(-3269.18919deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
 .inner[data-spinto="26"]:before {
   transform: rotateZ(-3259.45946deg);
+  left: 22%;
   transition: transform 9s ease-out;
   content: "\2022";
 }
