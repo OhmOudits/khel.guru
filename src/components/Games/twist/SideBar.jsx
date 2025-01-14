@@ -62,36 +62,36 @@ const SideBar = ({
   handleCheckout,
   // eslint-disable-next-line
   handleRandomSelect,
-   // eslint-disable-next-line
-   betTrigger
-
-  
+  // eslint-disable-next-line
+  betTrigger,
 }) => {
   return (
     <>
       <div
         className={`col-span-12 ${
           theatreMode ? "md:col-span-4 md:order-1" : "lg:col-span-4 lg:order-1"
-        } xl:col-span-3 order-2 max-lg:h-[fit-content]`}
+        } xl:col-span-3 bg-inactive order-2 max-lg:h-[fit-content] lg:h-[600px] overflow-auto`}
       >
         <div className="my-4 px-3 flex flex-col">
           {/* Manual and auto  */}
-          <div className="order-[100] max-lg:mt-2 lg:order-1 switch mb-4 w-full bg-secondry rounded-full p-1.5 pt-[0.45rem] grid grid-cols-2 gap-1">
-            <div
-              onClick={() => setBetMode("manual")}
-              className={`${
-                betMode === "manual" ? "bg-inactive scale-95" : ""
-              } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
-            >
-              Manual
-            </div>
-            <div
-              onClick={() => setBetMode("auto")}
-              className={`${
-                betMode === "auto" ? "bg-inactive scale-95" : ""
-              } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
-            >
-              Auto
+          <div className="sticky top-0 z-[1] bg-inactive py-0 rounded-md">
+            <div className="order-[100] max-lg:mt-2 lg:order-1 switch mb-4 w-full bg-primary rounded-full p-1.5 grid grid-cols-2 gap-1">
+              <div
+                onClick={() => setBetMode("manual")}
+                className={`${
+                  betMode === "manual" ? "bg-inactive scale-95" : ""
+                } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
+              >
+                Manual
+              </div>
+              <div
+                onClick={() => setBetMode("auto")}
+                className={`${
+                  betMode === "auto" ? "bg-inactive scale-95" : ""
+                } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
+              >
+                Auto
+              </div>
             </div>
           </div>
 
@@ -139,7 +139,7 @@ const SideBar = ({
                   )}
                 </div>
               </div>
-              {bettingStarted  && (
+              {bettingStarted && (
                 <div className="order-10 md:order-2 mb-2 mt-1 w-full">
                   <label
                     htmlFor="totalProfit"
@@ -157,28 +157,28 @@ const SideBar = ({
                 </div>
               )}
 
-              
-
-
-            
-                <div
-                className={`order-2 max-md:mb-2 md:order-20  transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-10 max-lg:mt-4 rounded text-lg font-semibold bg-button-primary text-black cursor-pointer ${betTrigger ?  'bg-opacity-35' :''}`}
+              <div
+                className={`order-2 max-md:mb-2 md:order-20  transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-10 max-lg:mt-4 rounded text-lg font-semibold bg-button-primary text-black cursor-pointer ${
+                  betTrigger ? "bg-opacity-35" : ""
+                }`}
                 onClick={handlebet}
+              >
+                Bet
+              </div>
+
+              {
+                <button
+                  className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3  max-lg:mt-4 rounded text-lg font-semibold bg-button-primary text-black cursor-pointer ${
+                    !bettingStarted
+                      ? "bg-opacity-25 cursor-not-allowed mt-10"
+                      : "bg-opacity-100"
+                  }`}
+                  onClick={handleCheckout}
+                  s
                 >
-                  Bet
-                </div>
-           
-          { (
-            <button
-            className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3  max-lg:mt-4 rounded text-lg font-semibold bg-button-primary text-black cursor-pointer ${
-              !bettingStarted ? 'bg-opacity-25 cursor-not-allowed mt-10' : 'bg-opacity-100'
-            }`}
-            onClick={ handleCheckout}
-s          >
-            Checkout
-          </button>
-          
-          )}
+                  Checkout
+                </button>
+              }
             </>
           )}
 

@@ -36,7 +36,7 @@ const Wallet = () => {
               started using Stake. This will allow you to deposit & withdraw
               your funds seamlessly.
             </p>
-            <button className="mt-5 w-full py-2 bg-button active:scale-[0.9] transition">
+            <button className="mt-5 w-full py-2 bg-ter active:scale-[0.9] transition">
               Setup Wallet
             </button>
           </div>
