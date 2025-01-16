@@ -12,7 +12,7 @@ const Footer = () => {
   return (
     <>
       {openMenu && (
-        <div className="w-full lg:hidden py-[100px] h-screen fixed top-0 left-0 bg-secondry">
+        <div className="w-full lg:hidden py-[100px] h-screen fixed top-0 left-0 bg-primary">
           <div className="px-6 h-full overflow-y-auto cus-scroll">
             <BigSideBar />
           </div>

@@ -60,7 +60,7 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
 
       {!sideOpen && (
         <div
-          className="mt-2 pt-1 pl-[0.7rem] pr-0 flex flex-col text-white gap-2.5"
+          className="mt-2 pt-1 pl-[0.7rem] pr-0 flex flex-col text-white gap-2.5 text-base"
           style={{ minHeight: "calc(100vh)" }}
         >
           <div
@@ -72,7 +72,7 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
                 return (
                   <div
                     key={c.id}
-                    className="flex text-sm whitespace-nowrap gap-2 rounded items-center py-1.5 px-3 w-full min-w-[180px] bg-[#1E1E1E] text-textColor hover:bg-activeHover"
+                    className="flex text-[0.88rem] whitespace-nowrap gap-2 rounded items-center py-1.5 px-3 w-full min-w-[180px] bg-[#1E1E1E] text-textColor hover:bg-activeHover"
                   >
                     {React.createElement(c.icon)}
                     <span className="pt-0.5 text-purple-300">{c.name}</span>
@@ -93,7 +93,7 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
                 return (
                   <div
                     key={c.id}
-                    className="flex text-sm whitespace-nowrap gap-2 rounded items-center py-1.5 px-3 w-full min-w-[180px] bg-[#1E1E1E] text-textColor hover:bg-activeHover"
+                    className="flex text-[0.88rem] whitespace-nowrap gap-2 rounded items-center py-1.5 px-3 w-full min-w-[180px] bg-[#1E1E1E] text-textColor hover:bg-activeHover"
                   >
                     {React.createElement(c.icon)}
                     <span className="pt-0.5 text-purple-300">{c.name}</span>
@@ -110,15 +110,15 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
           >
             <div className="w-fit group p-2.5 relative hover:bg-activeHover cursor-pointer rounded-tr-xl rounded-tl-xl py-3.5 ">
               <HiSpeakerphone size={18} className="text-purple-300" />
-              <span className="absolute text-sm font-semibold text-textColor top-1.5 left-full ml-2 py-1.5 px-3 bg-[#1E1E1E] rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+              <span className="absolute text-[0.88rem] font-semibold text-textColor top-1.5 left-full ml-2 py-1.5 px-3 bg-[#1E1E1E] rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
                 Promotions
                 <span className="absolute left-[-5px] top-[8%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-smallInactive"></span>
               </span>
             </div>
 
-            <div className="w-fit group p-2.5 relative hover:bg-activeHover cursor-pointer rounded-tr-xl rounded-tl-xl py-3.5 ">
+            <div className="w-fit group p-2.5 relative hover:bg-activeHover cursor-pointer">
               <HiSpeakerphone size={18} className="text-purple-300" />
-              <span className="absolute text-sm font-semibold text-textColor top-1.5 left-full ml-2 py-1.5 px-3 bg-[#1E1E1E] rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+              <span className="absolute text-[0.88rem] font-semibold text-textColor top-1.5 left-full ml-2 py-1.5 px-3 bg-[#1E1E1E] rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
                 Raffle
                 <span className="absolute left-[-5px] top-[8%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-smallInactive"></span>
               </span>
@@ -126,7 +126,7 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
 
             <div className="w-fit group p-2.5 relative hover:bg-activeHover cursor-pointer">
               <FaDollarSign size={18} className="text-purple-300" />
-              <span className="absolute text-sm font-semibold text-textColor top-1.5 left-full ml-2 py-1.5 px-3 bg-[#1E1E1E] rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+              <span className="absolute text-[0.88rem] font-semibold text-textColor top-1.5 left-full ml-2 py-1.5 px-3 bg-[#1E1E1E] rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
                 Refer & Earn
                 <span className="absolute left-[-5px] top-[8%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-smallInactive"></span>
               </span>
@@ -134,7 +134,7 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
 
             <div className="w-fit group p-2.5 relative hover:bg-activeHover rounded-br-xl rounded-bl-xl cursor-pointer">
               <FaMoneyBill size={18} className="text-purple-300" />
-              <span className="absolute top-0 left-full ml-2 py-1.5 px-3 text-sm font-semibold text-textColor bg-[#1E1E1E] rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+              <span className="absolute top-0 left-full ml-2 py-1.5 px-3 text-[0.88rem] font-semibold text-textColor bg-[#1E1E1E] rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
                 Redeem
                 <span className="absolute left-[-5px] top-[8%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-smallInactive"></span>
               </span>
@@ -145,7 +145,7 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
             className={`relative w-fit group p-2.5 cursor-pointer hover:bg-activeHover rounded-xl bg-[#1E1E1E] flex items-center justify-center`}
           >
             <FaCrown size={18} className="text-purple-300" />
-            <span className="absolute left-full ml-2 py-1.5 px-3 text-sm font-semibold text-textColor bg-[#1E1E1E] rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+            <span className="absolute left-full ml-2 py-1.5 px-3 text-[0.88rem] font-semibold text-textColor bg-[#1E1E1E] rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
               VIP Club
               <span className="absolute left-[-5px] top-[15%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-smallInactive"></span>
             </span>
@@ -155,7 +155,7 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
             className={`relative w-fit group p-2.5 cursor-pointer hover:bg-activeHover rounded-xl bg-[#1E1E1E] flex items-center justify-center `}
           >
             <FaHeadphones size={18} className="text-purple-300" />
-            <span className="absolute left-full ml-2 py-1.5 px-3 text-sm font-semibold text-textColor bg-[#1E1E1E] rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
+            <span className="absolute left-full ml-2 py-1.5 px-3 text-[0.88rem] font-semibold text-textColor bg-[#1E1E1E] rounded-md hidden group-hover:block opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transform transition-all whitespace-nowrap duration-300">
               Live Support
               <span className="absolute left-[-5px] top-[15%] transform -translate-x-1/2 translate-y-full border-[6px] border-transparent border-r-smallInactive"></span>
             </span>
@@ -165,14 +165,14 @@ const Sidebar = ({ sideOpen, setSideOpen }) => {
 
       {sideOpen && (
         <div
-          className="w-full text-[0.9rem]"
+          className="w-full text-[0.9rem] overflow-y-auto"
           style={{
             minHeight: "calc(100vh)",
             maxHeight: "calc(100vh)",
           }}
         >
           <div className="px-3 overflow-y-auto cus-scroll">
-            <div className="flex flex-col gap-3 py-1 rounded-br-xl rounded-bl-xl overflow-hidden">
+            <div className="overflow-y-scroll pb-20 flex flex-col gap-3 py-1 rounded-br-xl rounded-bl-xl overflow-hidden">
               <div
                 className={`${
                   openCasino ? "bg-hoverActive" : "rounded-b-xl bg-activeHover"

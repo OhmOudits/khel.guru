@@ -1,7 +1,10 @@
 import { useState } from "react";
 
 // Array representing numbers on the betting board (0 to 36)
-const numbers = Array.from({ length: 37 }, (_, i) => i);
+const numbers = [
+  0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 2, 5, 8, 11, 14, 17, 20, 23,
+  26, 29, 32, 35, 1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34,
+];
 
 // Function to get color classes for a number
 const getNumberColor = (num, redNumbers) => {
@@ -26,8 +29,12 @@ export function BettingBoard({ onPlaceBet, currentBets, red }) {
     setHoverRange(null);
   };
 
-  const isHighlighted = (number) => {
+  const isHighlighted = (number, row) => {
     if (!hoverRange) return false;
+
+    if (hoverRange === row) {
+      return true;
+    }
 
     const groupHighlights = {
       red: (n) => red.includes(n),
@@ -36,6 +43,9 @@ export function BettingBoard({ onPlaceBet, currentBets, red }) {
       odd: (n) => n % 2 !== 0,
       "1-18": (n) => n >= 1 && n <= 18,
       "19-36": (n) => n >= 19 && n <= 36,
+      row1: (n) => n % 3 === 0,
+      row2: (n) => n % 3 === 2,
+      row3: (n) => n % 3 === 1,
     };
 
     if (hoverRange in groupHighlights) {
@@ -80,7 +90,7 @@ export function BettingBoard({ onPlaceBet, currentBets, red }) {
         </button>
 
         {/* Numbers 1 to 36 */}
-        <div className="col-span-11 grid grid-cols-12 gap-1">
+        <div className="col-span-10 grid grid-cols-12 gap-1">
           {numbers.slice(1).map((number) => (
             <button
               key={number}
@@ -104,14 +114,57 @@ export function BettingBoard({ onPlaceBet, currentBets, red }) {
             </button>
           ))}
         </div>
+
+        <div className="col-span-1 grid grid-cols-1 gap-1">
+          <button
+            className="bg-zinc-800 hover:bg-zinc-700 relative text-base p-2.5 text-white rounded transition-colors"
+            onMouseEnter={() => handleHover(`row1`)}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => onPlaceBet(`row1`)}
+          >
+            2:1
+            {currentBets["row1"] > 0 && (
+              <span className="absolute top-1 right-1 bg-white text-black text-xs px-1 rounded">
+                ${currentBets["row1"]}
+              </span>
+            )}
+          </button>
+          <button
+            className="bg-zinc-800 hover:bg-zinc-700 relative text-base p-2.5 text-white rounded transition-colors"
+            onMouseEnter={() => handleHover(`row2`)}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => onPlaceBet(`row2`)}
+          >
+            2:1
+            {currentBets["row2"] > 0 && (
+              <span className="absolute top-1 right-1 bg-white text-black text-xs px-1 rounded">
+                ${currentBets["row2"]}
+              </span>
+            )}
+          </button>
+          <button
+            className="bg-zinc-800 hover:bg-zinc-700 relative text-base p-2.5 text-white rounded transition-colors"
+            onMouseEnter={() => handleHover(`row3`)}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => onPlaceBet(`row3`)}
+          >
+            2:1
+            {currentBets["row3"] > 0 && (
+              <span className="absolute top-1 right-1 bg-white text-black text-xs px-1 rounded">
+                ${currentBets["row3"]}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Row for group bets */}
-      <div className="grid grid-cols-5 gap-2 mt-4 text-[0.8rem]">
-        {["1-12", "13-24", "25-36", "red", "black"].map((group) => (
+      <div className="grid grid-cols-8 gap-2 mt-4 text-[0.8rem]">
+        <div className="col-span-1"></div>
+        {["1-12", "13-24", "25-36"].map((group) => (
           <button
             key={group}
-            className="bg-zinc-800 hover:bg-zinc-700 text-white py-0 rounded transition-colors relative"
+            className="bg-zinc-800 col-span-2 hover:bg-zinc-700 text-white py-0 rounded transition-colors relative"
             onMouseEnter={() => handleHover(group)}
             onMouseLeave={handleMouseLeave}
             onClick={() => onPlaceBet(group)}
@@ -124,6 +177,7 @@ export function BettingBoard({ onPlaceBet, currentBets, red }) {
             )}
           </button>
         ))}
+        <div className="col-span-1"></div>
       </div>
 
       {/* Bottom row for additional bets */}
@@ -131,7 +185,7 @@ export function BettingBoard({ onPlaceBet, currentBets, red }) {
         {["1-18", "even", "odd", "19-36"].map((group) => (
           <button
             key={group}
-            className="bg-zinc-800 hover:bg-zinc-700 text-white py-0 rounded transition-colors"
+            className="bg-zinc-800 hover:bg-zinc-700 relative text-white py-0 rounded transition-colors"
             onMouseEnter={() => handleHover(group)}
             onMouseLeave={handleMouseLeave}
             onClick={() => onPlaceBet(group)}
@@ -139,6 +193,11 @@ export function BettingBoard({ onPlaceBet, currentBets, red }) {
             {group === "even" || group === "odd"
               ? group.charAt(0).toUpperCase() + group.slice(1)
               : group}
+            {currentBets[group] > 0 && (
+              <span className="absolute top-1 right-1 bg-white text-black text-xs px-1 rounded">
+                ${currentBets[group]}
+              </span>
+            )}
           </button>
         ))}
       </div>

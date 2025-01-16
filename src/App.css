@@ -54,7 +54,9 @@
   color: black;
 }
 
-.bg-ter {
+.bg-ter,
+.bg-button,
+.bg-button-primary {
   background-image: linear-gradient(
     90deg,
     rgb(36, 238, 137),

@@ -71,6 +71,10 @@ const SideBar = ({
   setAutoPick,
   // eslint-disable-next-line
   setClearTable,
+  // eslint-disable-next-line
+  handleAutoBet,
+  // eslint-disable-next-line
+  startAutoBet,
 }) => {
   const options = [
     { value: "Easy", label: "Easy", extra: ["❌", "✅", "✅", "✅"] },
@@ -133,7 +137,7 @@ const SideBar = ({
                       value={bet}
                       id="betAmount"
                       onChange={(e) => setBet(e.target.value)}
-                      className="w-full h-full rounded bg-secondry outline-none text-white px-2 pr-6 border border-inactive hover:border-primary-4"
+                      className="w-full h-full rounded bg-secondry outline-none text-white px-2 py-2.5 pr-6 border border-inactive hover:border-primary-4"
                     />
                     <div className="absolute top-1.5 right-2">
                       <svg fill="none" viewBox="0 0 96 96" className="svg-icon">
@@ -163,13 +167,14 @@ const SideBar = ({
                   )}
                 </div>
               </div>
+
               <div className="order-10 md:order-2 mb-2 mt-1 w-full flex items-center gap-3">
                 <div className="w-full">
                   <label
                     htmlFor="Difficulty"
                     className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"
                   >
-                    <h1>Difficulty</h1>
+                    <h1>Risk</h1>
                   </label>
                   <div className="relative w-full">
                     <button
@@ -186,7 +191,7 @@ const SideBar = ({
                         {options.map((opt) => (
                           <div
                             key={opt.value}
-                            className="flex items-center text-sm justify-between p-3 hover:bg-primary-4 cursor-pointer text-white"
+                            className="flex items-center text-[0.88rem] justify-between p-3 hover:bg-primary-4 cursor-pointer text-white"
                             onClick={() => handleSelect(opt.value)}
                           >
                             <span>{opt.label}</span>
@@ -247,6 +252,7 @@ const SideBar = ({
                   <label htmlFor="betAmount">Bet Amount</label>
                   <h1 className="text-sm">$0.00</h1>
                 </div>
+
                 <div className="w-full mt-1 bg-inactive shadow-md flex rounded">
                   <div className="w-full relative">
                     <input
@@ -298,8 +304,43 @@ const SideBar = ({
                 />
               </div>
 
+              <div className="order-10 md:order-2 mb-2 mt-1 w-full flex items-center gap-3">
+                <div className="w-full">
+                  <label
+                    htmlFor="Difficulty"
+                    className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"
+                  >
+                    <h1>Risk</h1>
+                  </label>
+                  <div className="relative w-full">
+                    <button
+                      className="w-full mt-2  h-full flex justify-between  rounded-md bg-black p-3 text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
+                      onClick={() => setIsOpen(!isOpen)}
+                      disabled={bettingStarted}
+                    >
+                      {options.find((opt) => opt.value === Difficulty)?.label ||
+                        "Select Difficulty"}
+                    </button>
+
+                    {isOpen && (
+                      <div className="absolute z-10 mt-2 w-full bg-black border border-primary-4 rounded-md shadow-lg">
+                        {options.map((opt) => (
+                          <div
+                            key={opt.value}
+                            className="flex items-center text-[0.88rem] justify-between p-3 hover:bg-primary-4 cursor-pointer text-white"
+                            onClick={() => handleSelect(opt.value)}
+                          >
+                            <span>{opt.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {/* On Win */}
-              <div className="order-10 md:order-2 py-3 w-full">
+              {/* <div className="order-10 md:order-2 py-3 w-full">
                 <h1 className="font-semibold text-label text-sm mb-[-4px] pl-[2px]">
                   On Win
                 </h1>
@@ -348,10 +389,10 @@ const SideBar = ({
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* On Loss */}
-              <div className="order-10 md:order-2 py-0 w-full">
+              {/* <div className="order-10 md:order-2 py-0 w-full">
                 <h1 className="font-semibold text-label text-sm mb-[-4px] pl-[2px]">
                   On Loss
                 </h1>
@@ -400,7 +441,7 @@ const SideBar = ({
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Stop on Profit */}
               <div className="order-10 md:order-2 mt-2 w-full">
@@ -467,9 +508,13 @@ const SideBar = ({
               </div>
 
               {/* Bet button */}
-              <div className="order-2 my-4 mt-6 md:mt-5 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 text-black bg-button-primary flex items-center justify-center w-full py-3 max-lg:mt-1 rounded cursor-pointer text-lg font-semibold">
+              <button
+                onClick={handleAutoBet}
+                disabled={startAutoBet}
+                className={`order-2 my-4 mt-6 md:mt-5 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 text-black bg-button-primary flex items-center justify-center w-full py-3 max-lg:mt-1 rounded cursor-pointer text-lg font-semibold`}
+              >
                 Start Autobet
-              </div>
+              </button>
             </>
           )}
         </div>

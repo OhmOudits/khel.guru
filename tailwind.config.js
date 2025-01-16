@@ -17,7 +17,7 @@ export default {
         primary2: "#2a2a2a",
         // ter: "#14F195", // Solana green
         terHover: "#5A4E99", // Purple hover
-        button: "#14F195", // Solana green
+        // button: "#14F195", // Solana green
         active: "#512DA8", // Deep purple for active states
         inactive: "#2C2E3E", // Dark inactive background
         textColor: "#121212", // Light text

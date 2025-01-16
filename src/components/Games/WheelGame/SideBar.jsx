@@ -3,23 +3,23 @@ const SideBar = ({
   theatreMode,
   setBet,
   setBetMode,
-  profit,
-  setProfit,
-  loss,
-  setLoss,
+  // profit,
+  // setProfit,
+  // loss,
+  // setLoss,
   nbets,
   setNBets,
   betMode,
   bet,
   maxBetEnable,
-  setOnLoss,
-  setOnWin,
-  onLoss,
-  onWin,
-  onWinReset,
-  onLossReset,
-  setOnLossReset,
-  setOnWinReset,
+  // setOnLoss,
+  // setOnWin,
+  // onLoss,
+  // onWin,
+  // onWinReset,
+  // onLossReset,
+  // setOnLossReset,
+  // setOnWinReset,
   riskSection,
   segmentSection,
   risk,
@@ -28,6 +28,8 @@ const SideBar = ({
   setSegment,
   bettingStarted,
   handleMineBet,
+  autoStart,
+  handleAutoBet,
 }) => {
   return (
     <>
@@ -283,7 +285,7 @@ const SideBar = ({
               </div>
 
               {/* On Win */}
-              <div className="order-10 md:order-2 py-3 w-full">
+              {/* <div className="order-10 md:order-2 py-3 w-full">
                 <h1 className="font-semibold text-label text-sm mb-[-4px] pl-[2px]">
                   On Win
                 </h1>
@@ -332,10 +334,10 @@ const SideBar = ({
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* On Loss */}
-              <div className="order-10 md:order-2 py-0 w-full">
+              {/* <div className="order-10 md:order-2 py-0 w-full">
                 <h1 className="font-semibold text-label text-sm mb-[-4px] pl-[2px]">
                   On Loss
                 </h1>
@@ -384,10 +386,10 @@ const SideBar = ({
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Stop on Profit */}
-              <div className="order-10 md:order-2 mt-2 w-full">
+              {/* <div className="order-10 md:order-2 mt-2 w-full">
                 <div className="flex items-center justify-between text-sm mb-[-4px] pl-[2px] mt-1 w-full font-semibold text-label">
                   <label htmlFor="profit">Stop on Profit</label>
                   <h1 className="text-sm">$0.00</h1>
@@ -416,10 +418,10 @@ const SideBar = ({
                     </svg>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Stop on Loss */}
-              <div className="order-10 md:order-2 mt-1 w-full">
+              {/* <div className="order-10 md:order-2 mt-1 w-full">
                 <div className="flex items-center justify-between text-sm mb-[-4px] pl-[2px] mt-1 w-full font-semibold text-label">
                   <label htmlFor="loss">Stop on Loss</label>
                   <h1 className="text-sm">$0.00</h1>
@@ -448,12 +450,16 @@ const SideBar = ({
                     </svg>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Bet button */}
-              <div className="order-2 my-4 mt-6 md:mt-5 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 text-black bg-button-primary flex items-center justify-center w-full py-3 max-lg:mt-1 rounded cursor-pointer text-lg font-semibold">
+              <button
+                disabled={autoStart}
+                onClick={handleAutoBet}
+                className="order-2 my-4 mt-6 md:mt-5 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 text-black bg-button-primary flex items-center justify-center w-full py-3 max-lg:mt-1 rounded cursor-pointer text-lg font-semibold"
+              >
                 Start Autobet
-              </div>
+              </button>
             </>
           )}
         </div>

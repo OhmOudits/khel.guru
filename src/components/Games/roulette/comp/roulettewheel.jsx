@@ -2,44 +2,43 @@ import { useState, useEffect } from "react";
 import "../../../../styles/Roulette.css";
 
 // eslint-disable-next-line
-const Roulette = ({ redNumbers, defaultNumber = 23 }) => {
+const Roulette = ({ redNumbers, currentNumber }) => {
   const [isSpinning, setIsSpinning] = useState(false);
   const [result, setResult] = useState(null);
   const [spinNumber, setSpinNumber] = useState(-1);
+  const [showBall, setShowBall] = useState(true);
 
   const numbers = [
     32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24,
     16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26, 0,
   ];
 
-  const spinRoulette = () => {
+  const spinRoulette = (targetNumber) => {
     if (isSpinning) return;
 
-    setIsSpinning(true);
-    const randomIndex = Math.floor(Math.random() * numbers.length);
-    const targetNumber = numbers[randomIndex];
-    console.log(targetNumber);
+    setSpinNumber(-1);
     setSpinNumber(targetNumber);
-
     setTimeout(() => {
       setResult({
         number: targetNumber,
         color:
           targetNumber === 0
             ? "green"
-            : // eslint-disable-next-line
-            redNumbers.includes(targetNumber)
+            : redNumbers.includes(targetNumber)
             ? "red"
             : "black",
       });
       setIsSpinning(false);
-    }, 9000);
+    }, 5000);
   };
 
   useEffect(() => {
-    spinRoulette();
+    if (currentNumber !== -1 && !isSpinning) {
+      spinRoulette(currentNumber);
+    }
+    setSpinNumber(currentNumber);
     // eslint-disable-next-line
-  }, []);
+  }, [currentNumber]);
 
   return (
     <div className="roulette-container">
@@ -57,6 +56,16 @@ const Roulette = ({ redNumbers, defaultNumber = 23 }) => {
           className={`inner ${spinNumber === -1 && "inner-hide"}`}
           data-spinto={spinNumber}
         ></div>
+      </div>
+
+      {/* Hide the ball for a short time during the spin */}
+      <div
+        className={`ball ${!showBall && "hidden"}`}
+        style={{
+          transition: "opacity 300ms",
+        }}
+      >
+        {showBall && <div className="ball-inner"></div>}
       </div>
 
       <div>

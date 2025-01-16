@@ -117,7 +117,7 @@ function App() {
   return (
     <>
       {loading && (
-        <div className="text-white font-semibold flex items-center justify-center w-full h-screen">
+        <div className="text-white font-semibold flex items-center justify-center w-full h-screen bg-primary">
           <h1>Preloader</h1>
         </div>
       )}

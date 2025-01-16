@@ -38,6 +38,7 @@ const Frame = () => {
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
   const [betStarted, setBettingStarted] = useState(false);
+  const [autoStart, setAutoStart] = useState(false);
 
   const history = [
     { id: 1, value: "1.64", color: "#f7b32b" },
@@ -54,6 +55,13 @@ const Frame = () => {
     }
   };
 
+  const handleAutoBet = () => {
+    console.log("ok");
+    if (!autoStart) {
+      setAutoStart(true);
+    }
+  };
+
   return (
     <>
       <div
@@ -63,13 +71,16 @@ const Frame = () => {
         }}
       >
         <div
-          className={`my-12 rounded mx-auto bg-primary w-[96%] max-w-[1400px] max-md:max-w-[450px] ${theatreMode ? "max-w-[100%] max-h-screen" : "max-lg:max-w-[450px]"
-            }`}
+          className={`my-12 rounded mx-auto bg-primary w-[96%] max-w-[1400px] max-md:max-w-[450px] ${
+            theatreMode ? "max-w-[100%] max-h-screen" : "max-lg:max-w-[450px]"
+          }`}
         >
           <div className="flex flex-col gap-[0.15rem] relative">
             <div className="grid grid-cols-12 lg:min-h-[600px]">
               {/* Left Section */}
               <SideBar
+                handleAutoBet={handleAutoBet}
+                autoStart={autoStart}
                 theatreMode={theatreMode}
                 setTheatreMode={setTheatreMode}
                 setBet={setBet}
@@ -103,14 +114,24 @@ const Frame = () => {
 
               {/* Right Section */}
               <div
-                className={`col-span-12 rounded-tr ${theatreMode
+                className={`col-span-12 rounded-tr ${
+                  theatreMode
                     ? "md:col-span-8 md:order-2"
                     : "lg:col-span-8 lg:order-2"
-                  } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[470px]`}
+                } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[470px]`}
               >
                 <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
                   <History list={history} />
-                  <Game risk={risk} segment={segment} targetIndex={1} betStarted={betStarted} setBetStarted={setBettingStarted} />
+                  <Game
+                    risk={risk}
+                    segment={segment}
+                    targetIndex={1}
+                    betStarted={betStarted}
+                    setBetStarted={setBettingStarted}
+                    nbets={nbets}
+                    autoStart={autoStart}
+                    setAutoStart={setAutoStart}
+                  />
                   <Chances risk={risk} segment={segment} />
                 </div>
               </div>

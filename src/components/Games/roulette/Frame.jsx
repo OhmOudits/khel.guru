@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "../../../styles/Frame.css";
 import FairnessModal from "../../Frame/FairnessModal";
 import FrameFooter from "../../Frame/FrameFooter";
@@ -21,8 +21,7 @@ const Frame = () => {
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
-  const [ Difficulty, setDifficulty] = useState("Easy"); // Difficulty of the game so that we can set the gifts accordingly
-  const [checkedBoxes, setCheckecdBoxes] = useState([]);
+  const [Difficulty, setDifficulty] = useState("Easy");
   const [betStarted, setBettingStarted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [totalProfit, setTotalProfit] = useState("0.000000");
@@ -40,8 +39,8 @@ const Frame = () => {
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
-  const [randomSelect, setRandomSelect] = useState(false);
   const [gameCheckout, setGameCheckout] = useState(false);
+  const [startAutoBet, setStartAutoBet] = useState(false);
 
   const handleBetstarted = () => {
     if (!betStarted) {
@@ -52,6 +51,10 @@ const Frame = () => {
   const handleCheckout = () => {
     setGameCheckout(true);
     setBettingStarted(false);
+  };
+
+  const handleAutoBet = () => {
+    setStartAutoBet(true);
   };
 
   return (
@@ -71,6 +74,8 @@ const Frame = () => {
             <div className="grid grid-cols-12 lg:min-h-[600px]">
               {/* Left Section */}
               <SideBar
+                handleAutoBet={handleAutoBet}
+                startAutoBet={startAutoBet}
                 theatreMode={theatreMode}
                 setTheatreMode={setTheatreMode}
                 setBet={setBet}
@@ -117,7 +122,13 @@ const Frame = () => {
                     </>
                   ) : (
                     <center className="w-full flex items-center justify-center  ">
-                      <Game betStarted={betStarted}   setBettingStarted={setBettingStarted}/>
+                      <Game
+                        betStarted={betStarted}
+                        mode={betMode}
+                        nbets={nbets}
+                        setBettingStarted={setBettingStarted}
+                        startAutoBet={startAutoBet}
+                      />
                     </center>
                   )}
                 </div>

@@ -1,13 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { segments } from "../../../constants";
 
-// eslint-disable-next-line react/prop-types
-const Game = ({ risk, segment, targetIndex, betStarted, setBetStarted }) => {
+const Game = ({
+  // eslint-disable-next-line
+  risk,
+  // eslint-disable-next-line
+  segment,
+  // eslint-disable-next-line
+  targetIndex,
+  // eslint-disable-next-line
+  betStarted,
+  // eslint-disable-next-line
+  setBetStarted,
+  // eslint-disable-next-line
+  autoStart,
+  // eslint-disable-next-line
+  nbets,
+  // eslint-disable-next-line
+  setAutoStart,
+}) => {
   const [riskSegment, setRiskSegment] = useState(null);
   const [selectedSegmentData, setSelectedSegmentData] = useState(null);
   const [segmentColors, setSegmentColors] = useState([]);
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
+
+  const spinCount = useRef(0);
 
   const radius = 100;
 
@@ -35,18 +53,17 @@ const Game = ({ risk, segment, targetIndex, betStarted, setBetStarted }) => {
     }
   }, [selectedSegmentData]);
 
-  useEffect(()=>{
-    console.log("called spin")
-    if (betStarted){
+  useEffect(() => {
+    if (betStarted) {
       spinWheel();
     }
-  }, [betStarted, targetIndex])
+  }, [betStarted, targetIndex]);
 
-  useEffect(()=>{
-    if (!spinning){
+  useEffect(() => {
+    if (!spinning) {
       setBetStarted(false);
     }
-  }, [spinning])
+  }, [spinning]);
 
   const totalSegments = segmentColors.length;
 
@@ -60,31 +77,25 @@ const Game = ({ risk, segment, targetIndex, betStarted, setBetStarted }) => {
     const endX = radius * Math.cos(nextAngle);
     const endY = radius * Math.sin(nextAngle);
 
-    return `
-      M ${startX} ${startY}
-      A ${radius} ${radius} 0 ${largeArc} 1 ${endX} ${endY}
-      L 0 0
-      Z
-    `;
+    return `M ${startX} ${startY} A ${radius} ${radius} 0 ${largeArc} 1 ${endX} ${endY} L 0 0 Z`;
   };
-
-
 
   const spinWheel = () => {
     if (spinning) return;
     setSpinning(true);
 
     let extraspin;
-    if (segment%20 == 0){
+    if (segment % 20 === 0) {
       extraspin = 5;
-    }else{
+    } else {
+      // eslint-disable-next-line
       extraspin = 0;
     }
 
-    const heavySpins = 5 * 360; // Extra spins for visual effect
-    const segmentAngle = 360 / totalSegments; // Angle of each segment
-    const targetAngle = targetIndex * segmentAngle; // Angle for the target index
-    const finalRotation = rotation + heavySpins + targetAngle + 0; // Final rotation
+    const heavySpins = 5 * 360;
+    const segmentAngle = 360 / totalSegments;
+    const targetAngle = targetIndex * segmentAngle;
+    const finalRotation = rotation + heavySpins + targetAngle + 0;
 
     setRotation(finalRotation);
 
@@ -92,6 +103,29 @@ const Game = ({ risk, segment, targetIndex, betStarted, setBetStarted }) => {
       setSpinning(false);
     }, 4000); // Spin duration
   };
+
+  useEffect(() => {
+    if (autoStart && nbets > 0) {
+      const performSpin = () => {
+        if (spinCount.current < nbets) {
+          setBetStarted(true);
+          spinCount.current += 1;
+        } else {
+          clearInterval(interval);
+          setAutoStart(false);
+          spinCount.current = 0;
+        }
+      };
+
+      performSpin();
+
+      const interval = setInterval(() => {
+        performSpin();
+      }, 4700);
+
+      return () => clearInterval(interval);
+    }
+  }, [autoStart, nbets, setAutoStart, setBetStarted]);
 
   return (
     <div className="flex flex-col justify-center items-center absolute">
@@ -112,7 +146,7 @@ const Game = ({ risk, segment, targetIndex, betStarted, setBetStarted }) => {
             position: "relative",
             width: "100%",
             height: "100%",
-            transform: `rotate(${rotation+2}deg)`,
+            transform: `rotate(${rotation + 2}deg)`,
             transition: "transform 4s ease-out",
           }}
         >
@@ -137,9 +171,7 @@ const Game = ({ risk, segment, targetIndex, betStarted, setBetStarted }) => {
         </div>
 
         {/* Inner Circle */}
-        <div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] aspect-square rounded-full bg-primary z-[2] border border-activeHover"
-        ></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] aspect-square rounded-full bg-primary z-[2] border border-activeHover"></div>
       </div>
 
       {/* Pointer */}

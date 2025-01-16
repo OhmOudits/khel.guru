@@ -96,7 +96,7 @@ const Header = () => {
           className="w-[100px] max-md:w-[60px] h-[60px] lg:ml-3"
         />
         <h1 className="text-lg max-lg:hidden ml-[-20px] text-white font-semibold">
-          Logo Name
+          Khel Guru
         </h1>
       </Link>
 
@@ -271,13 +271,13 @@ const Header = () => {
             {!user && (
               <>
                 <div
-                  className="cursor-pointer login py-2 px-4 bg-ter flex text-black items-center justify-center  rounded-md font-semibold"
+                  className="cursor-pointer text-[0.88rem] login py-2 px-4 bg-ter flex text-black items-center justify-center  rounded-md font-semibold"
                   onClick={() => handleTabNavigation("login")}
                 >
                   Login
                 </div>
                 <div
-                  className="cursor-pointer register py-2 px-4 rounded-md bg-ter text-black font-bold"
+                  className="cursor-pointer text-[0.88rem] register py-2 px-4 rounded-md bg-ter text-black font-bold"
                   onClick={() => handleTabNavigation("register")}
                 >
                   Register

@@ -1,25 +1,57 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { BettingBoard } from "./comp/BettingBoard";
 import Roulette from "./comp/roulettewheel";
 
 // eslint-disable-next-line
-function Game({ betStarted, setBettingStarted }) {
+function Game({ betStarted, setBettingStarted, mode, nbets, startAutoBet }) {
   const [spinning, setSpinning] = useState(false);
   const [currentNumber, setCurrentNumber] = useState(0);
   const [currentBets, setCurrentBets] = useState({});
+  const [autoMode, setAutoMode] = useState(false);
+  const autoBetCount = useRef(0);
+  const intervalRef = useRef(null);
 
-  console.log(betStarted);
   useEffect(() => {
     if (betStarted) {
       handleSpin();
     }
-
-    // eslint-disable-next-line
   }, [betStarted]);
 
+  useEffect(() => {
+    if (mode === "auto" && startAutoBet) {
+      setAutoMode(true);
+      autoBetCount.current = 0;
+
+      if (nbets === 0) {
+        intervalRef.current = setInterval(() => {
+          handleSpin();
+        }, 100);
+      } else {
+        const autoPlay = async () => {
+          while (autoBetCount.current < nbets) {
+            await new Promise((resolve) => {
+              handleSpin();
+              setTimeout(resolve, 1000);
+            });
+            autoBetCount.current += 1;
+          }
+          setAutoMode(false);
+        };
+        autoPlay();
+      }
+    } else {
+      setAutoMode(false);
+      clearInterval(intervalRef.current);
+    }
+
+    return () => {
+      clearInterval(intervalRef.current);
+    };
+  }, [mode, nbets, startAutoBet]);
+
   const handleSpin = useCallback(() => {
-    console.log("triggering", betStarted);
     if (spinning) return;
+
     setBettingStarted(true);
     setSpinning(true);
 
@@ -30,10 +62,15 @@ function Game({ betStarted, setBettingStarted }) {
       setSpinning(false);
       setBettingStarted(false);
       setCurrentBets({});
-    }, 4000);
+      setCurrentNumber(-1);
+
+      if (autoMode && nbets !== 0) {
+        autoBetCount.current += 1;
+      }
+    }, 5000);
 
     // eslint-disable-next-line
-  }, [spinning, betStarted]);
+  }, [spinning, autoMode, nbets]);
 
   const handlePlaceBet = useCallback((number) => {
     if (spinning) return;
@@ -41,6 +78,7 @@ function Game({ betStarted, setBettingStarted }) {
 
     if (number === "clear") {
       setCurrentBets([]);
+      return;
     }
 
     setCurrentBets((prev) => ({

@@ -1,5 +1,5 @@
 import { GoogleLogin } from "@react-oauth/google";
-import axios from 'axios';
+import axios from "axios";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
@@ -25,10 +25,10 @@ const Register = () => {
   const [details, setDetails] = useState(false);
   const [usernameDetails, setUsernameDetails] = useState("");
   const [passwordDetails, setPasswordDetails] = useState("");
-  const [email,setEmail] = useState("")
+  const [email, setEmail] = useState("");
   const [isCopied, setIsCopied] = useState(false);
-  const [error,setError] = useState(null)
-  const [success,setSuccess] = useState(false)
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
   const [close, setClose] = useState(false);
 
   const handleTabNavigation = (tab) => {
@@ -110,23 +110,28 @@ const Register = () => {
     e.preventDefault();
     setError(null);
     setSuccess(false);
-    console.log("register")
+    console.log("register");
 
     try {
-      const response = await axios.post("https://lossers-world-backend.onrender.com/api/users", {
-        email,
-        username: usernameDetails,
-        password: passwordDetails,
-      });
+      const response = await axios.post(
+        "https://lossers-world-backend.onrender.com/api/users",
+        {
+          email,
+          username: usernameDetails,
+          password: passwordDetails,
+        }
+      );
 
       if (response.status === 201) {
         setSuccess(true);
-        alert("registration successful")
+        alert("registration successful");
         navigate("/?tab=login"); // Redirect to login on success
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed. Please try again.");
-      console.log(err)
+      setError(
+        err.response?.data?.message || "Registration failed. Please try again."
+      );
+      console.log(err);
     }
   };
 
@@ -280,14 +285,14 @@ const Register = () => {
                   <div className="flex flex-col gap-2">
                     <label
                       htmlFor="username"
-                      className="text-textColor w-full font-semibold text-base"
+                      className="text-textColor w-full font-semibold text-[0.88rem]"
                     >
                       Username
                     </label>
                     <input
                       id="username"
                       onChange={(e) => setUsernameDetails(e.target.value)}
-                      className="px-3 py-3 rounded-lg bg-inactive font-semibold text-base border-[3px] border-activeHover hover:border-active outline-none"
+                      className="px-3 py-2.5 rounded-lg bg-inactive font-semibold text-[0.9rem] border-[3px] border-activeHover hover:border-active outline-none"
                       placeholder="Username"
                     />
                   </div>
@@ -295,7 +300,7 @@ const Register = () => {
                   <div className="flex flex-col gap-2 mt-4">
                     <label
                       htmlFor="email"
-                      className="text-textColor w-full font-semibold text-base"
+                      className="text-textColor w-full font-semibold text-[0.88rem]"
                     >
                       Email Address
                     </label>
@@ -303,7 +308,7 @@ const Register = () => {
                       id="email"
                       type="email"
                       onChange={(e) => setEmail(e.target.value)}
-                      className="px-3 py-3 rounded-lg bg-inactive font-semibold text-base border-[3px] border-activeHover hover:border-active outline-none"
+                      className="px-3 py-2.5 rounded-lg bg-inactive font-semibold text-[0.9rem] border-[3px] border-activeHover hover:border-active outline-none"
                       placeholder="Email Address"
                     />
                   </div>
@@ -311,7 +316,7 @@ const Register = () => {
                   <div className="flex flex-col gap-2 mt-4">
                     <label
                       htmlFor="password"
-                      className="text-textColor font-semibold text-base"
+                      className="text-textColor font-semibold text-[0.88rem]"
                     >
                       Password
                     </label>
@@ -320,7 +325,7 @@ const Register = () => {
                         type={showPassword ? "text" : "password"}
                         id="password"
                         onChange={(e) => setPasswordDetails(e.target.value)}
-                        className="px-3 w-full py-3 rounded-lg bg-inactive font-semibold text-base border-[3px] border-activeHover hover:border-active outline-none"
+                        className="px-3 w-full py-2.5 rounded-lg bg-inactive font-semibold text-[0.9rem] border-[3px] border-activeHover hover:border-active outline-none"
                         placeholder="Password"
                       />
                       <div
@@ -337,7 +342,7 @@ const Register = () => {
                   </div>
                 </div>
 
-                <div className="mt-2 mb-3 text-textColor font-semibold cursor-pointer">
+                <div className="mt-2 mb-3 text-textColor font-semibold cursor-pointer text-[0.9rem]">
                   Password must be at least 7 characters
                 </div>
 
@@ -446,7 +451,11 @@ const Register = () => {
                   </label>
                 </div>
 
-                <div type="submit" className="w-full py-2 bg-button rounded-xl flex items-center justify-center text-lg font-semibold cursor-pointer" onClick={handleRegister}>
+                <div
+                  type="submit"
+                  className="w-full py-2 bg-button rounded-xl flex items-center justify-center text-lg font-semibold cursor-pointer"
+                  onClick={handleRegister}
+                >
                   Play Now
                 </div>
               </div>
