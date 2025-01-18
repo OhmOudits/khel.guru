@@ -7,10 +7,7 @@ import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
-import { useSelector } from "react-redux";
-
 const Frame = () => {
-  const user = useSelector((state) => state?.auth?.user?.user);
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [nbets, setNBets] = useState(0);
@@ -23,7 +20,9 @@ const Frame = () => {
   const [profit, setProfit] = useState("0.000000");
   const [Difficulty, setDifficulty] = useState("Easy");
   const [betStarted, setBettingStarted] = useState(false);
+  // eslint-disable-next-line
   const [loading, setLoading] = useState(false);
+  // eslint-disable-next-line
   const [totalProfit, setTotalProfit] = useState("0.000000");
   // for autopickup and clearing the table
 
@@ -39,11 +38,14 @@ const Frame = () => {
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
+  // eslint-disable-next-line
   const [gameCheckout, setGameCheckout] = useState(false);
   const [startAutoBet, setStartAutoBet] = useState(false);
 
+  const [currentBets, setCurrentBets] = useState({});
+
   const handleBetstarted = () => {
-    if (!betStarted) {
+    if (!betStarted && currentBets.length !== 0) {
       setBettingStarted(true);
     }
   };
@@ -54,7 +56,9 @@ const Frame = () => {
   };
 
   const handleAutoBet = () => {
-    setStartAutoBet(true);
+    if (!startAutoBet && nbets != 0 && currentBets.length !== 0) {
+      setStartAutoBet(true);
+    }
   };
 
   return (
@@ -101,8 +105,6 @@ const Frame = () => {
                 setDifficulty={setDifficulty}
                 bettingStarted={betStarted}
                 handleBetstarted={handleBetstarted}
-                // gems={gems}
-                // setGems={setGems}
                 totalprofit={totalProfit}
                 handleCheckout={handleCheckout}
               />
@@ -124,10 +126,12 @@ const Frame = () => {
                     <center className="w-full flex items-center justify-center  ">
                       <Game
                         betStarted={betStarted}
-                        mode={betMode}
                         nbets={nbets}
                         setBettingStarted={setBettingStarted}
                         startAutoBet={startAutoBet}
+                        setStartAutoBet={setStartAutoBet}
+                        currentBets={currentBets}
+                        setCurrentBets={setCurrentBets}
                       />
                     </center>
                   )}

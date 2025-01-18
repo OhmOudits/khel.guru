@@ -34,10 +34,12 @@ const Frame = () => {
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
 
   const [bettingStarted, setBettingStarted] = useState(false);
+  const [startAutoBet, setStartAutoBet] = useState(false);
   const [checkout, setCheckout] = useState(false);
   const [value, setValue] = useState(1.0);
   const [pause, setPause] = useState(false);
   const [difficulty, setDifficulty] = useState("medium");
+  const [autoMultipyTarget, setAutoMultipyTarget] = useState("1.01");
 
   const handleBetClick = () => {
     setBettingStarted(true);
@@ -48,6 +50,13 @@ const Frame = () => {
   const handleCheckout = () => {
     setCheckout(false);
     setPause(true);
+  };
+
+  const handleAutoBet = () => {
+    if (!startAutoBet && nbets != 0 && autoMultipyTarget >= 1.01) {
+      setStartAutoBet(true);
+      setCheckout(true);
+    }
   };
 
   return (
@@ -98,6 +107,10 @@ const Frame = () => {
                 value={value}
                 difficulty={difficulty}
                 setDifficulty={setDifficulty}
+                startAutoBet={startAutoBet}
+                handleAutoBet={handleAutoBet}
+                autoMultipyTarget={autoMultipyTarget}
+                setAutoMultipyTarget={setAutoMultipyTarget}
               />
 
               {/* Right Section */}
@@ -119,7 +132,10 @@ const Frame = () => {
                     pause={pause}
                     setPause={setPause}
                     difficulty={difficulty}
-                    setDifficulty={setDifficulty}
+                    autoMultipyTarget={autoMultipyTarget}
+                    startAutoBet={startAutoBet}
+                    setStartAutoBet={setStartAutoBet}
+                    nbets={nbets}
                   />
                 </div>
               </div>

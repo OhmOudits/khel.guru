@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 /* eslint-disable react/prop-types */
 const SideBar = ({
   theatreMode,
@@ -31,6 +33,33 @@ const SideBar = ({
   autoStart,
   handleAutoBet,
 }) => {
+  const options = [
+    { value: "Low", label: "Low" },
+    { value: "Medium", label: " Medium" },
+    { value: "High", label: " High" },
+  ];
+
+  const handleRiskSelect = (value) => {
+    setRisk(value);
+    setIsOpen(false);
+  };
+  const [isOpen, setIsOpen] = useState(false);
+
+  const segmentOptions = [
+    { value: 10, label: 10 },
+    { value: 20, label: 20 },
+    { value: 30, label: 30 },
+    { value: 40, label: 40 },
+    { value: 50, label: 50 },
+  ];
+
+  const handleSegmentSelect = (value) => {
+    setSegment(value);
+    setIsOpen1(false);
+  };
+
+  const [isOpen1, setIsOpen1] = useState(false);
+
   return (
     <>
       <div
@@ -110,50 +139,82 @@ const SideBar = ({
               {/* Risk Section */}
               {riskSection && (
                 <div className="order-10 md:order-2 mb-2 mt-1 w-full">
-                  <label
-                    htmlFor="risk"
-                    className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"
-                  >
-                    <h1>Risk</h1>
-                  </label>
+                  <div className="w-full">
+                    <label
+                      htmlFor="Difficulty"
+                      className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"
+                    >
+                      <h1>Difficulty</h1>
+                    </label>
+                    <div className="relative w-full">
+                      <button
+                        className="w-full mt-2  h-full flex justify-between  rounded-md bg-black p-3 text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
+                        onClick={() => {
+                          setIsOpen1(false);
+                          setIsOpen(!isOpen);
+                        }}
+                        disabled={bettingStarted}
+                      >
+                        {options.find((opt) => opt.value === risk)?.label ||
+                          "Select Difficulty"}
+                      </button>
 
-                  <select
-                    className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
-                    value={risk}
-                    id="risk"
-                    onChange={(e) => setRisk(e.target.value)}
-                    disabled={bettingStarted}
-                  >
-                    <option value="Low">Low</option>
-                    <option value="Medium">Medium</option>
-                    <option value="High">High</option>
-                  </select>
+                      {isOpen && (
+                        <div className="absolute z-10 mt-2 w-full bg-black border border-primary-4 rounded-md shadow-lg">
+                          {options.map((opt) => (
+                            <div
+                              key={opt.value}
+                              className="flex items-center text-[0.88rem] justify-between p-3 hover:bg-primary-4 cursor-pointer text-white"
+                              onClick={() => handleRiskSelect(opt.value)}
+                            >
+                              <span>{opt.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
 
               {/* Segment Section */}
               {segmentSection && (
                 <div className="order-10 md:order-2 mb-2 mt-1 w-full">
-                  <label
-                    htmlFor="segment"
-                    className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"
-                  >
-                    <h1>Segment</h1>
-                  </label>
+                  <div className="w-full">
+                    <label
+                      htmlFor="Difficulty"
+                      className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"
+                    >
+                      <h1>Difficulty</h1>
+                    </label>
+                    <div className="relative w-full">
+                      <button
+                        className="w-full mt-2  h-full flex justify-between  rounded-md bg-black p-3 text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
+                        onClick={() => {
+                          setIsOpen(false);
+                          setIsOpen1(!isOpen1);
+                        }}
+                        disabled={bettingStarted}
+                      >
+                        {segmentOptions.find((opt) => opt.value === segment)
+                          ?.label || "Select Segment"}
+                      </button>
 
-                  <select
-                    className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
-                    value={segment}
-                    id="segment"
-                    onChange={(e) => setSegment(e.target.value)}
-                    disabled={bettingStarted}
-                  >
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                    <option value={30}>30</option>
-                    <option value={40}>40</option>
-                    <option value={50}>50</option>
-                  </select>
+                      {isOpen1 && (
+                        <div className="absolute z-10 mt-2 w-full bg-black border border-primary-4 rounded-md shadow-lg">
+                          {segmentOptions.map((opt) => (
+                            <div
+                              key={opt.value}
+                              className="flex items-center text-[0.88rem] justify-between p-3 hover:bg-primary-4 cursor-pointer text-white"
+                              onClick={() => handleSegmentSelect(opt.value)}
+                            >
+                              <span>{opt.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -226,48 +287,82 @@ const SideBar = ({
               {/* Risk Section */}
               {riskSection && (
                 <div className="order-10 md:order-2 mb-2 mt-1 w-full">
-                  <label
-                    htmlFor="risk"
-                    className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"
-                  >
-                    <h1>Risk</h1>
-                  </label>
+                  <div className="w-full">
+                    <label
+                      htmlFor="Difficulty"
+                      className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"
+                    >
+                      <h1>Difficulty</h1>
+                    </label>
+                    <div className="relative w-full">
+                      <button
+                        className="w-full mt-2  h-full flex justify-between  rounded-md bg-black p-3 text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
+                        onClick={() => {
+                          setIsOpen1(false);
+                          setIsOpen(!isOpen);
+                        }}
+                        disabled={bettingStarted}
+                      >
+                        {options.find((opt) => opt.value === risk)?.label ||
+                          "Select Difficulty"}
+                      </button>
 
-                  <select
-                    className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
-                    value={risk}
-                    id="risk"
-                    onChange={(e) => setRisk(e.target.value)}
-                  >
-                    <option value="Low">Low</option>
-                    <option value="Medium">Medium</option>
-                    <option value="High">High</option>
-                  </select>
+                      {isOpen && (
+                        <div className="absolute z-10 mt-2 w-full bg-black border border-primary-4 rounded-md shadow-lg">
+                          {options.map((opt) => (
+                            <div
+                              key={opt.value}
+                              className="flex items-center text-[0.88rem] justify-between p-3 hover:bg-primary-4 cursor-pointer text-white"
+                              onClick={() => handleRiskSelect(opt.value)}
+                            >
+                              <span>{opt.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
 
               {/* Segment Section */}
               {segmentSection && (
                 <div className="order-10 md:order-2 mb-2 mt-1 w-full">
-                  <label
-                    htmlFor="segment"
-                    className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"
-                  >
-                    <h1>Segment</h1>
-                  </label>
+                  <div className="w-full">
+                    <label
+                      htmlFor="Difficulty"
+                      className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"
+                    >
+                      <h1>Difficulty</h1>
+                    </label>
+                    <div className="relative w-full">
+                      <button
+                        className="w-full mt-2  h-full flex justify-between  rounded-md bg-black p-3 text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
+                        onClick={() => {
+                          setIsOpen(false);
+                          setIsOpen1(!isOpen1);
+                        }}
+                        disabled={bettingStarted}
+                      >
+                        {segmentOptions.find((opt) => opt.value === segment)
+                          ?.label || "Select Segment"}
+                      </button>
 
-                  <select
-                    className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
-                    value={segment}
-                    id="segment"
-                    onChange={(e) => setSegment(e.target.value)}
-                  >
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                    <option value={30}>30</option>
-                    <option value={40}>40</option>
-                    <option value={50}>50</option>
-                  </select>
+                      {isOpen1 && (
+                        <div className="absolute z-10 mt-2 w-full bg-black border border-primary-4 rounded-md shadow-lg">
+                          {segmentOptions.map((opt) => (
+                            <div
+                              key={opt.value}
+                              className="flex items-center text-[0.88rem] justify-between p-3 hover:bg-primary-4 cursor-pointer text-white"
+                              onClick={() => handleSegmentSelect(opt.value)}
+                            >
+                              <span>{opt.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
 

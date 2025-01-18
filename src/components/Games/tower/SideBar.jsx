@@ -83,6 +83,7 @@ const SideBar = ({
       extra: ["❌", "❌", "❌", "✅"],
     },
   ];
+
   const handleSelect = (value) => {
     setDifficulty(value);
     setIsOpen(false);
@@ -163,6 +164,7 @@ const SideBar = ({
                   )}
                 </div>
               </div>
+
               <div className="order-10 md:order-2 mb-2 mt-1 w-full flex items-center gap-3">
                 <div className="w-full">
                   <label

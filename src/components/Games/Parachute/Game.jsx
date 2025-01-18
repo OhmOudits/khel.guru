@@ -1,126 +1,146 @@
-import { useEffect, useState } from "react";
+/* eslint-disable */
+import { useEffect, useRef, useState } from "react";
 import clouds from "../../../assets/Balloon/clouds.png";
-// import mountain from "../../assets/Balloon/mountain.png";
 import balloon from "../../../assets/Balloon/balloon.png";
 import "../../../styles/Balloon.css";
 import Background from "./Background";
 
 const Game = ({
-  // eslint-disable-next-line
-  checkout,
-  // eslint-disable-next-line
   setCheckout,
-  // eslint-disable-next-line
   bettingStarted,
-  // eslint-disable-next-line
   setBettingStarted,
-  // eslint-disable-next-line
   value,
-  // eslint-disable-next-line
   setValue,
-  // eslint-disable-next-line
-  setBetStarts,
-  // eslint-disable-next-line
   pause,
-  // eslint-disable-next-line
   setPause,
-  // eslint-disable-next-line
   difficulty,
-  // eslint-disable-next-line
-  setDifficulty,
+  autoMultipyTarget,
+  startAutoBet,
+  setStartAutoBet,
+  nbets,
 }) => {
-  const [balloonFlew, setBalloonFlew] = useState(false);
   const [isCrashed, setIsCrashed] = useState(false);
-  const [time, setTime] = useState(0);
+  const [currentBetCount, setCurrentBetCount] = useState(0);
+  const gameIntervalRef = useRef(null);
   const speed = 100;
-  const [targetMultiplier, setTargetMultiplier] = useState(2.5);
-  const [mult, setMult] = useState(18);
   const cloudCount = 1000;
 
+  const [mult, setMult] = useState(18);
+
+  // Adjust multiplier based on difficulty
   useEffect(() => {
-    if (difficulty === "low") {
-      setMult(24);
-    } else if (difficulty === "medium") {
-      setMult(18);
-    } else {
-      setMult(12);
-    }
+    setMult(difficulty === "low" ? 24 : difficulty === "medium" ? 18 : 12);
   }, [difficulty]);
 
+  // Utility function to stop the game
+  const stopGame = () => {
+    if (gameIntervalRef.current) {
+      clearInterval(gameIntervalRef.current);
+      gameIntervalRef.current = null;
+    }
+    setBettingStarted(false);
+  };
+
+  // Main game logic
+  const runGame = () => {
+    if (pause || isCrashed || !bettingStarted) return;
+
+    let localTime = 0;
+    gameIntervalRef.current = setInterval(() => {
+      localTime += 0.1;
+      const newValue = Math.exp(localTime / mult);
+      setValue(newValue);
+
+      // Auto-bet stop condition
+      if (startAutoBet && newValue >= autoMultipyTarget) {
+        stopGame();
+        setPause(true);
+        setCheckout(true);
+        return;
+      }
+
+      // Random crash condition
+      if (Math.random() < 0.01) {
+        setIsCrashed(true);
+        stopGame();
+        setValue(1);
+        setCheckout(false);
+        setTimeout(() => setIsCrashed(false), 2000);
+      }
+    }, speed);
+  };
+
+  const resetGame = () => {
+    stopGame();
+    setValue(1);
+    setIsCrashed(false);
+    setBettingStarted(false);
+    setCheckout(false);
+    setPause(false);
+  };
+
+  // Pause handling effect
+  useEffect(() => {
+    if (pause) {
+      setIsCrashed(true);
+      stopGame();
+      setTimeout(() => resetGame(), 2000);
+    }
+  }, [pause, value, setIsCrashed]);
+
+  // Auto-bet logic
+  useEffect(() => {
+    if (startAutoBet && nbets > 0) {
+      const performAutoBet = () => {
+        if (currentBetCount < nbets) {
+          setBettingStarted(true);
+          setCurrentBetCount((prev) => prev + 1);
+        } else {
+          setStartAutoBet(false);
+          setCurrentBetCount(0); // Reset count after all bets are completed
+        }
+      };
+
+      // Start game immediately for the first bet
+      if (currentBetCount === 0 && !bettingStarted) {
+        performAutoBet();
+      }
+
+      // Add delay between games for subsequent bets
+      const interval = setInterval(() => {
+        if (currentBetCount > 0 && !bettingStarted && !pause && !isCrashed) {
+          performAutoBet();
+        } else if (currentBetCount >= nbets || pause || isCrashed) {
+          clearInterval(interval);
+        }
+      }, 1000 + speed);
+
+      return () => clearInterval(interval); // Cleanup
+    }
+  }, [
+    startAutoBet,
+    nbets,
+    currentBetCount,
+    setStartAutoBet,
+    bettingStarted,
+    pause,
+    isCrashed,
+  ]);
+
+  // Start the game when betting starts
   useEffect(() => {
     if (bettingStarted) {
-      setTargetMultiplier(Math.random() * 2 + 1.5);
+      runGame();
     }
   }, [bettingStarted]);
 
-  useEffect(() => {
-    if (pause) {
-      return;
-    }
-
-    if (isCrashed || !bettingStarted) {
-      setValue(1);
-      setTime(0);
-      return;
-    }
-
-    const interval = setInterval(() => {
-      setTime((prevTime) => prevTime + 0.1);
-
-      setValue(Math.exp(time / mult));
-
-      if (Math.exp(time / mult) >= targetMultiplier) {
-        setIsCrashed(true);
-        setCheckout(false);
-        setBettingStarted(false);
-        clearInterval(interval);
-
-        setTimeout(() => {
-          setIsCrashed(false);
-        }, 2000);
-      }
-    }, speed);
-
-    return () => clearInterval(interval);
-  }, [
-    isCrashed,
-    bettingStarted,
-    speed,
-    targetMultiplier,
-    setValue,
-    setCheckout,
-    setBettingStarted,
-    pause,
-    time,
-    mult,
-  ]);
-
-  useEffect(() => {
-    if (pause) {
-      setTimeout(() => {
-        setPause(false);
-        setBettingStarted(false);
-        setBalloonFlew(false);
-      }, 3000);
-      setBalloonFlew(true);
-    }
-
-    if (isCrashed) {
-      setTimeout(() => {
-        setPause(false);
-        setBettingStarted(false);
-        setBalloonFlew(false);
-      }, 3000);
-      setBalloonFlew(true);
-    }
-  }, [pause, isCrashed, setPause, setBettingStarted]);
-
   return (
     <div className="relative w-full h-full bg-primary overflow-hidden max-lg:min-h-[500px]">
+      {/* Background */}
       <div
         className={`absolute bottom-0 left-0 overflow-hidden ${
           bettingStarted || isCrashed || pause ? "moving-up" : ""
-        } ${balloonFlew ? "pause" : ""}`}
+        }`}
       >
         <div>
           <div className="w-full bg-blue-600">
@@ -129,31 +149,34 @@ const Game = ({
             ))}
           </div>
           <div className="w-full relative bg-gradient-to-t from-[#d08e80] to-blue-600">
-            <img src={clouds} className="w-full" alt="clouds" />
-            <img src={clouds} className="w-full" alt="clouds" />
-            <img src={clouds} className="w-full" alt="clouds" />
+            {[...Array(3)].map((_, idx) => (
+              <img key={idx} src={clouds} className="w-full" alt="clouds" />
+            ))}
           </div>
         </div>
-
-        {/* <img src={mountain} className="w-full" alt="mountain" /> */}
         <Background />
       </div>
 
+      {/* Balloon */}
       <div
         className={`absolute flex items-center justify-center w-1/2 h-1/2 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${
-          isCrashed || pause ? "animate-balloon" : ""
+          isCrashed ? "animate-balloon" : ""
         }`}
       >
         <img src={balloon} className="h-full" alt="balloon" />
       </div>
 
+      {/* Game Value Display */}
       <h1
         className={`absolute px-10 aspect-square flex items-center justify-center rounded-full font-bold top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 ${
-          isCrashed || pause ? "zoom-text" : ""
+          isCrashed ? "zoom-text" : ""
         }`}
       >
-        {/* eslint-disable-next-line */}
-        {isCrashed ? "Crashed" : `${value.toFixed(2)}x`}
+        {isCrashed
+          ? pause
+            ? `${value.toFixed(2)}x`
+            : "Crashed"
+          : `${value.toFixed(2)}x`}
       </h1>
     </div>
   );

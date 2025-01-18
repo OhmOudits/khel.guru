@@ -1,22 +1,15 @@
 import { useEffect, useState, useRef } from "react";
 import { segments } from "../../../constants";
 
+/* eslint-disable react/prop-types */
 const Game = ({
-  // eslint-disable-next-line
   risk,
-  // eslint-disable-next-line
   segment,
-  // eslint-disable-next-line
   targetIndex,
-  // eslint-disable-next-line
   betStarted,
-  // eslint-disable-next-line
   setBetStarted,
-  // eslint-disable-next-line
   autoStart,
-  // eslint-disable-next-line
   nbets,
-  // eslint-disable-next-line
   setAutoStart,
 }) => {
   const [riskSegment, setRiskSegment] = useState(null);

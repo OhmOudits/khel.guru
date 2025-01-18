@@ -159,7 +159,7 @@ export function BettingBoard({ onPlaceBet, currentBets, red }) {
       </div>
 
       {/* Row for group bets */}
-      <div className="grid grid-cols-8 gap-2 mt-4 text-[0.8rem]">
+      <div className="grid grid-cols-8 gap-2 mt-2.5 text-[0.8rem]">
         <div className="col-span-1"></div>
         {["1-12", "13-24", "25-36"].map((group) => (
           <button

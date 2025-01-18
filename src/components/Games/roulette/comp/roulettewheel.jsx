@@ -1,23 +1,38 @@
 import { useState, useEffect } from "react";
 import "../../../../styles/Roulette.css";
 
-// eslint-disable-next-line
-const Roulette = ({ redNumbers, currentNumber }) => {
+const Roulette = ({
+  // eslint-disable-next-line
+  redNumbers,
+  // eslint-disable-next-line
+  startAutoBet,
+  // eslint-disable-next-line
+  setStartAutoBet,
+  // eslint-disable-next-line
+  nbets,
+  // eslint-disable-next-line
+  betStarted,
+  // eslint-disable-next-line
+  setBettingStarted,
+}) => {
   const [isSpinning, setIsSpinning] = useState(false);
   const [result, setResult] = useState(null);
   const [spinNumber, setSpinNumber] = useState(-1);
-  const [showBall, setShowBall] = useState(true);
 
   const numbers = [
     32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24,
     16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26, 0,
   ];
 
-  const spinRoulette = (targetNumber) => {
+  // eslint-disable-next-line
+  const spinRoulette = () => {
     if (isSpinning) return;
 
-    setSpinNumber(-1);
+    setIsSpinning(true);
+    const randomIndex = Math.floor(Math.random() * numbers.length);
+    const targetNumber = numbers[randomIndex];
     setSpinNumber(targetNumber);
+
     setTimeout(() => {
       setResult({
         number: targetNumber,
@@ -29,16 +44,44 @@ const Roulette = ({ redNumbers, currentNumber }) => {
             : "black",
       });
       setIsSpinning(false);
-    }, 5000);
+    }, 9000);
+
+    setTimeout(() => {
+      setSpinNumber(-1);
+      setResult(null);
+    }, 9900);
   };
 
   useEffect(() => {
-    if (currentNumber !== -1 && !isSpinning) {
-      spinRoulette(currentNumber);
+    let spinCount = 0;
+
+    if (startAutoBet && nbets > 0) {
+      const executeSpin = () => {
+        if (spinCount < nbets) {
+          spinRoulette();
+          spinCount++;
+          const nextDelay = spinCount === 0 ? 0 : 10000;
+          setTimeout(executeSpin, nextDelay);
+        } else {
+          setStartAutoBet(false);
+          spinCount = 0;
+        }
+      };
+
+      executeSpin();
     }
-    setSpinNumber(currentNumber);
+
+    if (!startAutoBet && betStarted) {
+      spinRoulette();
+
+      setTimeout(() => {
+        setBettingStarted(false);
+        setSpinNumber(-1);
+      }, 10000);
+    }
+
     // eslint-disable-next-line
-  }, [currentNumber]);
+  }, [startAutoBet, nbets, setStartAutoBet, betStarted]);
 
   return (
     <div className="roulette-container">
@@ -58,16 +101,6 @@ const Roulette = ({ redNumbers, currentNumber }) => {
         ></div>
       </div>
 
-      {/* Hide the ball for a short time during the spin */}
-      <div
-        className={`ball ${!showBall && "hidden"}`}
-        style={{
-          transition: "opacity 300ms",
-        }}
-      >
-        {showBall && <div className="ball-inner"></div>}
-      </div>
-
       <div>
         <div className="result absolute top-[50%] text-lg left-1/2 -translate-x-1/2 -translate-y-1/2">
           {result ? (
@@ -78,8 +111,10 @@ const Roulette = ({ redNumbers, currentNumber }) => {
                 {result.number}
               </span>
             </div>
-          ) : (
+          ) : betStarted || startAutoBet ? (
             <span className="text-gray-500">Spinning...</span>
+          ) : (
+            <span className="text-gray-500">Place Your Bet</span>
           )}
         </div>
       </div>
