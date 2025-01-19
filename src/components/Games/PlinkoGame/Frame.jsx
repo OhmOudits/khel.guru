@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect, useRef, useState } from "react";
 import "../../../styles/Frame.css";
 import "../../../styles/Wheel.css";
@@ -6,8 +7,7 @@ import FrameFooter from "../../Frame/FrameFooter";
 import HotKeysModal from "../../Frame/HotKeysModal";
 import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
-import LeftSection from "../../Frame/LeftSection";
-import History from "../../Frame/History";
+import Sidebar from "./Sidebar";
 import Game from "./Game";
 import PlinkoEngine from "./PlinkoEngine";
 import usePlinkoStore from "./store";
@@ -16,10 +16,6 @@ const Frame = () => {
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [nbets, setNBets] = useState(0);
-  const [onWin, setOnWin] = useState(0);
-  const [onLoss, setOnLoss] = useState(0);
-  const [onWinReset, setOnWinReset] = useState(false);
-  const [onLossReset, setOnLossReset] = useState(false);
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
@@ -39,21 +35,14 @@ const Frame = () => {
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
   const [bettingStarted, setBettingStarted] = useState(true);
+  const [startAutoBet, setStartAutoBet] = useState(false);
 
-  const history = [
-    { id: 1, value: "1.64", color: "#f7b32b" },
-    { id: 2, value: "0.04", color: "#28a745" },
-    { id: 3, value: "1.24", color: "#f7b32b" },
-    { id: 4, value: "21.64", color: "#5b34eb" },
-    { id: 5, value: "2.94", color: "#f7b32b" },
-    { id: 6, value: "0.64", color: "#28a745" },
-  ];
-
-  const canvasRef = useRef(null); // Reference for the canvas element
+  const canvasRef = useRef(null);
   const [engine, setEngine] = useState(null);
 
-  const setCurrentBinIndex = usePlinkoStore((state) => state.setCurrentBinIndex);
-
+  const setCurrentBinIndex = usePlinkoStore(
+    (state) => state.setCurrentBinIndex
+  );
 
   // Initialize and manage the PlinkoEngine instance
   useEffect(() => {
@@ -76,8 +65,24 @@ const Frame = () => {
   }, [bet, rows, risk]);
 
   const handleBetClick = () => {
-    setBettingStarted(true);
     engine.dropBall();
+  };
+
+  const handleAutoBet = () => {
+    if (!startAutoBet && nbets > 0) {
+      setStartAutoBet(true);
+      let count = 0;
+
+      const interval = setInterval(() => {
+        if (engine && count < nbets) {
+          engine.dropBall();
+          count++;
+        } else {
+          clearInterval(interval);
+          setStartAutoBet(false);
+        }
+      }, 500);
+    }
   };
 
   return (
@@ -96,36 +101,23 @@ const Frame = () => {
           <div className="flex flex-col gap-[0.15rem] relative">
             <div className="grid grid-cols-12 lg:h-[600px]">
               {/* Left Section */}
-              <LeftSection
+              <Sidebar
                 theatreMode={theatreMode}
-                setTheatreMode={setTheatreMode}
-                setBet={setBet}
                 setBetMode={setBetMode}
-                profit={profit}
-                setProfit={setProfit}
-                setLoss={setLoss}
-                nbets={nbets}
-                setNBets={setNBets}
                 betMode={betMode}
                 bet={bet}
+                setBet={setBet}
                 maxBetEnable={maxBetEnable}
-                loss={loss}
-                setOnLoss={setOnLoss}
-                setOnWin={setOnWin}
-                onLoss={onLoss}
-                onWin={onWin}
-                onWinReset={onWinReset}
-                onLossReset={onLossReset}
-                setOnLossReset={setOnLossReset}
-                setOnWinReset={setOnWinReset}
-                riskSection
-                rowSection
+                nbets={nbets}
+                setNBets={setNBets}
                 risk={risk}
                 setRisk={setRisk}
                 rows={rows}
                 setRows={setRows}
                 bettingStarted={bettingStarted}
                 handleBetClick={handleBetClick}
+                handleAutoBet={handleAutoBet}
+                startAutoBet={startAutoBet}
               />
 
               {/* Right Section */}
@@ -146,6 +138,9 @@ const Frame = () => {
                     canvasRef={canvasRef}
                     width={PlinkoEngine.WIDTH}
                     height={PlinkoEngine.HEIGHT}
+                    nbets={nbets}
+                    startAutoBet={startAutoBet}
+                    setStartAutoBet={setStartAutoBet}
                   />
                 </div>
               </div>

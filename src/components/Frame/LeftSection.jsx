@@ -1,91 +1,49 @@
+/* eslint-disable */
 import BetAmount from "./BetAmount";
 
 const LeftSection = ({
-  //   eslint-disable-next-line
   theatreMode,
-  //   eslint-disable-next-line
   setBetMode,
-  //   eslint-disable-next-line
   betMode,
-  //   eslint-disable-next-line
   bet,
-  //   eslint-disable-next-line
   setBet,
-  //   eslint-disable-next-line
   maxBetEnable,
-  //   eslint-disable-next-line
   nbets,
-  //   eslint-disable-next-line
   setNBets,
-  //   eslint-disable-next-line
   setOnWin,
-  //   eslint-disable-next-line
   setOnWinReset,
-  //   eslint-disable-next-line
   onWinReset,
-  //   eslint-disable-next-line
   onWin,
-  //   eslint-disable-next-line
   setOnLoss,
-  //   eslint-disable-next-line
   setOnLossReset,
-  //   eslint-disable-next-line
   onLoss,
-  //   eslint-disable-next-line
   onLossReset,
-  //   eslint-disable-next-line
   profit,
-  //   eslint-disable-next-line
   setProfit,
-  //   eslint-disable-next-line
   loss,
-  //   eslint-disable-next-line
   setLoss,
-  // eslint-disable-next-line
   profitWin = false,
-  // eslint-disable-next-line
   riskSection = false,
-  // eslint-disable-next-line
   segmentSection = false,
-  // eslint-disable-next-line
   rowSection = false,
-  // eslint-disable-next-line
   risk,
-  // eslint-disable-next-line
   setRisk,
-  // eslint-disable-next-line
   segment,
-  // eslint-disable-next-line
   setSegment,
-  // eslint-disable-next-line
   rows,
-  // eslint-disable-next-line
   setRows,
-  // eslint-disable-next-line
   checkoutBox,
-  // eslint-disable-next-line
   setCheckout,
-  // eslint-disable-next-line
   bettingStarted,
-  // eslint-disable-next-line
   setBettingStarted,
-  // eslint-disable-next-line
   checkout,
-  // eslint-disable-next-line
   handleCheckoutBetClick,
-  // eslint-disable-next-line
   handleCheckout,
-  // eslint-disable-next-line
   betStarts,
-  // eslint-disable-next-line
   nminesSection = false,
-  // eslint-disable-next-line
   mines,
-  // eslint-disable-next-line
   setMines,
-  // eslint-disable-next-line
   handleMineBet,
-  // eslint-disable-next-line
   handleBetClick,
 }) => {
   return (

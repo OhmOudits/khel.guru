@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect, useState } from "react";
 import "../../../styles/Frame.css";
 import "../../../styles/Wheel.css";
@@ -6,8 +7,7 @@ import FrameFooter from "../../Frame/FrameFooter";
 import HotKeysModal from "../../Frame/HotKeysModal";
 import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
-import LeftSection from "../../Frame/LeftSection";
-import Chances from "./Chances";
+import Sidebar from "./Sidebar";
 import GameComponent from "./Game";
 import History from "../../Frame/History";
 import BetCalculator from "./Chances";
@@ -17,10 +17,6 @@ const Frame = () => {
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [nbets, setNBets] = useState(0);
-  const [onWin, setOnWin] = useState(0);
-  const [onLoss, setOnLoss] = useState(0);
-  const [onWinReset, setOnWinReset] = useState(false);
-  const [onLossReset, setOnLossReset] = useState(false);
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
@@ -47,6 +43,7 @@ const Frame = () => {
   const [defaultColor, setDefaultColor] = useState(true);
   const [betCompleted, setBetCompleted] = useState(false);
   const [currentHistory, setCurrentHistory] = useState([]);
+  const [startAutoBet, setStartAutoBet] = useState(false);
 
   const startGame = () => {
     setDefaultColor(true);
@@ -60,13 +57,31 @@ const Frame = () => {
     startGame();
   };
 
+  const handleAutoBet = () => {
+    if (!startAutoBet && nbets > 0) {
+      setStartAutoBet(true);
+      autoBet(nbets);
+    }
+  };
+
+  const autoBet = (remainingBets) => {
+    if (remainingBets > 0) {
+      startGame();
+      const gameDuration = 1500 + 500;
+      setTimeout(() => {
+        autoBet(remainingBets - 1);
+      }, gameDuration);
+    } else {
+      setStartAutoBet(false);
+    }
+  };
+
   const [number, setNumber] = useState(null);
   const [finalNumber, setFinalNumber] = useState(null);
   const [targetMultiplier, setTargetMultiplier] = useState(1.01);
 
   useEffect(() => {
     let interval;
-    console.log("start");
     if (start) {
       interval = setInterval(() => {
         const placeholder = (Math.random() * 100).toFixed(2);
@@ -117,7 +132,7 @@ const Frame = () => {
           <div className="flex flex-col gap-[0.15rem] relative">
             <div className="grid grid-cols-12 lg:min-h-[600px]">
               {/* Left Section */}
-              <LeftSection
+              <Sidebar
                 theatreMode={theatreMode}
                 setTheatreMode={setTheatreMode}
                 setBet={setBet}
@@ -130,20 +145,10 @@ const Frame = () => {
                 betMode={betMode}
                 bet={bet}
                 maxBetEnable={maxBetEnable}
-                loss={loss}
-                setOnLoss={setOnLoss}
-                setOnWin={setOnWin}
-                onLoss={onLoss}
-                onWin={onWin}
-                EstProfit={EstProfit}
-                onWinReset={onWinReset}
-                onLossReset={onLossReset}
-                setOnLossReset={setOnLossReset}
-                setOnWinReset={setOnWinReset}
-                setStart={setStart}
-                start={start}
-                bettingStarted={!bettingStarted}
+                bettingStarted={bettingStarted}
                 handleBetClick={handleBetClick}
+                startAutoBet={startAutoBet}
+                handleAutoBet={handleAutoBet}
               />
 
               {/* Right Section */}
@@ -171,6 +176,7 @@ const Frame = () => {
                       setEstProfit={setEstProfit}
                       targetMultiplier={targetMultiplier}
                       setTargetMultiplier={setTargetMultiplier}
+                      startAutoBet={startAutoBet}
                     />
                   </div>
                 </div>

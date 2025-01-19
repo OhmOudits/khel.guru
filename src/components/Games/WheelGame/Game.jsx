@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect, useState, useRef } from "react";
 import { segments } from "../../../constants";
 
@@ -81,7 +82,6 @@ const Game = ({
     if (segment % 20 === 0) {
       extraspin = 5;
     } else {
-      // eslint-disable-next-line
       extraspin = 0;
     }
 
@@ -94,7 +94,7 @@ const Game = ({
 
     setTimeout(() => {
       setSpinning(false);
-    }, 4000); // Spin duration
+    }, 4000);
   };
 
   useEffect(() => {

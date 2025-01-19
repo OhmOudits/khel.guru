@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState } from "react";
 import "../../../styles/Frame.css";
 import FairnessModal from "../../Frame/FairnessModal";
@@ -35,10 +36,11 @@ const Frame = () => {
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
 
   const [bettingStarted, setBettingStarted] = useState(false);
-  // eslint-disable-next-line
+  const [startAutoBet, setStartAutoBet] = useState(false);
   const [checkout, setCheckout] = useState(false);
   const [disableBet, setDisableBet] = useState(false);
   const [value, setValue] = useState(1.0);
+  const [autoMultipyTarget, setAutoMultipyTarget] = useState("1.01");
 
   const handleBetClick = () => {
     if (!disableBet) {
@@ -60,6 +62,18 @@ const Frame = () => {
     { id: 5, value: "2.94", color: "#f7b32b" },
     { id: 6, value: "0.64", color: "#28a745" },
   ];
+
+  const handleAutoBet = () => {
+    if (
+      !startAutoBet &&
+      nbets != 0 &&
+      autoMultipyTarget >= 1.01 &&
+      !disableBet
+    ) {
+      setStartAutoBet(true);
+      setCheckout(true);
+    }
+  };
 
   return (
     <>
@@ -105,6 +119,10 @@ const Frame = () => {
                 handleCheckout={handleCheckout}
                 value={value}
                 disableBet={disableBet}
+                startAutoBet={startAutoBet}
+                handleAutoBet={handleAutoBet}
+                autoMultipyTarget={autoMultipyTarget}
+                setAutoMultipyTarget={setAutoMultipyTarget}
               />
 
               {/* Right Section */}
@@ -122,6 +140,10 @@ const Frame = () => {
                     setMultiplier={setValue}
                     setBettingStarted={setBettingStarted}
                     setDisableBet={setDisableBet}
+                    autoMultipyTarget={autoMultipyTarget}
+                    startAutoBet={startAutoBet}
+                    setStartAutoBet={setStartAutoBet}
+                    nbets={nbets}
                   />
                 </div>
               </div>

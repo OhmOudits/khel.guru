@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import {
@@ -24,14 +25,14 @@ ChartJS.register(
 );
 
 const Game = ({
-  // eslint-disable-next-line
   multiplier,
-  // eslint-disable-next-line
   setMultiplier,
-  // eslint-disable-next-line
   setBettingStarted,
-  // eslint-disable-next-line
   setDisableBet,
+  autoMultipyTarget,
+  startAutoBet,
+  setStartAutoBet,
+  nbets,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [data, setData] = useState([{ time: 0, multiplier: 1.0 }]);
@@ -40,6 +41,7 @@ const Game = ({
   const [isCrashed, setIsCrashed] = useState(false);
   const [xMax, setXMax] = useState(12);
   const [yMax, setYMax] = useState(2);
+  const [targetHitCount, setTargetHitCount] = useState(0);
 
   useEffect(() => {
     if (countdown > 0) {
@@ -57,15 +59,22 @@ const Game = ({
     if (isPlaying) {
       interval = setInterval(() => {
         setTime((prev) => prev + 0.1);
-        setMultiplier(Math.exp(time / 18));
+        const newMultiplier = Math.exp(time / 18);
+        setMultiplier(newMultiplier);
 
-        if (Math.random() < 0.01) {
+        const rand = Math.random();
+        if (rand < 0.01) {
           setIsCrashed(true);
-          setIsPlaying(false);
-          setTimeout(() => {
-            setCountdown(5);
-            resetGame();
-          }, 3000);
+          if (startAutoBet && newMultiplier < autoMultipyTarget) {
+            console.log("Crashed Before Reaching Target");
+          }
+          if (startAutoBet && newMultiplier >= autoMultipyTarget) {
+            console.log("Checkout Point Reached");
+          }
+          if (startAutoBet && targetHitCount < nbets) {
+            setTargetHitCount((prev) => (prev += 1));
+          }
+          stopGame(false);
         }
       }, 100);
     } else if (!isPlaying && multiplier !== 1.0) {
@@ -73,7 +82,22 @@ const Game = ({
     }
 
     return () => clearInterval(interval);
-  }, [isPlaying, time, isCrashed, multiplier, setMultiplier]);
+  }, [
+    isPlaying,
+    time,
+    multiplier,
+    autoMultipyTarget,
+    startAutoBet,
+    nbets,
+    targetHitCount,
+  ]);
+
+  useEffect(() => {
+    if (targetHitCount >= nbets) {
+      setStartAutoBet(false);
+      setTargetHitCount(0);
+    }
+  }, [targetHitCount]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -93,18 +117,21 @@ const Game = ({
     }
   }, [time, multiplier, yMax, xMax]);
 
-  useEffect(() => {
-    if (isCrashed) {
-      setBettingStarted(false);
-    }
-  }, [isCrashed, setBettingStarted]);
-
   const startGame = () => {
     setXMax(12);
     setYMax(2);
     setIsPlaying(true);
     setIsCrashed(false);
     setDisableBet(true);
+  };
+
+  const stopGame = (success) => {
+    setIsPlaying(false);
+    setIsCrashed(!success);
+    setTimeout(() => {
+      setCountdown(5);
+      resetGame();
+    }, 3000);
   };
 
   const resetGame = () => {
@@ -178,17 +205,13 @@ const Game = ({
       >
         {isCrashed ? (
           <>
-            {/* eslint-disable-next-line */}
             <span className="text-red-500">{`${multiplier.toFixed(2)}x`}</span>
             <span>Crashed</span>
           </>
         ) : countdown !== 0 ? (
           <span>{countdown}</span>
         ) : (
-          <>
-            {/* eslint-disable-next-line */}
-            <span>{`${multiplier.toFixed(2)}x`}</span>
-          </>
+          <span>{`${multiplier.toFixed(2)}x`}</span>
         )}
       </div>
     </div>

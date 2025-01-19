@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable */
+import { useState, useEffect } from "react";
 import "../../../styles/Limbo.css";
 
 const BetCalculator = ({
@@ -9,6 +10,7 @@ const BetCalculator = ({
   setDefaultColor,
   bettingStarted,
   setTargetMultiplier,
+  startAutoBet,
 }) => {
   const [winChance, setWinChance] = useState(98.9999);
 
@@ -71,7 +73,7 @@ const BetCalculator = ({
             step="0.01"
             max="100000"
             min="1.01"
-            disabled={bettingStarted}
+            disabled={bettingStarted || startAutoBet}
             value={targetMultiplier}
             onChange={handleMultiplierChange}
             onBlur={handleBlur}
@@ -96,7 +98,7 @@ const BetCalculator = ({
           <input
             type="text"
             value={winChance}
-            disabled={bettingStarted}
+            disabled={bettingStarted || startAutoBet}
             readOnly
             style={{
               fontSize: "clamp(1.4rem, 1.5vw, 1.5rem)",
