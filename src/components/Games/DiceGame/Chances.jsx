@@ -2,19 +2,12 @@ import { useEffect } from "react";
 import { FaSyncAlt } from "react-icons/fa";
 
 const BetCalculator = ({
-  // eslint-disable-next-line
   rollUnder,
-  // eslint-disable-next-line
   setRollUnder,
-  // eslint-disable-next-line
   roll,
-  // eslint-disable-next-line
   setRoll,
-  // eslint-disable-next-line
   targetMultiplier,
-  // eslint-disable-next-line
   setTargetMultiplier,
-  // eslint-disable-next-line
   winChance,
 }) => {
   const calculateRollFromMultiplier = (multiplier) => {
@@ -50,15 +43,7 @@ const BetCalculator = ({
             min="1.01"
             value={targetMultiplier}
             onChange={(e) => {
-              // if (
-              //   e.target.value > 9990 ||
-              //   e.target.value < 1 ||
-              //   e.target.value === ""
-              // ) {
-              //   return;
-              // } else {
               setTargetMultiplier(e.target.value);
-              // }
             }}
             className="w-full px-3 py-1.5 text-left text-white bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 no-spin-on-hover"
             style={{

@@ -14,10 +14,6 @@ const Frame = () => {
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [nbets, setNBets] = useState(0);
-  const [onWin, setOnWin] = useState(0);
-  const [onLoss, setOnLoss] = useState(0);
-  const [onWinReset, setOnWinReset] = useState(false);
-  const [onLossReset, setOnLossReset] = useState(false);
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
@@ -42,6 +38,9 @@ const Frame = () => {
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
   const [randomSelect, setRandomSelect] = useState(false);
   const [gameCheckout, setGameCheckout] = useState(false);
+  const [startAutoBet, setStartAutoBet] = useState(false);
+  const [selectBoxes,setSelectBoxes] = useState(false);
+  const [selectedBoxes,setSelectedBoxes] = useState([]);
 
   const handleMineBet = () => {
     if (!betStarted) {
@@ -51,7 +50,9 @@ const Frame = () => {
 
   const handleCheckout = () => {
     setGameCheckout(true);
-    setBettingStarted(false);
+    setTimeout(() => {
+      setBettingStarted(false);
+    },2000);
   };
 
   const handleRandomSelect = () => {
@@ -70,6 +71,25 @@ const Frame = () => {
   useEffect(() => {
     setGems(25 - mines);
   }, [mines]);
+
+  const handleAutoBet = () => {
+    if (!startAutoBet && nbets != 0) {
+      setStartAutoBet(true);
+    }
+  };
+
+  const setback = () => {
+    if(!startAutoBet){
+      setStartAutoBet(false);
+      setSelectBoxes(false);
+    }
+  }
+
+  const handleSelectBoxes = () => {
+    if(!selectBoxes && selectedBoxes.length > 0){
+      setSelectBoxes(true)
+    }
+  }
 
   return (
     <>
@@ -100,15 +120,6 @@ const Frame = () => {
                 betMode={betMode}
                 bet={bet}
                 maxBetEnable={maxBetEnable}
-                loss={loss}
-                setOnLoss={setOnLoss}
-                setOnWin={setOnWin}
-                onLoss={onLoss}
-                onWin={onWin}
-                onWinReset={onWinReset}
-                onLossReset={onLossReset}
-                setOnLossReset={setOnLossReset}
-                setOnWinReset={setOnWinReset}
                 mines={mines}
                 setMines={setMines}
                 handleMineBet={handleMineBet}
@@ -118,6 +129,13 @@ const Frame = () => {
                 totalprofit={totalProfit}
                 handleCheckout={handleCheckout}
                 handleRandomSelect={handleRandomSelect}
+                startAutoBet={startAutoBet}
+                handleAutoBet={handleAutoBet}
+                gameCheckout={gameCheckout}
+                selectBoxes={selectBoxes}
+                setSelectBoxes={setSelectBoxes}
+                handleSelectBoxes={handleSelectBoxes}
+                setback={setback}
               />
 
               {/* Right Section */}
@@ -143,7 +161,14 @@ const Frame = () => {
                       setBetStarted={setBettingStarted}
                       gameCheckout={gameCheckout}
                       setGameCheckout={setGameCheckout}
-                      // userEmail={user.email}
+                      selectBoxes={selectBoxes}
+                      startAutoBet={startAutoBet}
+                      setStartAutoBet={setStartAutoBet}
+                      selectedBoxes={selectedBoxes}
+                      setSelectBoxes={setSelectBoxes}
+                      setSelectedBoxes={setSelectedBoxes}
+                      mode={betMode}
+                      nbets={nbets}
                     />
                   )}
                 </div>
