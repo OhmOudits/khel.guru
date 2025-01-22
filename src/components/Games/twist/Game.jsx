@@ -11,7 +11,7 @@ const BonusWheel = ({
   setorange,
   purple,
   setpurple,
-  loading
+  loading,
 }) => {
   const diamonds = ["orange", "green", "purple", "skull", "null"];
 
@@ -79,22 +79,18 @@ const BonusWheel = ({
     }
   }, [betTrigger, orange, green, purple]);
 
-  console.log(betInfo);
-
-
-
   return (
-    <ResponsiveSegmentedCircles 
-    green={green}
-    orange={orange}
-    purple={purple}
-    targetIndex={1} 
-    handleCheckout={handleCheckout} 
-    setCurrentDiamond={setCurrentDiamond} 
-    loading={loading}  
-    CurrentDiamond={CurrentDiamond}
-    betTrigger={betTrigger}
-   />
+    <ResponsiveSegmentedCircles
+      green={green}
+      orange={orange}
+      purple={purple}
+      targetIndex={1}
+      handleCheckout={handleCheckout}
+      setCurrentDiamond={setCurrentDiamond}
+      loading={loading}
+      CurrentDiamond={CurrentDiamond}
+      betTrigger={betTrigger}
+    />
   );
 };
 

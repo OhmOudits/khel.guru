@@ -119,7 +119,14 @@ const SegmentedCircle = ({
       //   greengradient : (totalSegments == 6) ?
       //     orangegradient : purplegradient
 
-      ctx.fillStyle = index - 1 >= i ? (color === "purple" ? purplegradient : (color === "orange" ? orangegradient : greengradient)) : defaultgradient;
+      ctx.fillStyle =
+        index - 1 >= i
+          ? color === "purple"
+            ? purplegradient
+            : color === "orange"
+            ? orangegradient
+            : greengradient
+          : defaultgradient;
 
       ctx.beginPath();
       ctx.moveTo(outerStartX, outerStartY);
@@ -209,30 +216,27 @@ const ResponsiveSegmentedCircles = ({
   green,
   orange,
   purple,
-  handleCheckout,
-  setCurrentDiamond,
-  targetIndex,
   betTrigger,
 }) => {
   const imageUrls = [gemImage, skullImage, nullImage, rubyImage, mineImage];
   const [spinning, setSpinning] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0); // Starting index
   const [spinningDuration, setSpinningDuration] = useState(0);
-  const [ orangeIn , setorangeIn] = useState(0)
-  const [ purpleIn , setpurpleIn] = useState(0)
-  const [ greenIn , setgreenIn] = useState(0)
-  
-  useEffect(()=>{
+  const [orangeIn, setorangeIn] = useState(0);
+  const [purpleIn, setpurpleIn] = useState(0);
+  const [greenIn, setgreenIn] = useState(0);
+
+  useEffect(() => {
     setTimeout(() => {
-      if(orange !== orangeIn){
-        setorangeIn(orange)
-      }else if (green !== greenIn){
-        setgreenIn(green)
-      }else if (purple !== purpleIn){
-        setpurpleIn(purple)
+      if (orange !== orangeIn) {
+        setorangeIn(orange);
+      } else if (green !== greenIn) {
+        setgreenIn(green);
+      } else if (purple !== purpleIn) {
+        setpurpleIn(purple);
       }
     }, 3300);
-  } , [orange , purple , green])
+  }, [orange, purple, green]);
   useEffect(() => {
     if (spinning) {
       const timer = setTimeout(() => {
@@ -246,16 +250,16 @@ const ResponsiveSegmentedCircles = ({
     setSpinning(true);
     const diamonds = ["purple", "skull", "null", "orange", "green"];
     let index = 0;
-    
+
     const sequenceInterval = setInterval(() => {
       setActiveIndex(index);
       index++;
-      
+
       if (index >= diamonds.length) {
         index = 0;
       }
-    }, 300); 
-    
+    }, 300);
+
     setTimeout(() => {
       clearInterval(sequenceInterval);
       const finalIndex = diamonds.findIndex((x) => x === CurrentDiamond);

@@ -3,8 +3,6 @@ import { motion } from "framer-motion";
 import { io } from "socket.io-client";
 import gift from "../../../assets/gift.svg";
 
-const socket = io("http://localhost:3000");
-
 const Game = ({
   mines,
   betStarted,
@@ -30,30 +28,6 @@ const Game = ({
     };
     setGrid(createGrid());
   }, [mines]);
-
-  useEffect(() => {
-    if (betStarted && userEmail) {
-      socket.emit("startMinesGame", userEmail); // Start game on backend
-    }
-
-    // Handle game started event from backend
-    socket.on("minesGameStarted", ({ bombPosition }) => {
-      setGrid((prevGrid) => {
-        const newGrid = [...prevGrid];
-        if (newGrid[bombPosition]) {
-          newGrid[bombPosition].type = "bomb"; // Place bomb according to backend
-        }
-        return newGrid;
-      });
-    });
-
-    // Cleanup listeners on component unmount
-    return () => {
-      socket.off("minesGameStarted");
-      socket.off("minesGameOver");
-      socket.off("minesBoxSafe");
-    };
-  }, [betStarted, userEmail]);
 
   const handleBoxClick = (index) => {
     if (betStarted) return;

@@ -7,17 +7,11 @@ import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
-import { useSelector } from "react-redux";
 
 const Frame = () => {
-  const user = useSelector((state) => state?.auth?.user?.user);
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [nbets, setNBets] = useState(0);
-  const [onWin, setOnWin] = useState(0);
-  const [onLoss, setOnLoss] = useState(0);
-  const [onWinReset, setOnWinReset] = useState(false);
-  const [onLossReset, setOnLossReset] = useState(false);
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
@@ -46,6 +40,8 @@ const Frame = () => {
   const [randomSelect, setRandomSelect] = useState(false);
   const [gameCheckout, setGameCheckout] = useState(false);
 
+  const [startAutoBet, setStartAutoBet] = useState(false);
+
   const handlebet = () => {
     if (!betStarted) {
       setBettingStarted(true);
@@ -60,9 +56,9 @@ const Frame = () => {
 
   const handleCheckout = () => {
     setbetInfo([]);
-    setorange(0)
-    setpurple(0)
-    setgreen(0)
+    setorange(0);
+    setpurple(0);
+    setgreen(0);
     setGameCheckout(true);
     setBettingStarted(false);
     setBettrigger(false);
@@ -70,6 +66,38 @@ const Frame = () => {
 
   const handleRandomSelect = () => {
     setRandomSelect(true);
+  };
+
+  const handleAutoBet = () => {
+    if (!startAutoBet && nbets > 0) {
+      setStartAutoBet(true);
+      autoBet(nbets);
+    }
+  };
+
+  const autoBet = (remainingBets) => {
+    if (remainingBets > 0) {
+      if (!betStarted) {
+        setBettingStarted(true);
+        setBettrigger(true);
+      }
+      setBettrigger(true);
+
+      setTimeout(() => {
+        setBettrigger(false);
+      }, 2000);
+
+      setTimeout(() => {
+        setBettingStarted(false);
+        autoBet(remainingBets - 1);
+      }, 5500);
+    } else {
+      setStartAutoBet(false);
+      setbetInfo([]);
+      setorange(0);
+      setpurple(0);
+      setgreen(0);
+    }
   };
 
   useEffect(() => {
@@ -110,15 +138,6 @@ const Frame = () => {
                 betMode={betMode}
                 bet={bet}
                 maxBetEnable={maxBetEnable}
-                loss={loss}
-                setOnLoss={setOnLoss}
-                setOnWin={setOnWin}
-                onLoss={onLoss}
-                onWin={onWin}
-                onWinReset={onWinReset}
-                onLossReset={onLossReset}
-                setOnLossReset={setOnLossReset}
-                setOnWinReset={setOnWinReset}
                 handlebet={handlebet}
                 bettingStarted={betStarted}
                 gems={gems}
@@ -128,6 +147,7 @@ const Frame = () => {
                 handleRandomSelect={handleRandomSelect}
                 setBettingStarted={setBettingStarted}
                 betTrigger={betTrigger}
+                handleAutoBet={handleAutoBet}
               />
 
               {/* Right Section */}
@@ -138,7 +158,7 @@ const Frame = () => {
                     : "lg:col-span-8 lg:order-2"
                 } xl:col-span-9 bg-gray-900 order-1`}
               >
-                <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
+                <div className="w-full relative text-white h-full min-h-[600px] flex items-center justify-center text-3xl">
                   {loading ? (
                     <>
                       <h1 className="text-xl font-semibold">Loading...</h1>

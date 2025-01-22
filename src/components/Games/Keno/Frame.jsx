@@ -7,19 +7,13 @@ import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
-import { useSelector } from "react-redux";
 import { chances } from "./constants";
 import Chances from "./Chances";
 
 const Frame = () => {
-  const user = useSelector((state) => state?.auth?.user?.user);
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [nbets, setNBets] = useState(0);
-  const [onWin, setOnWin] = useState(0);
-  const [onLoss, setOnLoss] = useState(0);
-  const [onWinReset, setOnWinReset] = useState(false);
-  const [onLossReset, setOnLossReset] = useState(false);
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
@@ -27,9 +21,7 @@ const Frame = () => {
   const [checkedBoxes, setCheckecdBoxes] = useState([]);
   const [gifts, setGifts] = useState([]);
   const [betStarted, setBettingStarted] = useState(false);
-  // eslint-disable-next-line
   const [loading, setLoading] = useState(false);
-  // eslint-disable-next-line
   const [totalProfit, setTotalProfit] = useState("0.000000");
 
   const [AutoPick, setAutoPick] = useState(false);
@@ -50,6 +42,7 @@ const Frame = () => {
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
   const [randomSelect, setRandomSelect] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [startAutoBet, setStartAutoBet] = useState(false);
 
   const [valid, setValid] = useState(false);
   const [things, setThings] = useState([]);
@@ -69,6 +62,12 @@ const Frame = () => {
 
   const handleRandomSelect = () => {
     setRandomSelect(true);
+  };
+
+  const handleAutoBet = () => {
+    if (!startAutoBet && nbets != 0 && valid) {
+      setStartAutoBet(true);
+    }
   };
 
   useEffect(() => {
@@ -110,10 +109,60 @@ const Frame = () => {
 
       setTimeout(() => {
         setBettingStarted(false);
-        // setGameOver(false);
+        setGameOver(false);
+        setGifts([]);
+        if (!startAutoBet) {
+          setCheckecdBoxes([]);
+        }
       }, 2500);
     }
   }, [betStarted, checkedBoxes]);
+
+  useEffect(() => {
+    if (startAutoBet && nbets > 0) {
+      let currentBet = 0;
+
+      const autoBet = () => {
+        if (currentBet < nbets) {
+          setGifts([]);
+          setGameOver(false);
+          setBettingStarted(true);
+
+          function generateRandomNumbers(count, min, max) {
+            const numbers = [];
+            while (numbers.length < count) {
+              const randomNumber =
+                Math.floor(Math.random() * (max - min + 1)) + min;
+              if (!numbers.includes(randomNumber)) {
+                numbers.push(randomNumber);
+              }
+            }
+            return numbers;
+          }
+
+          const randomNumbers = generateRandomNumbers(10, 0, 39);
+          setGifts(randomNumbers);
+
+          const commonNumbers = randomNumbers.filter((num) =>
+            checkedBoxes.includes(num)
+          );
+          setWinnedGifts(commonNumbers.length);
+
+          setTimeout(() => {
+            setBettingStarted(false);
+            setGifts([]);
+            currentBet += 1;
+            autoBet();
+          }, 3000);
+        } else {
+          setStartAutoBet(false);
+          setCheckecdBoxes([]);
+        }
+      };
+
+      autoBet();
+    }
+  }, [startAutoBet, nbets, checkedBoxes]);
 
   useEffect(() => {
     if (AutoPick) {
@@ -172,15 +221,6 @@ const Frame = () => {
                 betMode={betMode}
                 bet={bet}
                 maxBetEnable={maxBetEnable}
-                loss={loss}
-                setOnLoss={setOnLoss}
-                setOnWin={setOnWin}
-                onLoss={onLoss}
-                onWin={onWin}
-                onWinReset={onWinReset}
-                onLossReset={onLossReset}
-                setOnLossReset={setOnLossReset}
-                setOnWinReset={setOnWinReset}
                 Risk={Risk}
                 valid={valid}
                 setRisk={setRisk}
@@ -191,6 +231,9 @@ const Frame = () => {
                 AutoPick={AutoPick}
                 setAutoPick={setAutoPick}
                 setClearTable={setClearTable}
+                startAutoBet={startAutoBet}
+                handleAutoBet={handleAutoBet}
+                checkedBoxes={checkedBoxes}
               />
 
               {/* Right Section */}
@@ -214,7 +257,6 @@ const Frame = () => {
                         setRandomSelect={setRandomSelect}
                         betStarted={betStarted}
                         setBetStarted={setBettingStarted}
-                        userEmail={user?.email}
                         checkedBoxes={checkedBoxes}
                         setCheckecdBoxes={setCheckecdBoxes}
                         gifts={gifts}
