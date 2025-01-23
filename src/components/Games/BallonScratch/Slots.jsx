@@ -14,7 +14,7 @@ const slotsData = [
   { multiplier: "0.00×", chance: "35.0%" },
 ];
 
-const DiamondSlots = ({ diamondCounts  , slotindex , setslotindex}) => {
+const DiamondSlots = ({ diamondCounts, slotindex, setslotindex }) => {
   const colors = ["red", "yellow", "green", "purple", "blue"];
   const [highest, setHighest] = useState({
     main: {
@@ -118,19 +118,21 @@ const DiamondSlots = ({ diamondCounts  , slotindex , setslotindex}) => {
     });
   }, [highest]);
 
-  console.log("h", highest.second.color);
-
   return (
     <div className="flex flex-col gap-1 px-4 w-[100%] py-3.5 text-gray-500 rounded-lg">
       <div className="flex items-center justify-between p-3 rounded py-0.5 bg-gray-800">
-        <h2 className="justify-center text-2xl font-bold text-yellow-200"
-        style={{ fontSize: 'clamp(9px, 1.5vw, 100px)' }}
+        <h2
+          className="justify-center text-2xl font-bold text-yellow-200"
+          style={{ fontSize: "clamp(9px, 1.5vw, 100px)" }}
         >
           😛 💰 Jackpot 💰 😛
         </h2>
-        <span className="font-semibold"
-        style={{ fontSize: 'clamp(9px, 1vw, 14px)' }}
-        >1000.00×</span>
+        <span
+          className="font-semibold"
+          style={{ fontSize: "clamp(9px, 1vw, 14px)" }}
+        >
+          1000.00×
+        </span>
       </div>
       {displaySlots.map((slot, index) => (
         <div
@@ -141,54 +143,59 @@ const DiamondSlots = ({ diamondCounts  , slotindex , setslotindex}) => {
             {[...Array(slot.diamonds)].map((_, i) => (
               <div
                 key={`diamond-${i}`}
-                style={{ width: 'clamp(9px, 1.2vw, 14px)',
-                  height: 'clamp(9px, 1.2vw, 14px)',
-                 }}
+                style={{
+                  width: "clamp(9px, 1.2vw, 14px)",
+                  height: "clamp(9px, 1.2vw, 14px)",
+                }}
                 className={`mx-2 rounded-l-sm rounded-r-sm rounded-ss-xl transform rotate-45 ${
-                  slotindex === index
-                    ? highest.main.color
-                    : "bg-black"
+                  slotindex === index ? highest.main.color : "bg-black"
                 }`}
               ></div>
             ))}
             {[...Array(slot.different)].map((_, i) => (
               <div
                 key={`different-${i}`}
-                style={{ width: 'clamp(9px, 1.2vw, 14px)',
-                  height: 'clamp(9px, 1.2vw, 14px)',
-                 }}
+                style={{
+                  width: "clamp(9px, 1.2vw, 14px)",
+                  height: "clamp(9px, 1.2vw, 14px)",
+                }}
                 className={`mx-2 rounded-l-sm rounded-r-sm rounded-ss-xl transform rotate-45 ${
-                  slotindex === index
-                    ? highest.second.color
-                    : freeClasses[1]
+                  slotindex === index ? highest.second.color : freeClasses[1]
                 }`}
               ></div>
             ))}
             {[...Array(slot.free)].map((_, i) => (
               <div
                 key={`free-${i}`}
-                style={{ width: 'clamp(9px, 1.2vw, 14px)',
-                  height: 'clamp(9px, 1.2vw, 14px)',
-                 }}
+                style={{
+                  width: "clamp(9px, 1.2vw, 14px)",
+                  height: "clamp(9px, 1.2vw, 14px)",
+                }}
                 className={`mx-2 my-[2px] rounded-md transform rotate-45 ${freeClasses[0]}`}
               >
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className=" bg-gray-300 rotate-0"
-                  
-                  style={{ width: 'clamp(2px, 0.2vw, 2px)',
-                    height: 'clamp(9px, 1vw, 14px)'}}
+                  <div
+                    className=" bg-gray-300 rotate-0"
+                    style={{
+                      width: "clamp(2px, 0.2vw, 2px)",
+                      height: "clamp(9px, 1vw, 14px)",
+                    }}
                   ></div>
-                  <div className="w-[2px] h-[12px] bg-gray-300 -rotate-90 absolute"
-                  style={{ width: 'clamp(2px, 0.2vw, 2px)',
-                    height: 'clamp(9px, 1vw, 14px)'}}
+                  <div
+                    className="w-[2px] h-[12px] bg-gray-300 -rotate-90 absolute"
+                    style={{
+                      width: "clamp(2px, 0.2vw, 2px)",
+                      height: "clamp(9px, 1vw, 14px)",
+                    }}
                   ></div>
                 </div>
               </div>
             ))}
           </div>
           <div className="text-right flex pl-5 transition-opacity duration-300">
-            <div className="text-[14px] font-semibold"
-            style={{ fontSize: 'clamp(9px, 1vw, 14px)' }}
+            <div
+              className="text-[14px] font-semibold"
+              style={{ fontSize: "clamp(9px, 1vw, 14px)" }}
             >
               {slotsData[index]?.multiplier || "0.00×"}
             </div>

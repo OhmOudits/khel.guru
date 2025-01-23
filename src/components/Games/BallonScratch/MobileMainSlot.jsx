@@ -14,7 +14,7 @@ const slotsData = [
   { multiplier: "0.00×", chance: "35.0%" },
 ];
 
-const MobileSlot = ({ diamondCounts  , slotindex }) => {
+const MobileSlot = ({ diamondCounts, slotindex }) => {
   const colors = ["red", "yellow", "green", "purple", "blue"];
   const [highest, setHighest] = useState({
     main: {
@@ -57,6 +57,8 @@ const MobileSlot = ({ diamondCounts  , slotindex }) => {
   ];
 
   useEffect(() => {
+    console.log(Object.keys(diamondCounts).length);
+
     if (!diamondCounts || Object.keys(diamondCounts).length === 0) {
       setHighest({
         main: {
@@ -116,12 +118,6 @@ const MobileSlot = ({ diamondCounts  , slotindex }) => {
     });
   }, [highest]);
 
-
-  console.log("h", highest.second.color);
-
-  
-  console.log("h", highest.second.color);
-
   return (
     <div className="flex flex-col gap-1 px-4 w-[100%] sm:py-0 md:py-6 text-gray-500 rounded-lg">
       {/* <div className="flex items-center justify-between p-3 rounded py-0.5 bg-gray-800">
@@ -130,8 +126,7 @@ const MobileSlot = ({ diamondCounts  , slotindex }) => {
         </h2>
         <span className="text-[14px] font-semibold">1000.00×</span>
       </div> */}
-    {
-      slotindex === null && (
+      {slotindex === null && (
         <div
           key={slotindex}
           className="flex items-center justify-between p-3 rounded py-0.5 bg-gray-800"
@@ -155,9 +150,7 @@ const MobileSlot = ({ diamondCounts  , slotindex }) => {
             </div>
           </div>
         </div>
-      )
-    }
-
+      )}
 
       {slotindex !== null && (
         <div
@@ -168,17 +161,13 @@ const MobileSlot = ({ diamondCounts  , slotindex }) => {
             {[...Array(displaySlots[slotindex].diamonds)].map((_, i) => (
               <div
                 key={`diamond-${i}`}
-                className={`w-4 h-4 mx-2 rounded-l-sm rounded-r-sm rounded-ss-xl transform rotate-45 ${
-                  highest.main.color
-                }`}
+                className={`w-4 h-4 mx-2 rounded-l-sm rounded-r-sm rounded-ss-xl transform rotate-45 ${highest.main.color}`}
               ></div>
             ))}
             {[...Array(displaySlots[slotindex].different)].map((_, i) => (
               <div
                 key={`different-${i}`}
-                className={`w-4 h-4 mx-2 rounded-l-sm rounded-r-sm rounded-ss-xl transform rotate-45 ${
-                  highest.second.color
-                }`}
+                className={`w-4 h-4 mx-2 rounded-l-sm rounded-r-sm rounded-ss-xl transform rotate-45 ${highest.second.color}`}
               ></div>
             ))}
             {[...Array(displaySlots[slotindex].free)].map((_, i) => (
@@ -202,7 +191,6 @@ const MobileSlot = ({ diamondCounts  , slotindex }) => {
       )}
     </div>
   );
-  
 };
 
 export default MobileSlot;

@@ -225,390 +225,391 @@
   background-color: blue;
 }
 
-
 body {
-	padding: 0;
-	margin: 0;
-	width: 100%;
-	height: 100%;
-	overflow-x: hidden;
-	background: rgba(235, 236, 240, 1);
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  background: rgba(235, 236, 240, 1);
 }
 
 .gemWrapper {
-    /* padding: 10px; */
-    text-align: center;
-    /* display: table; */
-    /* display: inline-block; */
+  /* padding: 10px; */
+  text-align: center;
+  /* display: table; */
+  /* display: inline-block; */
 
-    margin-top: 15px; /* Handle spacing here */
-    margin-left: 7px;
-    float: left;
-    display: flex;
-    align-items: center;
-    align-content: center;
-	transition: all 250ms ease;
+  margin-top: 15px; /* Handle spacing here */
+  margin-left: 7px;
+  float: left;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  transition: all 250ms ease;
 }
 
 .gemWrapper:hover {
-	/* transform: scale(1.13); */
-	animation: conicRotate 1.8s forwards;
+  /* transform: scale(1.13); */
+  animation: conicRotate 1.8s forwards;
 }
 
 .gemWrapper:clicked {
-	/* transform: scale(1.13); */
-	animation: conicRotate 1.8s forwards;
+  /* transform: scale(1.13); */
+  animation: conicRotate 1.8s forwards;
 }
 
-
 .gemBox {
-	width: 50px;
-	height: 50px;
+  width: 50px;
+  height: 50px;
 
   transform: rotate(45deg);
-	border-radius: 9px;
-	transition: all 250ms ease;
-  
-  box-shadow:
-		0 0 .8px rgba(0, 0, 0, .8),
-		0 0 3px rgba(0, 0, 0, .08), 
-		0 0 10px rgba(0, 0, 0, .21),
-		3px 3px 12px rgba(0, 0, 0, .15),
-		6px 6px 20px rgba(0, 0, 0, .15);
-	
-	background: radial-gradient(circle at 25% 25%, #6a2c70 30%, #361639 80%);
-	background-size: 100%;
-	
-	-webkit-filter: saturate(1.2) contrast(1.2) brightness(1.1);
-	filter: saturate(1.2) contrast(1.2) brightness(1.1);
-	
-	overflow: hidden;
+  border-radius: 9px;
+  transition: all 250ms ease;
+
+  box-shadow: 0 0 0.8px rgba(0, 0, 0, 0.8), 0 0 3px rgba(0, 0, 0, 0.08),
+    0 0 10px rgba(0, 0, 0, 0.21), 3px 3px 12px rgba(0, 0, 0, 0.15),
+    6px 6px 20px rgba(0, 0, 0, 0.15);
+
+  background: radial-gradient(circle at 25% 25%, #6a2c70 30%, #361639 80%);
+  background-size: 100%;
+
+  -webkit-filter: saturate(1.2) contrast(1.2) brightness(1.1);
+  filter: saturate(1.2) contrast(1.2) brightness(1.1);
+
+  overflow: hidden;
 }
 
 .gemWrapper:hover .gemBox {
-	box-shadow:
-		0 0 .8px rgba(0, 0, 0, .8),
-		0 0 1px rgba(0, 0, 0, .8), 
-		0 0 5px rgba(0, 0, 0, .21),
-		2px 2px 6px rgba(0, 0, 0, .15);
+  box-shadow: 0 0 0.8px rgba(0, 0, 0, 0.8), 0 0 1px rgba(0, 0, 0, 0.8),
+    0 0 5px rgba(0, 0, 0, 0.21), 2px 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .gemWrapper:clicked .gemBox {
-	box-shadow:
-		0 0 .8px rgba(0, 0, 0, .8),
-		0 0 1px rgba(0, 0, 0, .8), 
-		0 0 5px rgba(0, 0, 0, .21),
-		2px 2px 6px rgba(0, 0, 0, .15);
+  box-shadow: 0 0 0.8px rgba(0, 0, 0, 0.8), 0 0 1px rgba(0, 0, 0, 0.8),
+    0 0 5px rgba(0, 0, 0, 0.21), 2px 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .gemBox.amethyst {
-	background: radial-gradient(circle at 25% 25%, #6a2c70 30%, #361639 80%);
+  background: radial-gradient(circle at 25% 25%, #6a2c70 30%, #361639 80%);
 }
 
 .gemBox.sapphire {
-	background: radial-gradient(circle at 25% 25%, #0F52BA 30%, #223378 80%);
-	background: radial-gradient(circle at 25% 25%, #0F52BA 30%, #00217A 80%);
+  background: radial-gradient(circle at 25% 25%, #0f52ba 30%, #223378 80%);
+  background: radial-gradient(circle at 25% 25%, #0f52ba 30%, #00217a 80%);
 }
 
 .gemBox.ruby {
-	background: radial-gradient(circle at 25% 25%, #9b111e 30%, #841b2d 80%);
+  background: radial-gradient(circle at 25% 25%, #9b111e 30%, #841b2d 80%);
 }
 
 .gemBox.diamond {
-	background:
-	conic-gradient(
-		from -49deg at 50% 50%, 
-		rgba(255, 255, 255, 0), 
-		rgb(67, 152, 255, .08), 
-		rgba(255, 255, 255, 0), 
-		rgb(255, 50, 97, .08), 
-		rgba(255, 255, 255, 0), 
-		rgba(255, 242, 129, .08), 
-		rgba(255, 255, 255, 0), 
-		rgb(67, 152, 255, .08), 
-		rgba(255, 255, 255, 0), 
-		rgb(255, 50, 97, .08), 
-		rgba(255, 255, 255, 0), 
-		rgba(255, 242, 129, .08)
-	),
-	conic-gradient(
-		from 2deg at 50% 50%, 
-		rgba(255, 255, 255, 0), 
-		rgb(67, 152, 255, .08), 
-		rgba(255, 255, 255, 0), 
-		rgb(255, 50, 97, .08), 
-		rgba(255, 255, 255, 0), 
-		rgba(255, 242, 129, .08), 
-		rgba(255, 255, 255, 0),
-		rgb(67, 152, 255, .08), 
-		rgba(255, 255, 255, 0), 
-		rgb(255, 50, 97, .08), 
-		rgba(255, 255, 255, 0), 
-		rgba(255, 242, 129, .08)
-	),
-	radial-gradient(circle at 25% 25%, #dce6f2 30%, #f7dde3 80%);
-	
-	background-blend-mode: hard-light, difference, normal;
+  background: conic-gradient(
+      from -49deg at 50% 50%,
+      rgba(255, 255, 255, 0),
+      rgb(67, 152, 255, 0.08),
+      rgba(255, 255, 255, 0),
+      rgb(255, 50, 97, 0.08),
+      rgba(255, 255, 255, 0),
+      rgba(255, 242, 129, 0.08),
+      rgba(255, 255, 255, 0),
+      rgb(67, 152, 255, 0.08),
+      rgba(255, 255, 255, 0),
+      rgb(255, 50, 97, 0.08),
+      rgba(255, 255, 255, 0),
+      rgba(255, 242, 129, 0.08)
+    ),
+    conic-gradient(
+      from 2deg at 50% 50%,
+      rgba(255, 255, 255, 0),
+      rgb(67, 152, 255, 0.08),
+      rgba(255, 255, 255, 0),
+      rgb(255, 50, 97, 0.08),
+      rgba(255, 255, 255, 0),
+      rgba(255, 242, 129, 0.08),
+      rgba(255, 255, 255, 0),
+      rgb(67, 152, 255, 0.08),
+      rgba(255, 255, 255, 0),
+      rgb(255, 50, 97, 0.08),
+      rgba(255, 255, 255, 0),
+      rgba(255, 242, 129, 0.08)
+    ),
+    radial-gradient(circle at 25% 25%, #dce6f2 30%, #f7dde3 80%);
+
+  background-blend-mode: hard-light, difference, normal;
 }
 
 .gemBox.topaz {
-	background: radial-gradient(circle at 25% 25%, #ffc87c 30%, #ffb994 80%);
-	
-	-webkit-filter: saturate(1.5) contrast(1.2) brightness(1);
-	filter: saturate(1.5) contrast(1.2) brightness(1);
+  background: radial-gradient(circle at 25% 25%, #ffc87c 30%, #ffb994 80%);
+
+  -webkit-filter: saturate(1.5) contrast(1.2) brightness(1);
+  filter: saturate(1.5) contrast(1.2) brightness(1);
 }
 
 .gemBox.blueTopaz {
-	background: radial-gradient(circle at 25% 25%, #4ea8c6 30%, #2b7088 80%);
-	
-	-webkit-filter: saturate(1.5) contrast(1.2) brightness(1);
-	filter: saturate(1.5) contrast(1.2) brightness(1);
+  background: radial-gradient(circle at 25% 25%, #4ea8c6 30%, #2b7088 80%);
+
+  -webkit-filter: saturate(1.5) contrast(1.2) brightness(1);
+  filter: saturate(1.5) contrast(1.2) brightness(1);
 }
 
 .gemBox.emerald {
-	background: radial-gradient(circle at 25% 25%, #00b374 30%, #006a63 80%);
-	
-	-webkit-filter: saturate(1.5) contrast(1.2) brightness(1);
-	filter: saturate(1.5) contrast(1.2) brightness(1);
+  background: radial-gradient(circle at 25% 25%, #00b374 30%, #006a63 80%);
+
+  -webkit-filter: saturate(1.5) contrast(1.2) brightness(1);
+  filter: saturate(1.5) contrast(1.2) brightness(1);
 }
 
 .gemBox.peridot {
-	background: radial-gradient(circle at 25% 25%, #94b75b 30%, #759931 80%);
-	
-	-webkit-filter: saturate(1.5) contrast(1.2) brightness(1);
-	filter: saturate(1.5) contrast(1.2) brightness(1);
+  background: radial-gradient(circle at 25% 25%, #94b75b 30%, #759931 80%);
+
+  -webkit-filter: saturate(1.5) contrast(1.2) brightness(1);
+  filter: saturate(1.5) contrast(1.2) brightness(1);
 }
 
 .gemBox.alexandrite {
-	background: 
-	conic-gradient(
-		from 55deg at 50% 50%,
-		rgba(255, 255, 255, .15),
-		rgba(255, 255, 255, .15),
-		rgba(47, 239, 160, .6),
-		rgba(255, 255, 255, .2),
-		rgba(255, 255, 255, .2)
-	),
-	radial-gradient(circle at 25% 25%, #8a9fcb 20%, #674f6b 75%);
-	
-	background-blend-mode: color, normal;
-	
-	-webkit-filter: saturate(1.5) contrast(1.2) brightness(1);
-	filter: saturate(1.5) contrast(1.2) brightness(1);
+  background: conic-gradient(
+      from 55deg at 50% 50%,
+      rgba(255, 255, 255, 0.15),
+      rgba(255, 255, 255, 0.15),
+      rgba(47, 239, 160, 0.6),
+      rgba(255, 255, 255, 0.2),
+      rgba(255, 255, 255, 0.2)
+    ),
+    radial-gradient(circle at 25% 25%, #8a9fcb 20%, #674f6b 75%);
+
+  background-blend-mode: color, normal;
+
+  -webkit-filter: saturate(1.5) contrast(1.2) brightness(1);
+  filter: saturate(1.5) contrast(1.2) brightness(1);
 }
 
 .gemBox.orangeSapphire {
-	background: radial-gradient(circle at 25% 25%, #9b5214 30%, #e26d1d 80%);
-	
-	-webkit-filter: saturate(1.5) contrast(1.2) brightness(1);
-	filter: saturate(1.5) contrast(1.2) brightness(1);
+  background: radial-gradient(circle at 25% 25%, #9b5214 30%, #e26d1d 80%);
+
+  -webkit-filter: saturate(1.5) contrast(1.2) brightness(1);
+  filter: saturate(1.5) contrast(1.2) brightness(1);
 }
 
 .gemBox:before {
-	content: "";
-	width: 100%;
-	height: 100%;
-	top: 0;
-	left: 0;
-	border-radius: 10px;
-	
-	background:
-		conic-gradient(
-		from 0deg at 50% 50%,
-		rgba(255, 255, 255, .2),
-		rgba(0, 0, 0, .2),
-		rgba(0, 0, 0, .05),
-		rgba(255, 255, 255, .2),
-		rgba(255, 255, 255, .2),
-		rgba(0, 0, 0, .3),
-		rgba(0, 0, 0, .1),
-		rgba(255, 255, 255, .2)
-	);
-	
-	-webkit-filter: blur(1px);
-	filter: blur(1px);
-	
-	mix-blend-mode: overlay;
-	mix-blend-mode: difference;
-	mix-blend-mode: multiply;
-	mix-blend-mode: hard-light;
-	
-	/* animation: conicRotate 32s infinite linear;
+  content: "";
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  border-radius: 10px;
+
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(255, 255, 255, 0.2),
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0.05),
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.2),
+    rgba(0, 0, 0, 0.3),
+    rgba(0, 0, 0, 0.1),
+    rgba(255, 255, 255, 0.2)
+  );
+
+  -webkit-filter: blur(1px);
+  filter: blur(1px);
+
+  mix-blend-mode: overlay;
+  mix-blend-mode: difference;
+  mix-blend-mode: multiply;
+  mix-blend-mode: hard-light;
+
+  /* animation: conicRotate 32s infinite linear;
 	transform: rotate(0deg);
 	*/
 }
 
 .gemBox.diamond:before {
-	border: 15px solid;
-	border-color: 
-		/* top right */ rgba(0, 0, 0, 0.3) 
-		/* bottom right */ rgba(255, 255, 255, 0.15) 
-		/* bottom left */ rgba(0, 0, 0, 0.18) 
-		/* top left */ rgba(255, 255, 255, 0.41);
-		
-	background:
-		conic-gradient(
-		from 0deg at 30% 30%,
-		rgba(255, 255, 255, .4),
-		rgba(255, 200, 124, .4),
-		rgba(0, 0, 0, .08),
-		rgba(255, 255, 255, .4),
-		rgba(255, 185, 148, .4),
-		rgba(0, 0, 0, .5),
-		rgba(0, 0, 0, .3),
-		rgba(255, 255, 255, .4)
-	);
-	
-	mix-blend-mode: overlay;
-	animation: none;
+  border: 15px solid;
+  border-color: 
+		/* top right */ rgba(0, 0, 0, 0.3) /* bottom right */
+    rgba(255, 255, 255, 0.15) /* bottom left */ rgba(0, 0, 0, 0.18)
+    /* top left */ rgba(255, 255, 255, 0.41);
+
+  background: conic-gradient(
+    from 0deg at 30% 30%,
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 200, 124, 0.4),
+    rgba(0, 0, 0, 0.08),
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 185, 148, 0.4),
+    rgba(0, 0, 0, 0.5),
+    rgba(0, 0, 0, 0.3),
+    rgba(255, 255, 255, 0.4)
+  );
+
+  mix-blend-mode: overlay;
+  animation: none;
 }
 
 .gemBox:after {
-	content: "";
-	position: absolute;
-	width:100%;
-	height: 100%;
-	left: 0;
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
 
-	border: 15px solid;
-	border-color: 
-		/* top right */ rgba(0, 0, 0, 0.3) 
-		/* bottom right */ rgba(255, 255, 255, 0.15) 
-		/* bottom left */ rgba(0, 0, 0, 0.18) 
-		/* top left */ rgba(255, 255, 255, 0.41);
-	background-size: 100%;
-	/* center stroke for side facets */
-	background:
-		linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.15) 100%),
-		linear-gradient(to left, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.15) 100%),
-		linear-gradient(45deg, rgba(0, 255, 0, 0) 0%, rgba(0, 0, 255, 0.15) 100%);
-	
-	mix-blend-mode: plus-lighter;
+  border: 15px solid;
+  border-color: 
+		/* top right */ rgba(0, 0, 0, 0.3) /* bottom right */
+    rgba(255, 255, 255, 0.15) /* bottom left */ rgba(0, 0, 0, 0.18)
+    /* top left */ rgba(255, 255, 255, 0.41);
+  background-size: 100%;
+  /* center stroke for side facets */
+  background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.15) 100%
+    ),
+    linear-gradient(
+      to left,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.15) 100%
+    ),
+    linear-gradient(45deg, rgba(0, 255, 0, 0) 0%, rgba(0, 0, 255, 0.15) 100%);
+
+  mix-blend-mode: plus-lighter;
 }
 
 .gemBox.ruby:after {
-	mix-blend-mode: hard-light;
+  mix-blend-mode: hard-light;
 }
 
 .gemBox.diamond:after {
-	border-color:
-		/* top right */ rgba(255, 255, 255, 0.41)
-		/* bottom right */ rgba(0, 0, 0, 0.18)
-		/* bottom left */ rgba(255, 255, 255, 0.25)
-		/* top left */ rgba(0, 0, 0, 0.15);
-	mix-blend-mode: multiply;
-	mix-blend-mode: difference;
+  border-color:
+		/* top right */ rgba(255, 255, 255, 0.41) /* bottom right */
+    rgba(0, 0, 0, 0.18) /* bottom left */ rgba(255, 255, 255, 0.25)
+    /* top left */ rgba(0, 0, 0, 0.15);
+  mix-blend-mode: multiply;
+  mix-blend-mode: difference;
 }
 
 .gemBox.topaz:after {
-	mix-blend-mode: luminosity;
-	mix-blend-mode: hard-light;
-	
-	-webkit-filter: contrast(1.4) saturate(120%);
-	filter: contrast(1.4) saturate(120%);
+  mix-blend-mode: luminosity;
+  mix-blend-mode: hard-light;
+
+  -webkit-filter: contrast(1.4) saturate(120%);
+  filter: contrast(1.4) saturate(120%);
 }
 
 .gemBox.blueTopaz:after {
-	mix-blend-mode: luminosity;
+  mix-blend-mode: luminosity;
 }
 
 .gemBox.emerald:after {
-	mix-blend-mode: multiply;
-	mix-blend-mode: hard-light;
+  mix-blend-mode: multiply;
+  mix-blend-mode: hard-light;
 }
 
 .gemBox.peridot:after {
-	mix-blend-mode: hard-light;
+  mix-blend-mode: hard-light;
 }
 
 .gemBox.alexandrite:after {
-	mix-blend-mode: hard-light;
+  mix-blend-mode: hard-light;
 }
 
 .gemBox.orangeSapphire:after {
-	mix-blend-mode: screen;
+  mix-blend-mode: screen;
 }
 
-
 .glint {
-	content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    left: -1px;
-    bottom: -2%;
-	border-radius: 50%;
-	
-	background: 
-		radial-gradient( 
-		circle at 50% 50%, 
-		rgba(255, 255, 255, .65), 
-		rgba(0, 0, 0, 0) 50% 
-	);
-	
-    mix-blend-mode: screen;
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: -1px;
+  bottom: -2%;
+  border-radius: 50%;
+
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 255, 0.65),
+    rgba(0, 0, 0, 0) 50%
+  );
+
+  mix-blend-mode: screen;
 }
 
 .shine {
-	content: "";
-    width: 150%;
-    height: 150%;
-    position: absolute;
-    left: -22px;
-    top: -22px;
-	/* transform: rotate(-45deg); */
-	
-    background: 
-		linear-gradient(
-		80deg, 
-		transparent 10%, 
-		rgba(255, 255, 255, .38) 50%, 
-		transparent 60%
-	);
-    background-size: 300% 300%;
-    background-position: -100% 0%;
-    background-repeat: no-repeat;
-	
-	-webkit-clip-path: inset(31% 27% 27% 31%);
-	clip-path: inset(31% 27% 27% 31%);
-	
-	mix-blend-mode: screen;
-	animation: gemShineMove 4s infinite linear;
+  content: "";
+  width: 150%;
+  height: 150%;
+  position: absolute;
+  left: -22px;
+  top: -22px;
+  /* transform: rotate(-45deg); */
+
+  background: linear-gradient(
+    80deg,
+    transparent 10%,
+    rgba(255, 255, 255, 0.38) 50%,
+    transparent 60%
+  );
+  background-size: 300% 300%;
+  background-position: -100% 0%;
+  background-repeat: no-repeat;
+
+  -webkit-clip-path: inset(31% 27% 27% 31%);
+  clip-path: inset(31% 27% 27% 31%);
+
+  mix-blend-mode: screen;
+  animation: gemShineMove 4s infinite linear;
 }
 
 .gemWrapper:nth-child(2n) .gemBox .shine {
-	animation: gemShineMove 3.6s infinite linear;
+  animation: gemShineMove 3.6s infinite linear;
 }
 
 .gemWrapper:nth-child(3n) .gemBox .shine {
-	animation: gemShineMove 4.2s infinite linear;
+  animation: gemShineMove 4.2s infinite linear;
 }
 
 .gemWrapper:nth-child(4n) .gemBox .shine {
-	animation: gemShineMove 4.5s infinite linear;
+  animation: gemShineMove 4.5s infinite linear;
 }
 
 .gemWrapper:nth-child(5n) .gemBox .shine {
-	animation: gemShineMove 3.3s infinite linear;
+  animation: gemShineMove 3.3s infinite linear;
 }
 
 @keyframes gemShineMove {
-	0% {
-		background-position: -200% 0%;
-	}
-	100% {
-		background-position: 200% 0%;
-	}
+  0% {
+    background-position: -200% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
 }
 
 @keyframes conicRotate {
-	0% {
+  0% {
     transform: scale(1) rotate(0deg);
-}
-99% {
+  }
+  99% {
     transform: scale(1.13) rotate(360deg);
-}
-100% {
+  }
+  100% {
     transform: scale(1) rotate(360deg);
+  }
 }
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-150px); /* Adjust the value as needed */
+    opacity: 0;
+  }
+}
+
+.balloon.animate-float-up {
+  animation: floatUp 4s ease-in-out forwards;
 }

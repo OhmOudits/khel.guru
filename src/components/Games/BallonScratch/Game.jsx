@@ -6,21 +6,18 @@ import "../../../styles/Scratch.css";
 
 const Game = ({
   betStarted,
+  setBettingStarted,
   diamondCounts,
   setDiamondCounts,
-  reset,
   AutoClick,
   setAutoPick,
   slotindex,
   setslotindex,
+  startAutoBet,
+  setStartAutoBet,
+  nbets,
 }) => {
   const [grid, setGrid] = useState([]);
-
-  const [isVisible, setIsVisible] = useState(false);
-
-  const toggleVisibility = () => {
-    setIsVisible(!isVisible);
-  };
 
   const handleBoxClick = (index) => {
     if (!betStarted) return;
@@ -51,67 +48,70 @@ const Game = ({
 
   const getimage = (color) => {
     if (color == "red") {
-      return <div className="gemWrapper">
-        <div className="gemBox ruby">
-          <div className="shine"></div>
+      return (
+        <div className="gemWrapper">
+          <div className="gemBox ruby">
+            <div className="shine"></div>
+          </div>
+          <div className="glint"></div>
         </div>
-        <div className="glint"></div>
-      </div>
-    }
-    else if (color == "yellow") {
-      return <div className="gemWrapper">
-        <div className="gemBox topaz">
-          <div className="shine"></div>
+      );
+    } else if (color == "yellow") {
+      return (
+        <div className="gemWrapper">
+          <div className="gemBox topaz">
+            <div className="shine"></div>
+          </div>
+          <div className="glint"></div>
         </div>
-        <div className="glint"></div>
-      </div>
-    }
-    else if (color == "blue") {
-      return <div className="gemWrapper">
-        <div className="gemBox sapphire">
-          <div className="shine"></div>
+      );
+    } else if (color == "blue") {
+      return (
+        <div className="gemWrapper">
+          <div className="gemBox sapphire">
+            <div className="shine"></div>
+          </div>
+          <div className="glint"></div>
         </div>
-        <div className="glint"></div>
-      </div>
-    }
-    else if (color == "purple") {
-      return <div className="gemWrapper">
-        <div className="gemBox alexandrite">
-          <div className="shine"></div>
+      );
+    } else if (color == "purple") {
+      return (
+        <div className="gemWrapper">
+          <div className="gemBox alexandrite">
+            <div className="shine"></div>
+          </div>
+          <div className="glint"></div>
         </div>
-        <div className="glint"></div>
-      </div>
-    }
-    else return <div className="gemWrapper">
-      <div className="gemBox diamond">
-        <div className="shine"></div>
-      </div>
-      <div className="glint"></div>
-    </div>;
+      );
+    } else
+      return (
+        <div className="gemWrapper">
+          <div className="gemBox diamond">
+            <div className="shine"></div>
+          </div>
+          <div className="glint"></div>
+        </div>
+      );
   };
+
   const handleAutoClick = () => {
-    setGrid((prevGrid) =>
-      prevGrid.map((box) =>
-        !box.revealed && !box.animating ? { ...box, animating: true } : box
-      )
-    );
-
-    setGrid((prevGrid) =>
-      prevGrid.map((box) =>
-        !box.revealed ? { ...box, animating: false, revealed: true } : box
-      )
-    );
-
-    prevGrid.forEach((box, index) => {
-      if (box.diamondColor && !box.revealed) {
-        setDiamondCounts((prevCounts) => ({
-          ...prevCounts,
-          [box.diamondColor]: {
-            count: prevCounts[box.diamondColor].count + 1,
-            indices: [...prevCounts[box.diamondColor].indices, index],
-          },
-        }));
-      }
+    setGrid((prevGrid) => {
+      const updatedGrid = prevGrid.map((box, index) => {
+        if (!box.revealed && !box.animating) {
+          if (box.diamondColor) {
+            setDiamondCounts((prevCounts) => ({
+              ...prevCounts,
+              [box.diamondColor]: {
+                count: prevCounts[box.diamondColor].count + 1,
+                indices: [...prevCounts[box.diamondColor].indices, index],
+              },
+            }));
+          }
+          return { ...box, animating: false, revealed: true };
+        }
+        return box;
+      });
+      return updatedGrid;
     });
   };
 
@@ -135,7 +135,6 @@ const Game = ({
   };
 
   const handleReset = () => {
-    // Reset the game
     const createGrid = () => {
       return Array.from({ length: 9 }, () => {
         const balloonColor =
@@ -161,12 +160,6 @@ const Game = ({
   };
 
   useEffect(() => {
-    if (reset) {
-      handleReset();
-    }
-  }, [reset]);
-
-  useEffect(() => {
     if (AutoClick) {
       handleAutoClick();
       setTimeout(() => {
@@ -178,6 +171,40 @@ const Game = ({
   useEffect(() => {
     handleReset();
   }, []);
+
+  useEffect(() => {
+    if (startAutoBet) {
+      return;
+    }
+
+    if (grid.length === 9 && grid.every((box) => box.revealed)) {
+      setTimeout(() => {
+        setBettingStarted(false);
+        handleReset();
+      }, 1500);
+    }
+  }, [grid]);
+
+  useEffect(() => {
+    if (startAutoBet) {
+      runAutoBetRecursive(nbets);
+    }
+  }, [startAutoBet]);
+
+  const runAutoBetRecursive = async (remainingBets) => {
+    if (remainingBets === 0) {
+      setStartAutoBet(false);
+      return;
+    }
+
+    console.log("Running Auto Bet:", nbets - remainingBets + 1);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    handleAutoClick();
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    handleReset();
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    runAutoBetRecursive(remainingBets - 1);
+  };
 
   return (
     <div className="w-full h-full p-1 grid lg:flex">
@@ -203,15 +230,15 @@ const Game = ({
               >
                 {!box.revealed && (
                   <div
-                    className={`absolute balloon ${box.animating ? "animate-float" : ""
-                      }`}
+                    className={`absolute balloon ${
+                      box.animating ? "animate-float" : ""
+                    }`}
                     style={{ backgroundColor: box.balloonColor }}
                     onAnimationEnd={() => handleAnimationComplete(index)}
                   ></div>
                 )}
                 {box.revealed && (
-                  <div
-                    className="absolute empty justify-between">
+                  <div className="absolute empty justify-between">
                     {getimage(box.diamondColor)}
                   </div>
                 )}

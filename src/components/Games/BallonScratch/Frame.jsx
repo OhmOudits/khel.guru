@@ -7,7 +7,6 @@ import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
-import { useSelector } from "react-redux";
 
 // constansts
 export const balloonTypes = [
@@ -20,24 +19,14 @@ export const balloonTypes = [
 export const diamondTypes = ["red", "blue", "green", "yellow", "purple"];
 
 const Frame = () => {
-  const user = useSelector((state) => state?.auth?.user?.user);
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
-  const [nbets, setNBets] = useState(0);
-  const [onWin, setOnWin] = useState(0);
-  const [onLoss, setOnLoss] = useState(0);
-  const [onWinReset, setOnWinReset] = useState(false);
-  const [onLossReset, setOnLossReset] = useState(false);
   const [bet, setBet] = useState("0.000000");
-  const [loss, setLoss] = useState("0.000000");
-  const [profit, setProfit] = useState("0.000000");
-  const [Risk, setRisk] = useState("Low"); // risk of the game so that we can set the gifts accordingly
-  const [checkedBoxes, setCheckecdBoxes] = useState([]);
-  const [gifts, setGifts] = useState([]); // once clicked on bet we can
+  const [nbets, setNBets] = useState(0);
   const [betStarted, setBettingStarted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [totalProfit, setTotalProfit] = useState("0.000000");
-  const [slotindex , setslotindex] = useState(null)
+  const [slotindex, setslotindex] = useState(null);
+
   // for game
   const [diamondCounts, setDiamondCounts] = useState(
     diamondTypes.reduce(
@@ -45,6 +34,7 @@ const Frame = () => {
       {}
     )
   );
+
   const [AutoPick, setAutoPick] = useState(false);
   const [reset, setReset] = useState(false);
 
@@ -59,31 +49,18 @@ const Frame = () => {
   const [maxBet, setMaxBet] = useState(false);
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
-  const [hotkeysEnableddiamondCounts, setHotkeysEnabled] = useState(false);
-  const [randomSelect, setRandomSelect] = useState(false);
-  const [gameCheckout, setGameCheckout] = useState(false);
+  const [startAutoBet, setStartAutoBet] = useState(false);
+
+  const handleAutoBet = () => {
+    if (!startAutoBet && nbets > 0) {
+      setStartAutoBet(true);
+    }
+  };
 
   const handleMineBet = () => {
     if (!betStarted) {
       setBettingStarted(true);
     }
-  };
-  const handleCheckout = () => {
-    setGameCheckout(true);
-    setBettingStarted(false);
-    setWinnedGifts(99);
-    setAutoPick(false);
-    setReset(true);
-    setBettingStarted(false);
-    setReset(true)
-    setBettingStarted(false);
-    setTimeout(() => {
-      setReset(false)
-    }, 3000);
-  };
-
-  const handleRandomSelect = () => {
-    setRandomSelect(true);
   };
 
   useEffect(() => {
@@ -123,40 +100,17 @@ const Frame = () => {
               {/* Left Section */}
               <SideBar
                 theatreMode={theatreMode}
-                setTheatreMode={setTheatreMode}
                 setBet={setBet}
                 setBetMode={setBetMode}
-                profit={profit}
-                setProfit={setProfit}
-                setLoss={setLoss}
                 nbets={nbets}
                 setNBets={setNBets}
                 betMode={betMode}
                 bet={bet}
                 maxBetEnable={maxBetEnable}
-                loss={loss}
-                setOnLoss={setOnLoss}
-                setBettingStarted={setBettingStarted}
-                setOnWin={setOnWin}
-                onLoss={onLoss}
-                onWin={onWin}
-                onWinReset={onWinReset}
-                onLossReset={onLossReset}
-                setOnLossReset={setOnLossReset}
-                setOnWinReset={setOnWinReset}
-                Risk={Risk}
-                setRisk={setRisk}
                 handleMineBet={handleMineBet}
                 bettingStarted={betStarted}
-                // gems={gems}
-                // setGems={setGems}
-                totalprofit={totalProfit}
-                handleCheckout={handleCheckout}
-                handleRandomSelect={handleRandomSelect}
-                AutoPick={AutoPick}
-                setAutoPick={setAutoPick}
-                Reset={reset}
-                setReset={setReset}
+                handleAutoBet={handleAutoBet}
+                startAutoBet={startAutoBet}
               />
 
               {/* Right Section */}
@@ -176,6 +130,7 @@ const Frame = () => {
                     <div className="mb-20 py-6 md:py-0 md:h-auto">
                       <Game
                         betStarted={betStarted}
+                        setBettingStarted={setBettingStarted}
                         diamondCounts={diamondCounts}
                         setDiamondCounts={setDiamondCounts}
                         reset={reset}
@@ -183,6 +138,9 @@ const Frame = () => {
                         setAutoPick={setAutoPick}
                         setslotindex={setslotindex}
                         slotindex={slotindex}
+                        startAutoBet={startAutoBet}
+                        setStartAutoBet={setStartAutoBet}
+                        nbets={nbets}
                       />
                     </div>
                   )}
