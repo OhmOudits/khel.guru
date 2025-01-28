@@ -13,20 +13,12 @@ const Frame = () => {
   const user = useSelector((state) => state?.auth?.user?.user);
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
-  const [nbets, setNBets] = useState(0);
-  const [onWin, setOnWin] = useState(0);
-  const [onLoss, setOnLoss] = useState(0);
-  const [onWinReset, setOnWinReset] = useState(false);
-  const [onLossReset, setOnLossReset] = useState(false);
   const [bet, setBet] = useState("0.000000");
-  const [loss, setLoss] = useState("0.000000");
-  const [profit, setProfit] = useState("0.000000");
-  const [ Difficulty, setDifficulty] = useState("Easy"); // Difficulty of the game so that we can set the gifts accordingly
-  const [checkedBoxes, setCheckecdBoxes] = useState([]);
+  const [nbets, setNBets] = useState(0);
+  const [Difficulty, setDifficulty] = useState("Easy");
   const [betStarted, setBettingStarted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [totalProfit, setTotalProfit] = useState("0.000000");
-  // for autopickup and clearing the table
 
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
@@ -40,8 +32,16 @@ const Frame = () => {
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
-  const [randomSelect, setRandomSelect] = useState(false);
   const [gameCheckout, setGameCheckout] = useState(false);
+
+  const [startAutoBet, setStartAutoBet] = useState(false);
+  const [selectBoxes, setSelectBoxes] = useState(false);
+  const [selectedBoxes, setSelectedBoxes] = useState([]);
+  const [rows, setRows] = useState(9);
+  const [cols, setCols] = useState(4);
+  const [autoArray, setAutoArray] = useState(
+    Array.from({ length: rows }, () => Array(cols).fill(0))
+  );
 
   const handleBetstarted = () => {
     if (!betStarted) {
@@ -52,6 +52,30 @@ const Frame = () => {
   const handleCheckout = () => {
     setGameCheckout(true);
     setBettingStarted(false);
+  };
+
+  const handleAutoBet = () => {
+    if (!startAutoBet && nbets != 0) {
+      setStartAutoBet(true);
+    }
+  };
+
+  const setback = () => {
+    if (!startAutoBet) {
+      setStartAutoBet(false);
+      setSelectBoxes(false);
+    }
+  };
+
+  const handleSelectBoxes = () => {
+    if (!selectBoxes && selectedBoxes.length > 0) {
+      setSelectBoxes(true);
+    }
+  };
+
+  const clearAutoSelectBoxes = () => {
+    setSelectedBoxes([]);
+    setAutoArray(Array.from({ length: rows }, () => Array(cols).fill(0)));
   };
 
   return (
@@ -75,23 +99,11 @@ const Frame = () => {
                 setTheatreMode={setTheatreMode}
                 setBet={setBet}
                 setBetMode={setBetMode}
-                profit={profit}
-                setProfit={setProfit}
-                setLoss={setLoss}
                 nbets={nbets}
                 setNBets={setNBets}
                 betMode={betMode}
                 bet={bet}
                 maxBetEnable={maxBetEnable}
-                loss={loss}
-                setOnLoss={setOnLoss}
-                setOnWin={setOnWin}
-                onLoss={onLoss}
-                onWin={onWin}
-                onWinReset={onWinReset}
-                onLossReset={onLossReset}
-                setOnLossReset={setOnLossReset}
-                setOnWinReset={setOnWinReset}
                 Difficulty={Difficulty}
                 setDifficulty={setDifficulty}
                 bettingStarted={betStarted}
@@ -100,6 +112,15 @@ const Frame = () => {
                 // setGems={setGems}
                 totalprofit={totalProfit}
                 handleCheckout={handleCheckout}
+                startAutoBet={startAutoBet}
+                handleAutoBet={handleAutoBet}
+                selectBoxes={selectBoxes}
+                handleSelectBoxes={handleSelectBoxes}
+                setback={setback}
+                clearAutoSelectBoxes={clearAutoSelectBoxes}
+                selectedBoxes={selectedBoxes}
+                setSelectedBoxes={setSelectedBoxes}
+                setSelectBoxes={setSelectBoxes}
               />
 
               {/* Right Section */}
@@ -117,7 +138,23 @@ const Frame = () => {
                     </>
                   ) : (
                     <center className="w-full h-full">
-                      <Game bettingStarted={betStarted}  Difficulty={Difficulty} setBettingStarted={setBettingStarted}/>
+                      <Game
+                        bettingStarted={betStarted}
+                        Difficulty={Difficulty}
+                        setBettingStarted={setBettingStarted}
+                        startAutoBet={startAutoBet}
+                        setStartAutoBet={setStartAutoBet}
+                        autoSelectedBoxes={selectedBoxes}
+                        setAutoSelectedBoxes={setSelectedBoxes}
+                        mode={betMode}
+                        nbets={nbets}
+                        autoArray={autoArray}
+                        setAutoArray={setAutoArray}
+                        rows={rows}
+                        cols={cols}
+                        setRows={setRows}
+                        setCols={setCols}
+                      />
                     </center>
                   )}
                 </div>
