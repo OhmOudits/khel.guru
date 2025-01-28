@@ -78,6 +78,10 @@ const Frame = () => {
     setAutoArray(Array.from({ length: rows }, () => Array(cols).fill(0)));
   };
 
+  useEffect(() => {
+    setAutoArray(Array.from({ length: rows }, () => Array(cols).fill(0)));
+  }, [rows, cols]);
+
   return (
     <>
       <div
