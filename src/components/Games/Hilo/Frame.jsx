@@ -8,6 +8,7 @@ import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
 import { useSelector } from "react-redux";
+import { CARD_SUITS, CARD_VALUES } from "./constant";
 
 // constansts
 export const balloonTypes = [
@@ -30,13 +31,12 @@ const Frame = () => {
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
-  const [Risk, setRisk] = useState("Low"); // risk of the game so that we can set the gifts accordingly
+  const [Risk, setRisk] = useState("Low");
   const [checkedBoxes, setCheckecdBoxes] = useState([]);
-  const [gifts, setGifts] = useState([]); // once clicked on bet we can
+  const [gifts, setGifts] = useState([]);
   const [betStarted, setBettingStarted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [totalProfit, setTotalProfit] = useState("0.000000");
-  // for game
 
   const [AutoPick, setAutoPick] = useState(false);
   const [reset, setReset] = useState(false);
@@ -56,27 +56,86 @@ const Frame = () => {
   const [randomSelect, setRandomSelect] = useState(false);
   const [gameCheckout, setGameCheckout] = useState(false);
 
-  const handleMineBet = () => {
-    if (!betStarted) {
-      setBettingStarted(true);
-    }
-  };
-  const handleCheckout = () => {
-    setGameCheckout(true);
-    setBettingStarted(false);
-    setWinnedGifts(99);
-    setAutoPick(false);
-    setReset(true);
-    setBettingStarted(false);
-    setReset(true);
-    setBettingStarted(false);
-    setTimeout(() => {
-      setReset(false);
-    }, 3000);
+  const [currentCard, setCurrentCard] = useState({
+    value: CARD_VALUES[4],
+    suit: CARD_SUITS[2],
+    color: false,
+  });
+  const [historyCards, setHistoryCards] = useState([
+    { ...currentCard, result: null },
+  ]);
+
+  const getValueIndex = (value) => CARD_VALUES.indexOf(value);
+
+  const getRandomCard = () => {
+    const randomValue =
+      CARD_VALUES[Math.floor(Math.random() * CARD_VALUES.length)];
+    const randomSuit =
+      CARD_SUITS[Math.floor(Math.random() * CARD_SUITS.length)];
+    const color = Math.random() < 0.5;
+
+    return { value: randomValue, suit: randomSuit, color };
   };
 
-  const handleRandomSelect = () => {
-    setRandomSelect(true);
+  const handleBet = () => {
+    if (!betStarted) {
+      setBettingStarted(true);
+      const newCard = getRandomCard();
+
+      setCurrentCard(newCard);
+      setHistoryCards([{ ...newCard, result: null }]);
+    }
+  };
+
+  const handleHigh = () => {
+    if (betStarted) {
+      const newCard = getRandomCard();
+      const isHigher =
+        getValueIndex(newCard.value) >= getValueIndex(currentCard.value);
+
+      setCurrentCard(newCard);
+      setHistoryCards((prev) => [
+        ...prev,
+        { ...newCard, result: isHigher ? "high-true" : "high-false" },
+      ]);
+
+      if (!isHigher) {
+        setBettingStarted(false);
+      }
+    }
+  };
+
+  const handleLow = () => {
+    if (betStarted) {
+      const newCard = getRandomCard();
+      const isLower =
+        getValueIndex(newCard.value) <= getValueIndex(currentCard.value);
+
+      setCurrentCard(newCard);
+      setHistoryCards((prev) => [
+        ...prev,
+        { ...newCard, result: isLower ? "low-true" : "low-false" },
+      ]);
+
+      if (!isLower) {
+        setBettingStarted(false);
+      }
+    }
+  };
+
+  const handleSkip = () => {
+    if (betStarted) {
+      const newCard = getRandomCard();
+
+      setCurrentCard(newCard);
+      setHistoryCards((prev) => [...prev, { ...newCard, result: null }]);
+    }
+  };
+
+  const handleCheckout = () => {
+    if (betStarted) {
+      setBettingStarted(false);
+    }
   };
 
   useEffect(() => {
@@ -116,40 +175,18 @@ const Frame = () => {
               {/* Left Section */}
               <SideBar
                 theatreMode={theatreMode}
-                setTheatreMode={setTheatreMode}
-                setBet={setBet}
                 setBetMode={setBetMode}
-                profit={profit}
-                setProfit={setProfit}
-                setLoss={setLoss}
-                nbets={nbets}
-                setNBets={setNBets}
-                betMode={betMode}
                 bet={bet}
+                setBet={setBet}
                 maxBetEnable={maxBetEnable}
-                loss={loss}
-                setOnLoss={setOnLoss}
                 setBettingStarted={setBettingStarted}
-                setOnWin={setOnWin}
-                onLoss={onLoss}
-                onWin={onWin}
-                onWinReset={onWinReset}
-                onLossReset={onLossReset}
-                setOnLossReset={setOnLossReset}
-                setOnWinReset={setOnWinReset}
-                Risk={Risk}
-                setRisk={setRisk}
-                handleMineBet={handleMineBet}
+                handleBet={handleBet}
                 bettingStarted={betStarted}
-                // gems={gems}
-                // setGems={setGems}
-                totalprofit={totalProfit}
-                handleCheckout={handleCheckout}
-                handleRandomSelect={handleRandomSelect}
-                AutoPick={AutoPick}
-                setAutoPick={setAutoPick}
-                Reset={reset}
                 setReset={setReset}
+                handleHigh={handleHigh}
+                handleLow={handleLow}
+                handleSkip={handleSkip}
+                handleCheckout={handleCheckout}
               />
 
               {/* Right Section */}
@@ -168,10 +205,10 @@ const Frame = () => {
                   ) : (
                     <>
                       <Game
-                        betStarted={betStarted}
-                        reset={reset}
-                        AutoClick={AutoPick}
-                        setAutoPick={setAutoPick}
+                        historyCards={historyCards}
+                        setHistoryCards={setHistoryCards}
+                        currentCard={currentCard}
+                        setCurrentCard={setCurrentCard}
                       />
                     </>
                   )}
