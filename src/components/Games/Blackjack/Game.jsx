@@ -1,89 +1,17 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import Card from "./Card";
 import "./styles.css";
+import { CardBack, FlippableCard } from "./Components";
 
-const CARD_SUITS = ["♦", "♥", "♠", "♣", "↑", "↓"];
-const CARD_VALUES = [
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "10",
-  "J",
-  "Q",
-  "K",
-  "A",
-];
-
-const createDeck = () =>
-  [...Array(10)].map((_, i) => ({
-    suit: CARD_SUITS[i % (CARD_SUITS.length - 2)],
-    value: CARD_VALUES[i % CARD_VALUES.length],
-    id: i,
-    rand: Math.floor(Math.random() * 20) + 1,
-  }));
-
-// eslint-disable-next-line
-const CardBack = ({ rand, top = "50%" }) => (
-  <div
-    className={`w-24 h-36 card card${rand} rounded-md shadow-lg bg-blue-600 border-2 border-white flex items-center justify-center`}
-  >
-    <div className="absolute top-0 left-0 w-full h-full bg-black/30 z-10"></div>
-    <h1
-      className={`text-white font-medium absolute top-[${top}] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 text-[0.9rem]`}
-    >
-      Khel <br />
-      <span className="pl-2 pt-[-10px]"> Guru</span>
-    </h1>
-  </div>
-);
-
-// eslint-disable-next-line
-const FlippableCard = ({ card, position }) => {
-  const [flipped, setFlipped] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setFlipped(true), 700);
-    return () => clearTimeout(timer);
-  }, []);
-
-  return (
-    <motion.div
-      initial={{ scale: 0.5, top: "-4.5rem", left: "calc(100% - 6rem)" }}
-      animate={{
-        scale: 1,
-        // eslint-disable-next-line
-        top: `${position.top}%`,
-        // eslint-disable-next-line
-        left: `${position.left}%`,
-      }}
-      transition={{ duration: 0.4 }}
-      className="absolute flip-container"
-    >
-      <div className={`flip-card ${flipped ? "flipped" : ""}`}>
-        <div className="card-back">
-          {/* eslint-disable-next-line */}
-          <CardBack rand={card.rand} />
-        </div>
-        <div className="card-front">
-          {/* eslint-disable-next-line */}
-          <Card medium={true} value={card.value} suit={card.suit} />
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-// eslint-disable-next-line
-const Game = ({ cardsNumber = 6 }) => {
+const Game = ({
+  cardsNumber = 6,
+  userCards,
+  setUserCards,
+  dealerCards,
+  setDealerCards,
+  createDeck,
+}) => {
   const [deck, setDeck] = useState(createDeck());
-  const [userCards, setUserCards] = useState([]);
-  const [dealerCards, setDealerCards] = useState([]);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth > 1024);
 
@@ -95,10 +23,9 @@ const Game = ({ cardsNumber = 6 }) => {
         if (totalDealtCards >= cardsNumber) return;
 
         setIsAnimating(true);
-        const newCard = deck[0]; // Take the first card from the deck
-        setDeck((prevDeck) => prevDeck.slice(1)); // Remove the first card
+        const newCard = deck[0];
+        setDeck((prevDeck) => prevDeck.slice(1));
 
-        // Alternating card distribution: Player first, then Dealer
         if (userCards.length <= dealerCards.length) {
           setUserCards((prev) => [...prev, newCard]);
         } else {

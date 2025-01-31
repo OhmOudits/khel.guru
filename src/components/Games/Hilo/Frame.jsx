@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "../../../styles/Frame.css";
 import FairnessModal from "../../Frame/FairnessModal";
 import FrameFooter from "../../Frame/FrameFooter";
@@ -7,38 +7,15 @@ import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
-import { useSelector } from "react-redux";
 import { CARD_SUITS, CARD_VALUES } from "./constant";
 
-// constansts
-export const balloonTypes = [
-  "#F28B82",
-  "#FBBC05",
-  "#34A853",
-  "#4285F4",
-  "#9A67EA",
-];
-
 const Frame = () => {
-  const user = useSelector((state) => state?.auth?.user?.user);
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
-  const [nbets, setNBets] = useState(0);
-  const [onWin, setOnWin] = useState(0);
-  const [onLoss, setOnLoss] = useState(0);
-  const [onWinReset, setOnWinReset] = useState(false);
-  const [onLossReset, setOnLossReset] = useState(false);
   const [bet, setBet] = useState("0.000000");
-  const [loss, setLoss] = useState("0.000000");
-  const [profit, setProfit] = useState("0.000000");
-  const [Risk, setRisk] = useState("Low");
-  const [checkedBoxes, setCheckecdBoxes] = useState([]);
-  const [gifts, setGifts] = useState([]);
   const [betStarted, setBettingStarted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [totalProfit, setTotalProfit] = useState("0.000000");
 
-  const [AutoPick, setAutoPick] = useState(false);
   const [reset, setReset] = useState(false);
 
   const [isFairness, setIsFairness] = useState(false);
@@ -53,8 +30,6 @@ const Frame = () => {
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnableddiamondCounts, setHotkeysEnabled] = useState(false);
-  const [randomSelect, setRandomSelect] = useState(false);
-  const [gameCheckout, setGameCheckout] = useState(false);
 
   const [currentCard, setCurrentCard] = useState({
     value: CARD_VALUES[4],
@@ -138,25 +113,6 @@ const Frame = () => {
     }
   };
 
-  useEffect(() => {
-    if (AutoPick) {
-      setCheckecdBoxes([]);
-      function generateRandomNumbers(count, min, max) {
-        const numbers = [];
-        while (numbers.length < count) {
-          const randomNumber =
-            Math.floor(Math.random() * (max - min + 1)) + min;
-          if (!numbers.includes(randomNumber)) {
-            numbers.push(randomNumber);
-          }
-        }
-        return numbers;
-      }
-
-      const randomNumbers = generateRandomNumbers(10, 0, 39);
-      setCheckecdBoxes(randomNumbers);
-    }
-  }, [AutoPick]);
   return (
     <>
       <div

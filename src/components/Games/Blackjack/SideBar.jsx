@@ -8,6 +8,10 @@ const SideBar = ({
   bettingStarted,
   handleMineBet,
   handleCheckout,
+  handleHit,
+  handleStand,
+  handleSplit,
+  handleDouble,
 }) => {
   return (
     <>
@@ -74,6 +78,35 @@ const SideBar = ({
                 )}
               </div>
             </div>
+
+            {bettingStarted && (
+              <div className="grid grid-cols-2 gap-3 order-2 md:order-20">
+                <div
+                  className={`order-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-2.5 mt-3 max-lg:mt-4 rounded font-semibold bg-[#2f4553] text-white text-[0.9rem] cursor-pointer`}
+                  onClick={handleHit}
+                >
+                  Hit
+                </div>
+                <div
+                  className={`order-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-2.5 mt-3 max-lg:mt-4 rounded font-semibold bg-[#2f4553] text-white text-[0.9rem] cursor-pointer`}
+                  onClick={handleStand}
+                >
+                  Stand
+                </div>
+                <div
+                  className={`order-2 mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-2.5 rounded font-semibold bg-[#2f4553] text-white text-[0.9rem] cursor-pointer`}
+                  onClick={handleSplit}
+                >
+                  Split
+                </div>
+                <div
+                  className={`order-2 mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-2.5 rounded font-semibold bg-[#2f4553] text-white text-[0.9rem] cursor-pointer`}
+                  onClick={handleDouble}
+                >
+                  Double
+                </div>
+              </div>
+            )}
 
             {bettingStarted && (
               <div

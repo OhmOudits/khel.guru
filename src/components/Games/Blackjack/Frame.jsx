@@ -7,6 +7,7 @@ import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
+import { CARD_SUITS, CARD_VALUES } from "./constant";
 
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
@@ -27,9 +28,30 @@ const Frame = () => {
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
 
+  const [userCards, setUserCards] = useState([]);
+  const [dealerCards, setDealerCards] = useState([]);
+  const [currentCard, setCurrentCard] = useState({
+    value: CARD_VALUES[4],
+    suit: CARD_SUITS[2],
+    color: false,
+  });
+
+  const createDeck = () =>
+    [...Array(10)].map((_, i) => ({
+      suit: CARD_SUITS[i % (CARD_SUITS.length - 2)],
+      value: CARD_VALUES[i % CARD_VALUES.length],
+      id: i,
+      rand: Math.floor(Math.random() * 20) + 1,
+    }));
+
   const handleMineBet = () => {
     if (!betStarted) {
       setBettingStarted(true);
+
+      // const newCard = getRandomCard();
+
+      // setCurrentCard(newCard);
+      // setHistoryCards([{ ...newCard, result: null }]);
     }
   };
 
@@ -75,7 +97,14 @@ const Frame = () => {
               >
                 <div className="w-full  text-white rounded-tr h-full justify-center text-3xl">
                   <>
-                    <Game betStarted={betStarted} />
+                    <Game
+                      userCards={userCards}
+                      setUserCards={setUserCards}
+                      dealerCards={dealerCards}
+                      setDealerCards={setDealerCards}
+                      betStarted={betStarted}
+                      createDeck={createDeck}
+                    />
                   </>
                 </div>
               </div>
