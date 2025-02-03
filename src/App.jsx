@@ -23,6 +23,7 @@ import ScratchPage from "./components/Games/BallonScratch/BallonScratch";
 import TowerPage from "./components/Games/tower/tower";
 import TwistPage from "./components/Games/twist/Twist";
 import RoulettePage from "./components/Games/roulette/roulette";
+import PumpPage from "./components/Games/pump/pump";
 
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
@@ -178,6 +179,7 @@ function App() {
                 <Route path="/game/tower" element={<TowerPage />} />
                 <Route path="/game/twist" element={<TwistPage />} />
                 <Route path="/game/roulette" element={<RoulettePage />} />
+                <Route path="/game/pump" element={<PumpPage/>} />
                 <Route path="*" element={<LandingPage />} />
               </Routes>
             </div>

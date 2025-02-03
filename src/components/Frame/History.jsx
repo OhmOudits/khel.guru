@@ -9,7 +9,7 @@ const History = ({ list }) => {
           key={l.id}
           style={{ background: l.color }}
         >
-          {l.value}
+          {l.result}
         </div>
       ))}
     </div>

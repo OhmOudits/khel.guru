@@ -1,0 +1,41 @@
+.balloon {
+    height: 85px;
+    width: 65px;
+    border-radius: 75% 75% 70% 70%;
+    position: relative;
+    transition: transform 2s ease-in-out, opacity ease-in-out;
+  }
+  
+  .empty {
+    height: 85px;
+    width: 65px;
+    border-radius: 75% 75% 70% 70%;
+    position: relative;
+    transition: transform 2s ease-in-out, opacity ease-in-out;
+  }
+  
+  .balloon:before {
+    content: "";
+    height: 50px;
+    width: 1px;
+    padding: 1px;
+    background-color: #fdfd96;
+    display: block;
+    position: absolute;
+    top: 95px;
+    left: 0;
+    right: 0;
+    margin: auto;
+  }
+  
+  .balloon:after {
+    content: "▲";
+    text-align: center;
+    display: block;
+    position: absolute;
+    color: inherit;
+    top: 70px;
+    left: 0;
+    right: 0;
+    margin: auto;
+  }
