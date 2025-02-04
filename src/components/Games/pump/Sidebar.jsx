@@ -15,7 +15,9 @@ const LeftSection = ({
   handleAutoBet,
   startAutoBet,
   handlePump,
-  handleCheckout
+  handleCheckout,
+  risk , 
+  setRisk
 }) => {
   return (
     <>
@@ -58,6 +60,26 @@ const LeftSection = ({
           {betMode === "manual" &&
             (!bettingStarted ? (
               <>
+                {/* Risk Section */}
+                <div className="order-10 md:order-2 mb-6 mt-1 w-full">
+                  <label
+                    htmlFor="risk"
+                    className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label"
+                  >
+                    <h1>Risk</h1>
+                  </label>
+
+                  <select
+                    className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-3 pr-6   border border-input hover:border-primary-4"
+                    value={risk}
+                    id="risk"
+                    onChange={(e) => setRisk(e.target.value)}
+                  >
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                  </select>
+                </div>
                 <BetAmount
                   bet={bet}
                   setBet={setBet}

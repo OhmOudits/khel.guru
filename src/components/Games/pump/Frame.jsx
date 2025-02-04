@@ -43,12 +43,40 @@ const Frame = () => {
   const [betCompleted, setBetCompleted] = useState(false);
   const [currentHistory, setCurrentHistory] = useState([]);
   const [startAutoBet, setStartAutoBet] = useState(false);
+  const [risk, setrisk] = useState("Low");
 
   const [balloonNumber, setBalloonNumber] = useState(1.01);
   const [pumpedNumber, setpumpedNumber] = useState(0);
   const [balloonSize, setBalloonSize] = useState(50);
   const [isPopped, setIsPopped] = useState(false);
+  const [pumpMultipler, setPumpMultipler] = useState([
+    1.01, 1.23, 1.55, 1.98, 2.56, 3.36, 4.48, 6.08, 12.0, 35.0, 50.0, 73.0,
+    144.0, 200.0,
+  ]);
 
+  useEffect(() => {
+    if (risk == "Low") {
+      setPumpMultipler([
+        1.01, 1.23, 1.55, 1.98, 2.56, 3.36, 4.48, 6.08, 12.0, 35.0, 50.0, 73.0,
+        144.0, 200.0,
+      ]);
+    } else if (risk == "Medium") {
+      setPumpMultipler([
+        1.01,
+        1.55,
+        2.56,
+        6.08,
+        12.0,
+        35.0,
+        50.0,
+        73.0,
+        ,
+        200.0,
+      ]);
+    } else if (risk == "High") {
+      setPumpMultipler([1.01, 2.56, 6.08, 35.0, 50.0, 73.0, , 200.0]);
+    }
+  } , [risk]);
   const startGame = () => {
     setDefaultColor(true);
     setStart(true);
@@ -73,11 +101,12 @@ const Frame = () => {
   };
 
   const handleCheckout = () => {
-    setBalloonNumber(1.01)
+    setBalloonNumber(1.01);
     setCurrentHistory((prev) => [
       ...prev,
       {
-        result: balloonNumber,
+        result: Number(balloonNumber),
+        color: "green",
       },
     ]);
     setBettingStarted(false);
@@ -147,6 +176,8 @@ const Frame = () => {
                 handleAutoBet={handleAutoBet}
                 handlePump={handlePump}
                 handleCheckout={handleCheckout}
+                risk={risk}
+                setRisk={setrisk}
               />
 
               {/* Right Section */}
@@ -175,6 +206,9 @@ const Frame = () => {
                     setIsPopped={setIsPopped}
                     targetMultiplier={targetMultiplier}
                     setTargetMultiplier={setTargetMultiplier}
+                    setCurrenthistory={setCurrentHistory}
+                    risk={risk}
+                    pumpMultipler={pumpMultipler}
                   />
                 </div>
               </div>
