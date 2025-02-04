@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import { originals } from "../../constants";
+import GamesLines from "../MainFrame/GamesLines";
 
 const Search = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [recentSearches, setRecentSearches] = useState([]);
+  const [Selected, setSelected] = useState("Casino");
 
   useEffect(() => {
     // Retrieve searches from localStorage
@@ -41,6 +44,9 @@ const Search = () => {
       }
     }
   };
+  const filteredGames = originals.filter((game) =>
+    game.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   const handleClear = () => {
     setRecentSearches([]);
@@ -63,8 +69,19 @@ const Search = () => {
       >
         <div
           onClick={(e) => e.stopPropagation()}
-          className="bg-primary overflow-hidden flex mt-[100px] cursor-default text-white rounded-full w-[90%] max-w-[1000px] h-fit animate-fadeUp relative"
+          className="bg-primary-2 overflow-hidden flex mt-[100px] cursor-default text-white rounded-full w-[90%] max-w-[1000px] h-fit animate-fadeUp relative"
         >
+          <div className="">
+            <select
+              className="w-full px-3 py-3 border-r h-full pr-10 bg-secondry outline-none text-white"
+              value={Selected}
+              id="Risk"
+              onChange={(e) => setSelected(e.target.value)}
+            >
+              <option value="Casino">Casino</option>
+              <option value="Sports">Sports</option>
+            </select>
+          </div>
           <div className="bg-secondry w-8 flex items-center justify-center pl-3">
             <FaSearch />
           </div>
@@ -72,7 +89,7 @@ const Search = () => {
             type="text"
             value={search}
             onChange={handleSearchChange}
-            className="w-full p-2.5 outline-none bg-secondry"
+            className="w-full p-2.5 outline-none bg-primary-2-2"
             placeholder="Search for a game"
           />
           <div
@@ -85,11 +102,19 @@ const Search = () => {
 
         <div
           onClick={(e) => e.stopPropagation()}
-          className="bg-secondry cursor-default text-white rounded flex-col w-[90%] max-w-[1000px] mt-4 px-4 py-5 animate-fadeUp relative"
+          className="bg-secondry cursor-default text-white rounded bg-primary-2 flex-col w-[90%] max-w-[1000px] mt-4 px-4 py-5 animate-fadeUp relative"
         >
-          <h1 className="py-5 text-center text-zinc-300">
-            Search requires at least 3 characters.
-          </h1>
+          {search.length < 3 ? (
+            <h1 className="py-5 text-center text-zinc-300">
+              Search requires at least 3 characters.
+            </h1>
+          ) : filteredGames.length > 0 ? (
+            <GamesLines games={filteredGames} title="Originals" link="/original" />
+          ) : (
+            <h1 className="py-5 text-center text-zinc-300">
+              No results found.
+            </h1>
+          )}
 
           {recentSearches.length > 0 && (
             <>
@@ -108,7 +133,7 @@ const Search = () => {
                       handleDelete(searchItem);
                       setSearch(searchItem);
                     }}
-                    className="bg-primary text-sm rounded-full px-3 py-1 flex items-center"
+                    className="bg-primary-2 text-sm rounded-full px-3 py-1 flex items-center"
                   >
                     <span className="text-white">{searchItem}</span>
                     <IoMdClose

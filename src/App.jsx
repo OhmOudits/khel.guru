@@ -31,6 +31,7 @@ import { SportsBet, Sports, SportsCricket, SportsFootball } from "./pages";
 import Wallet from "./components/tabs/Wallet";
 import Search from "./components/tabs/Search";
 import WalletSettings from "./components/tabs/WalletSettings";
+import Vault from "./components/tabs/Vault";
 import DicePage from "./components/Games/DiceGame/Dice";
 const socket = io("http://localhost:3000");
 
@@ -46,6 +47,7 @@ function App() {
   const [showSearch, setShowSearch] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showWalletSettings, setShowWalletSettings] = useState(false);
+  const [ShowValut , setShowValut] = useState(false)
   const [loading, setLoading] = useState(true);
   // eslint-disable-next-line
   const [loggedInUsers, setLoggedInUsers] = useState([]);
@@ -58,6 +60,7 @@ function App() {
     setShowRegister(params.get("tab") === "register");
     setShowWallet(params.get("tab") === "wallet");
     setShowSearch(params.get("tab") === "search");
+    setShowValut(params.get("tab")=== "vault")
     setShowWalletSettings(params.get("tab") === "walletSettings");
 
     setTimeout(() => {
@@ -130,6 +133,8 @@ function App() {
           {showWallet && <Wallet />}
           {showSearch && <Search />}
           {showWalletSettings && <WalletSettings />}
+          {ShowValut && <Vault />}
+
 
           <div className="w-full flex min-h-screen bg-primary">
             <Sidebar setSideOpen={setSideOpen} sideOpen={sideOpen} />
