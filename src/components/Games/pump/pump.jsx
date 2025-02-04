@@ -1,4 +1,5 @@
 import Frame from "./Frame";
+import './pump.css'
 
 const PumpPage = () => {
   return (

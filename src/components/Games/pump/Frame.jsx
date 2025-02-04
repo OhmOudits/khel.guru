@@ -70,11 +70,10 @@ const Frame = () => {
         35.0,
         50.0,
         73.0,
-        ,
         200.0,
       ]);
     } else if (risk == "High") {
-      setPumpMultipler([1.01, 2.56, 6.08, 35.0, 50.0, 73.0, , 200.0]);
+      setPumpMultipler([1.01, 2.56, 6.08, 35.0, 50.0, 73.0, 200.0]);
     }
   } , [risk]);
   const startGame = () => {

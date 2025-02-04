@@ -1,41 +1,50 @@
-.balloon {
-    height: 85px;
-    width: 65px;
-    border-radius: 75% 75% 70% 70%;
-    position: relative;
-    transition: transform 2s ease-in-out, opacity ease-in-out;
+.animate-float {
+  animation: float 2s forwards;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
   }
-  
-  .empty {
-    height: 85px;
-    width: 65px;
-    border-radius: 75% 75% 70% 70%;
-    position: relative;
-    transition: transform 2s ease-in-out, opacity ease-in-out;
+  100% {
+    transform: translateY(-150px); /* Adjust the value as needed */
+    opacity: 0;
   }
-  
-  .balloon:before {
-    content: "";
-    height: 50px;
-    width: 1px;
-    padding: 1px;
-    background-color: #fdfd96;
-    display: block;
-    position: absolute;
-    top: 95px;
-    left: 0;
-    right: 0;
-    margin: auto;
+}
+
+.animate-float-up {
+  animation: floatUp 2s ease-in-out forwards;
+}
+
+
+.sheen-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.sheen-effect::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  transform: skewX(-20deg);
+  animation: sheen 2s infinite linear;
+}
+
+@keyframes sheen {
+  0% {
+    left: -150%;
   }
-  
-  .balloon:after {
-    content: "▲";
-    text-align: center;
-    display: block;
-    position: absolute;
-    color: inherit;
-    top: 70px;
-    left: 0;
-    right: 0;
-    margin: auto;
+  100% {
+    left: 150%;
   }
+}

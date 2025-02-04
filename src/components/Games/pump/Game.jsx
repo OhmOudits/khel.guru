@@ -3,8 +3,6 @@ import gaspump from "../../../assets/pump/gas.png";
 import { IoIosArrowUp } from "react-icons/io";
 import { IoIosArrowDown } from "react-icons/io";
 
-
-
 const GameComponent = ({
   bettingStarted,
   pumpClicked,
@@ -17,9 +15,9 @@ const GameComponent = ({
   setIsPopped,
   targetMultiplier,
   setTargetMultiplier,
-  setCurrenthistory , 
-  pumpMultipler , 
-  risk
+  setCurrenthistory,
+  pumpMultipler,
+  risk,
 }) => {
   useEffect(() => {
     setIsPopped(false);
@@ -29,21 +27,25 @@ const GameComponent = ({
     setTargetMultiplier(randomMultiplier);
   }, []);
 
-  
   useEffect(() => {
-    resetGame();
+    if (bettingStarted) {
+      resetGame();
+    }
   }, [bettingStarted]);
   useEffect(() => {
     if (balloonNumber >= targetMultiplier) {
-      setCurrenthistory((prev)=>[...prev , {
-        result:0.0 , 
-        color:"red"
-      }])
+      setCurrenthistory((prev) => [
+        ...prev,
+        {
+          result: 0.0,
+          color: "red",
+        },
+      ]);
       setIsPopped(true);
       setBettingStarted(false);
       setTimeout(() => {
         resetGame();
-      }, 1000);
+      }, 2000);
     }
   }, [balloonNumber, targetMultiplier]);
 
@@ -91,49 +93,48 @@ const GameComponent = ({
     }
   };
   return (
-    <section className="flex w-full justify-center">
+    <section className="flex w-full h-full justify-center">
       {targetMultiplier}
-      <div className="flex  mt-20 flex-col my-auto w-[40%] pt-48   items-center justify-center bg-gray-900 text-white">
-        <div  style={{
-          bottom:`${balloonNumber>2 ? balloonNumber * 0.4 : balloonNumber >1.3 ? -30 : -50}px`
-        }}className={` absolute   -ml-[150px] h-[70%] `}>
-          {isPopped ? (
-            <div className="text-4xl font-bold">💥</div>
-          ) : (
-            <div
-              className={`flex items-center ${risk == "Low" ? "bg-green-600" : risk == "Medium" ? "bg-orange-600" :"bg-red-600"} justify-center transition-all duration-300 ease-in-out`}
-              style={{
-                width: `${balloonSize * 1.2}px`,
-                height: `${balloonSize * 1.5}px`,
-                borderRadius: "50%",
-                marginTop: `-${balloonSize * 0.75}px`, // Moves the balloon upwards
-              }}
-            >
-              <span className="text-sm font-bold">{balloonNumber} X</span>
-            </div>
-          )}
+      <div className="flex  h-[100%] -mt-20  flex-col  my-auto w-[40%]   items-center justify-end  text-white">
+        <div className={`-ml-[150px]  `}>
+          <div
+            className={`flex  items-center ${
+              isPopped ? "animate-float-up" : ""
+            } bg-red-600 sheen-effect justify-center transition-all duration-300 ease-in-out`}
+            style={{
+              width: `${balloonSize * 1}px`,
+              height: `${balloonSize * 1.5}px`,
+              borderRadius: "50%",
+              // marginTop: `-${balloonSize * 0.75}px`, // Moves the balloon upwards
+            }}
+          >
+            <span className="text-sm font-bold">{balloonNumber} X</span>
+          </div>
         </div>
         <img src={gaspump} alt="" />
       </div>
-      <div className="relative flex  mt-[20%] flex-col items-center h-[200px] w-32 my-10 overflow-hidden">
-        <IoIosArrowUp
-          className="text-white cursor-pointer mb-2"
-          onClick={handleScrollUp}
-        />
+      <div className="relative flex mt-[30%] flex-col justify-between items-center  h-[160px] w-32 my-10 overflow-hidden">
+        <div className="-mb-10 w-[50%] cursor-pointer z-50 rounded-full items-center justify-center flex ">
+          <IoIosArrowUp
+            className="text-white/20 z-10"
+            onClick={handleScrollUp}
+          />
+        </div>
 
-        <div className="flex flex-col  items-center">
+        <div className="flex flex-col   items-center">
           {pumpMultipler.map((x, index) => {
             const isCentered = x === balloonNumber;
             return (
               <div
                 key={index}
-                className={`px-3 py-2 rounded-md text-xl transition-all duration-300 ${
+                className={`px-3 py-1 rounded-md text-2xl transition-all duration-300 ${
+                  x == 1.01 ? "" : ""
+                }  ${
                   isCentered
-                    ? "bg-green-500 text-white text-2xl"
-                    : "bg-gray-500 text-gray-300 opacity-50 scale-75"
+                    ? "text-green-500  "
+                    : "text-gray-500  opacity-50 scale-75"
                 }`}
                 style={{
-                  transform: `scale(${isCentered ? 1.2 : 0.8})`,
                   transition: "opacity 0.3s, transform 0.3s",
                   display:
                     Math.abs(index - currentIndex) <= 1 ? "block" : "none",
@@ -144,11 +145,12 @@ const GameComponent = ({
             );
           })}
         </div>
-
-        <IoIosArrowDown
-          className="text-white cursor-pointer mt-2"
-          onClick={handleScrollDown}
-        />
+        <div className="-mt-10 w-[50%] cursor-pointer rounded-full items-center justify-center flex ">
+          <IoIosArrowDown
+            className="text-white/20    z-10"
+            onClick={handleScrollDown}
+          />
+        </div>
       </div>
     </section>
   );
