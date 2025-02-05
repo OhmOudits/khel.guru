@@ -9,10 +9,10 @@ import {
   FaWallet,
 } from "react-icons/fa";
 import { SlGraph } from "react-icons/sl";
-import { TbAffiliate } from "react-icons/tb"; 
+import { TbAffiliate } from "react-icons/tb";
 import { GrTransaction } from "react-icons/gr";
 import { useSelector } from "react-redux";
-import { GiRolledCloth } from "react-icons/gi"; 
+import { GiRolledCloth } from "react-icons/gi";
 import React, { useEffect, useState, useRef } from "react";
 import Bitcoin from "../../assets/Coins-svg/Bitcoin.jsx";
 import { currencies } from "../../constants";
@@ -203,7 +203,13 @@ const Header = () => {
                         <div
                           className="flex text-zinc-300 hover:bg-zinc-800 text-[1.1rem] font-semibold items-center px-3 gap-2 py-2"
                           key={l.id}
-                          onClick={()=>handleTabNavigation(l.name.toLowerCase(  ))}
+                          onClick={() => {
+                            if (l.name =="Transactions") {
+                              navigate("/transactions/deposits");
+                            } else {
+                              handleTabNavigation(l.name.toLowerCase());
+                            }
+                          }}
                         >
                           {/* Dynamically rendering the icon */}
                           {React.createElement(l.icon)}

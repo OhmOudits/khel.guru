@@ -39,6 +39,10 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import BlackjackGame from "./components/Games/Blackjack/Blackjack";
 import StatisticsPop from "./components/tabs/Statistics";
+import Deposits from "./pages/transactions/Deposits";
+import BetArcheive from "./pages/transactions/BetArcheive";
+import Others from "./pages/transactions/Others";
+import Withdrawls from "./pages/transactions/Withdrawal";
 
 function App() {
   const user = useSelector((state) => state.auth?.user?.user);
@@ -190,6 +194,10 @@ function App() {
                 <Route path="/game/roulette" element={<RoulettePage />} />
                 <Route path="/game/pump" element={<PumpPage />} />
                 <Route path="*" element={<LandingPage />} />
+                <Route path="/transactions/deposits" element={<Deposits/>} />
+                <Route path="/transactions/withdrawls" element={<Withdrawls/>}/>
+                <Route path="/transactions/bet-archeive" element={<BetArcheive/>}/>
+                <Route path="/transactions/other" element={<Others/>} />
               </Routes>
             </div>
 
