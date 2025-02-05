@@ -38,6 +38,7 @@ const socket = io("http://localhost:3000");
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import BlackjackGame from "./components/Games/Blackjack/Blackjack";
+import StatisticsPop from "./components/tabs/Statistics";
 
 function App() {
   const user = useSelector((state) => state.auth?.user?.user);
@@ -47,7 +48,9 @@ function App() {
   const [showSearch, setShowSearch] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showWalletSettings, setShowWalletSettings] = useState(false);
-  const [ShowValut , setShowValut] = useState(false)
+  const [ShowValut, setShowValut] = useState(false);
+  const [Statistics, setStatistics] = useState(false);
+
   const [loading, setLoading] = useState(true);
   // eslint-disable-next-line
   const [loggedInUsers, setLoggedInUsers] = useState([]);
@@ -60,8 +63,9 @@ function App() {
     setShowRegister(params.get("tab") === "register");
     setShowWallet(params.get("tab") === "wallet");
     setShowSearch(params.get("tab") === "search");
-    setShowValut(params.get("tab")=== "vault")
+    setShowValut(params.get("tab") === "vault");
     setShowWalletSettings(params.get("tab") === "walletSettings");
+    setStatistics(params.get("tab") === "statistics");
 
     setTimeout(() => {
       setLoading(false);
@@ -134,7 +138,7 @@ function App() {
           {showSearch && <Search />}
           {showWalletSettings && <WalletSettings />}
           {ShowValut && <Vault />}
-
+          {Statistics && <StatisticsPop/>}
 
           <div className="w-full flex min-h-screen bg-primary">
             <Sidebar setSideOpen={setSideOpen} sideOpen={sideOpen} />
@@ -184,7 +188,7 @@ function App() {
                 <Route path="/game/tower" element={<TowerPage />} />
                 <Route path="/game/twist" element={<TwistPage />} />
                 <Route path="/game/roulette" element={<RoulettePage />} />
-                <Route path="/game/pump" element={<PumpPage/>} />
+                <Route path="/game/pump" element={<PumpPage />} />
                 <Route path="*" element={<LandingPage />} />
               </Routes>
             </div>

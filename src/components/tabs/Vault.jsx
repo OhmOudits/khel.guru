@@ -5,7 +5,7 @@ import { useState } from "react";
 import { FaBitcoin } from "react-icons/fa";
 import { IoIosArrowDown } from "react-icons/io";
 
-const coins = [
+export const coins = [
   { name: "Bitcoin", symbol: "BTC", icon: <FaBitcoin className="text-yellow-500 text-xl" />, balance: "0.00000000", usd: "$0.00" },
   { name: "Ethereum", symbol: "ETH", icon: "Ξ", balance: "2.34567890", usd: "$4,800.00" },
   { name: "Litecoin", symbol: "LTC", icon: "Ł", balance: "1.23456789", usd: "$250.00" },
