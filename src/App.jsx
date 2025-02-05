@@ -43,6 +43,7 @@ import Deposits from "./pages/transactions/Deposits";
 import BetArcheive from "./pages/transactions/BetArcheive";
 import Others from "./pages/transactions/Others";
 import Withdrawls from "./pages/transactions/Withdrawal";
+import Mybets from "./pages/MyBets";
 
 function App() {
   const user = useSelector((state) => state.auth?.user?.user);
@@ -198,6 +199,7 @@ function App() {
                 <Route path="/transactions/withdrawls" element={<Withdrawls/>}/>
                 <Route path="/transactions/bet-archeive" element={<BetArcheive/>}/>
                 <Route path="/transactions/other" element={<Others/>} />
+                <Route path="/casino/my-bets" element={<Mybets/>}/>
               </Routes>
             </div>
 

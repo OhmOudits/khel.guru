@@ -204,14 +204,15 @@ const Header = () => {
                           className="flex text-zinc-300 hover:bg-zinc-800 text-[1.1rem] font-semibold items-center px-3 gap-2 py-2"
                           key={l.id}
                           onClick={() => {
-                            if (l.name =="Transactions") {
+                            if (l.name == "Transactions") {
                               navigate("/transactions/deposits");
+                            } else if (l.name == "My Bets") {
+                              navigate("/casino/my-bets");
                             } else {
                               handleTabNavigation(l.name.toLowerCase());
                             }
                           }}
                         >
-                          {/* Dynamically rendering the icon */}
                           {React.createElement(l.icon)}
                           {l.name}
                         </div>
