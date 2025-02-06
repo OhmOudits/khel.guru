@@ -45,6 +45,7 @@ const SideBar = ({
                   <input
                     type="text"
                     value={bet}
+                    disabled={bettingStarted}
                     id="betAmount"
                     onChange={(e) => setBet(e.target.value)}
                     className="w-full h-full rounded bg-secondry outline-none text-white px-2 pr-6 border border-inactive hover:border-primary-4"

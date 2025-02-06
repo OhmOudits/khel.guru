@@ -4,46 +4,15 @@ import "./styles.css";
 import { CardBack, FlippableCard } from "./Components";
 
 const Game = ({
-  cardsNumber = 6,
+  deck,
   userCards,
-  setUserCards,
   dealerCards,
-  setDealerCards,
-  createDeck,
+  userValue,
+  dealerValue,
+  userResult,
+  dealerResult,
 }) => {
-  const [deck, setDeck] = useState(createDeck());
-  const [isAnimating, setIsAnimating] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth > 1024);
-
-  useEffect(() => {
-    const dealCards = () => {
-      if (deck.length > 0 && !isAnimating) {
-        const totalDealtCards = userCards.length + dealerCards.length;
-
-        if (totalDealtCards >= cardsNumber) return;
-
-        setIsAnimating(true);
-        const newCard = deck[0];
-        setDeck((prevDeck) => prevDeck.slice(1));
-
-        if (userCards.length <= dealerCards.length) {
-          setUserCards((prev) => [...prev, newCard]);
-        } else {
-          setDealerCards((prev) => [...prev, newCard]);
-        }
-
-        // Simulate animation delay
-        setTimeout(() => {
-          setIsAnimating(false);
-        }, 800);
-      }
-    };
-
-    if (deck.length > 0) {
-      const interval = setInterval(dealCards, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [deck, userCards, dealerCards, isAnimating, cardsNumber]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -61,7 +30,7 @@ const Game = ({
         {deck.map((card, i) => (
           <motion.div
             key={card.id}
-            initial={{ y: `-${i * 2}px`, opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{
               opacity: 1,
               scale: 1 - i * 0.02,
@@ -88,6 +57,7 @@ const Game = ({
               top: 12 + index * 4,
               left: isLargeScreen ? 40 + index * 5 : 30 + index * 5,
             }}
+            isFlipped={card.flipped}
           />
         ))}
 
@@ -100,13 +70,23 @@ const Game = ({
               top: 64 + index * 4,
               left: isLargeScreen ? 40 + index * 5 : 30 + index * 5,
             }}
+            isFlipped={card.flipped}
           />
         ))}
 
         {/* Player Score */}
         <div className="absolute top-[4%] left-[20%] max-lg:left-[16%]">
-          <h1 className="font-semibold text-[0.9rem] px-5 py-0.5 rounded bg-gray-50/10">
-            Player: 27
+          <h1
+            className={`font-semibold text-[0.9rem] px-5 py-0.5 rounded bg-gray-50/10 ${
+              userResult &&
+              (userResult === "win"
+                ? "bg-green-500 text-black"
+                : userResult === "lose"
+                ? "bg-red-500"
+                : "bg-orange-500")
+            }`}
+          >
+            Player: {userValue}
           </h1>
         </div>
 
@@ -118,8 +98,17 @@ const Game = ({
 
         {/* Dealer Score */}
         <div className="absolute top-[56%] left-[20%] max-lg:left-[16%]">
-          <h1 className="font-semibold text-[0.9rem] px-5 py-0.5 rounded bg-gray-50/10">
-            Dealer: 27
+          <h1
+            className={`font-semibold text-[0.9rem] px-5 py-0.5 rounded bg-gray-50/10 ${
+              dealerResult &&
+              (dealerResult === "win"
+                ? "bg-green-500 text-black "
+                : dealerResult === "lose"
+                ? "bg-red-500"
+                : "bg-orange-500")
+            }`}
+          >
+            Dealer: {dealerValue}
           </h1>
         </div>
       </div>

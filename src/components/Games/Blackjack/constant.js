@@ -8,9 +8,14 @@ export const CARD_VALUES = [
   "7",
   "8",
   "9",
-  "10",
   "J",
   "Q",
   "K",
   "A",
 ];
+
+export const getCardValue = (value) => {
+  if (value === "A") return 11;
+  if (["J", "Q", "K"].includes(value)) return 10;
+  return parseInt(value);
+};

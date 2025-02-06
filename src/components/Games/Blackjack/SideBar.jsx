@@ -12,6 +12,9 @@ const SideBar = ({
   handleStand,
   handleSplit,
   handleDouble,
+  isSmt,
+  split,
+  double,
 }) => {
   return (
     <>
@@ -47,6 +50,7 @@ const SideBar = ({
                     type="text"
                     value={bet}
                     id="betAmount"
+                    disabled={bettingStarted}
                     onChange={(e) => setBet(e.target.value)}
                     className="w-full h-full rounded bg-secondry outline-none text-white px-2 pr-6 border border-inactive hover:border-primary-4"
                   />
@@ -79,53 +83,65 @@ const SideBar = ({
               </div>
             </div>
 
-            {bettingStarted && (
-              <div className="grid grid-cols-2 gap-3 order-2 md:order-20">
-                <div
-                  className={`order-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-2.5 mt-3 max-lg:mt-4 rounded font-semibold bg-[#2f4553] text-white text-[0.9rem] cursor-pointer`}
-                  onClick={handleHit}
-                >
-                  Hit
-                </div>
-                <div
-                  className={`order-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-2.5 mt-3 max-lg:mt-4 rounded font-semibold bg-[#2f4553] text-white text-[0.9rem] cursor-pointer`}
-                  onClick={handleStand}
-                >
-                  Stand
-                </div>
-                <div
-                  className={`order-2 mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-2.5 rounded font-semibold bg-[#2f4553] text-white text-[0.9rem] cursor-pointer`}
-                  onClick={handleSplit}
-                >
-                  Split
-                </div>
-                <div
-                  className={`order-2 mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-2.5 rounded font-semibold bg-[#2f4553] text-white text-[0.9rem] cursor-pointer`}
-                  onClick={handleDouble}
-                >
-                  Double
-                </div>
-              </div>
-            )}
-
-            {bettingStarted && (
+            <div className="grid grid-cols-2 gap-3 order-2 md:order-20">
               <div
-                className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold bg-button-primary text-black cursor-pointer`}
-                onClick={handleCheckout}
+                className={`order-2 md:order-20 flex items-center justify-center w-full mx-auto py-2.5 mt-3 max-lg:mt-4 rounded font-semibold ${
+                  isSmt || !bettingStarted
+                    ? "bg-[#2f4553] text-white"
+                    : "bg-button text-black transition-all duration-300 ease-in-out transform active:scale-90"
+                } text-[0.9rem] cursor-pointer`}
+                onClick={handleHit}
+                disabled={isSmt || !bettingStarted}
               >
-                Checkout
+                Hit
               </div>
-            )}
+              <div
+                className={`order-2 md:order-20 flex items-center justify-center w-full mx-auto py-2.5 mt-3 max-lg:mt-4 rounded font-semibold ${
+                  isSmt || !bettingStarted
+                    ? "bg-[#2f4553] text-white"
+                    : "bg-button text-black transition-all duration-300 ease-in-out transform active:scale-90"
+                } text-[0.9rem] cursor-pointer`}
+                onClick={handleStand}
+                disabled={isSmt || !bettingStarted}
+              >
+                Stand
+              </div>
+
+              <div
+                className={`order-2 mb-2 md:order-20 flex items-center justify-center w-full mx-auto py-2.5 rounded font-semibold ${
+                  isSmt || !split || !bettingStarted
+                    ? "bg-[#2f4553] text-white"
+                    : "bg-button text-black transition-all duration-300 ease-in-out transform active:scale-90"
+                } text-[0.9rem] cursor-pointer`}
+                onClick={handleSplit}
+                disabled={isSmt || !split || !bettingStarted}
+              >
+                Split
+              </div>
+              <div
+                className={`order-2 mb-2 md:order-20 flex items-center justify-center w-full mx-auto py-2.5 rounded font-semibold ${
+                  isSmt || !double || !bettingStarted
+                    ? "bg-[#2f4553] text-white"
+                    : "bg-button text-black transition-all duration-300 ease-in-out transform active:scale-90"
+                } text-[0.9rem] cursor-pointer`}
+                onClick={handleDouble}
+                disabled={isSmt || !double || !bettingStarted}
+              >
+                Double
+              </div>
+            </div>
 
             {/* Bet button */}
-            {!bettingStarted && (
-              <div
-                className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold bg-button-primary text-black cursor-pointer`}
-                onClick={handleMineBet}
-              >
-                Bet
-              </div>
-            )}
+            <button
+              onClick={handleMineBet}
+              className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
+                bettingStarted
+                  ? "bg-primary text-white cursor-text"
+                  : "bg-button-primary active:scale-90"
+              }`}
+            >
+              Bet
+            </button>
           </>
         </div>
       </div>

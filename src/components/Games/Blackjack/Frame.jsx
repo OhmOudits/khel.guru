@@ -1,13 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../../../styles/Frame.css";
-import FairnessModal from "../../Frame/FairnessModal";
 import FrameFooter from "../../Frame/FrameFooter";
-import HotKeysModal from "../../Frame/HotKeysModal";
-import GameInfoModal from "../../Frame/GameInfoModal";
-import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
-import { CARD_SUITS, CARD_VALUES } from "./constant";
+import { CARD_SUITS, CARD_VALUES, getCardValue } from "./constant";
 
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
@@ -26,38 +22,206 @@ const Frame = () => {
   const [maxBet, setMaxBet] = useState(false);
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
-  const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
 
   const [userCards, setUserCards] = useState([]);
   const [dealerCards, setDealerCards] = useState([]);
-  const [currentCard, setCurrentCard] = useState({
-    value: CARD_VALUES[4],
-    suit: CARD_SUITS[2],
-    color: false,
-  });
+  const [userValue, setUserValue] = useState(0);
+  const [dealerValue, setDealerValue] = useState(0);
+  const [userResult, setUserResult] = useState(null);
+  const [dealerResult, setDealerResult] = useState(null);
+  const [split, setSplit] = useState(false);
+  const [double, setDouble] = useState(false);
 
-  const createDeck = () =>
-    [...Array(10)].map((_, i) => ({
-      suit: CARD_SUITS[i % (CARD_SUITS.length - 2)],
-      value: CARD_VALUES[i % CARD_VALUES.length],
-      id: i,
-      rand: Math.floor(Math.random() * 20) + 1,
-    }));
+  const [cards, setCards] = useState([]);
+  const [isSmt, setIsSmt] = useState(true);
 
-  const handleMineBet = () => {
+  const createDeck = () => {
+    let deck = [];
+
+    for (let suit of CARD_SUITS) {
+      for (let value of CARD_VALUES) {
+        deck.push({
+          suit,
+          value,
+          id: `${suit}-${value}`,
+          rand: Math.floor(Math.random() * 20) + 1,
+          flipped: true,
+        });
+      }
+    }
+
+    for (let i = deck.length - 1; i > 0; i--) {
+      let j = Math.floor(Math.random() * (i + 1));
+      [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+
+    return deck;
+  };
+
+  const [deck, setDeck] = useState(createDeck());
+
+  const handleBetStarted = () => {
     if (!betStarted) {
       setBettingStarted(true);
+      const deckCards = createDeck();
+      setCards(deckCards);
+      setDeck(deckCards);
+      setUserCards([]);
+      setDealerCards([]);
+      setUserValue(0);
+      setDealerValue(0);
+      setUserResult(null);
+      setDealerResult(null);
+      setSplit(false);
+      setDouble(false);
 
-      // const newCard = getRandomCard();
+      const dealSequence = async () => {
+        if (deckCards.length < 4) return;
 
-      // setCurrentCard(newCard);
-      // setHistoryCards([{ ...newCard, result: null }]);
+        for (let i = 0; i < 4; i++) {
+          await new Promise((resolve) => setTimeout(resolve, 800));
+
+          setDeck((prevDeck) => prevDeck.slice(1));
+          const newCard = deckCards[i];
+          const worth = getCardValue(newCard.value);
+
+          if (i === 0 || i === 2) {
+            setUserCards((prev) => [...prev, newCard]);
+            setTimeout(() => {
+              setUserValue((p) => p + worth);
+            }, 600);
+          } else if (i === 1) {
+            setDealerCards((prev) => [...prev, newCard]);
+            setTimeout(() => {
+              setDealerValue((p) => p + worth);
+            }, 600);
+          } else if (i === 3) {
+            setDealerCards((prev) => [...prev, { ...newCard, flipped: false }]);
+            setIsSmt(false);
+          }
+        }
+      };
+
+      dealSequence();
     }
   };
 
   const handleCheckout = () => {
     setBettingStarted(false);
+    setIsSmt(false);
   };
+
+  useEffect(() => {
+    if (userValue === 21) {
+      setUserResult("win");
+      handleCheckout();
+    }
+
+    if (dealerValue === 21) {
+      setDealerResult("win");
+      handleCheckout();
+    }
+
+    if (userValue > 21) {
+      setUserResult("lose");
+      handleCheckout();
+    }
+
+    if (dealerValue > 21) {
+      setDealerResult("lose");
+      handleCheckout();
+    }
+  }, [userValue, dealerValue]);
+
+  const handleHit = () => {
+    if (deck.length === 0 || betStarted === false) return;
+
+    const newCard = deck[0];
+    const worth = getCardValue(newCard.value);
+
+    setDeck((prevDeck) => prevDeck.slice(1));
+    setUserCards((prev) => [...prev, newCard]);
+    setTimeout(() => {
+      setUserValue((prev) => prev + worth);
+    }, 600);
+  };
+
+  const handleStand = async () => {
+    setIsSmt(false);
+    let dealerHand = [...dealerCards];
+    let dealerTotal = dealerValue;
+
+    dealerHand[1].flipped = true;
+    dealerTotal += getCardValue(dealerHand[1].value);
+    setDealerCards([...dealerHand]);
+    setDealerValue(dealerTotal);
+
+    while (dealerTotal < 17 && deck.length > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const newCard = deck[0];
+      dealerHand.push(newCard);
+      dealerTotal += getCardValue(newCard.value);
+      setDeck(deck.slice(1));
+      setDealerCards([...dealerHand]);
+      setDealerValue(dealerTotal);
+    }
+
+    setTimeout(() => {
+      if (userValue > dealerTotal) {
+        if (!userValue > 21) {
+          setUserResult("win");
+          setDealerResult("lose");
+        }
+
+        if (dealerTotal > 21) {
+          setDealerResult("lose");
+        }
+      } else if (userValue < dealerTotal) {
+        if (!dealerValue > 21) {
+          setUserResult("lose");
+          setDealerResult("win");
+        }
+      } else {
+        setUserResult("draw");
+        setDealerResult("draw");
+      }
+      setBettingStarted(false);
+      setIsSmt(false);
+    }, 1000);
+  };
+
+  useEffect(() => {
+    console.log(userResult);
+  }, []);
+
+  const isGameEnd = () => {
+    return (
+      userResult ||
+      dealerResult ||
+      (userValue > 21 && dealerValue <= 21) ||
+      (userValue <= 21 && dealerValue > 21)
+    );
+  };
+
+  const handleDouble = () => {
+    if (!betStarted || userCards.length !== 2) return;
+    setBet((prevBet) => (parseFloat(prevBet) * 2).toFixed(6));
+    handleHit();
+
+    if (isGameEnd) {
+      setTimeout(() => handleStand(), 1000);
+    }
+  };
+
+  const handleSplit = () => {};
+
+  useEffect(() => {
+    if (userCards.length !== 2) {
+      setDouble(false);
+    } else {
+      setDouble(true);
+    }
+  }, [userCards]);
 
   return (
     <>
@@ -74,7 +238,6 @@ const Frame = () => {
         >
           <div className="flex flex-col gap-[0.15rem] relative">
             <div className="grid grid-cols-12 lg:h-[600px]">
-              {/* Left Section */}
               <SideBar
                 theatreMode={theatreMode}
                 setBetMode={setBetMode}
@@ -82,12 +245,18 @@ const Frame = () => {
                 bet={bet}
                 setBet={setBet}
                 maxBetEnable={maxBetEnable}
-                handleMineBet={handleMineBet}
+                handleMineBet={handleBetStarted}
                 bettingStarted={betStarted}
+                isSmt={isSmt}
                 handleCheckout={handleCheckout}
+                split={split}
+                double={double}
+                handleDouble={handleDouble}
+                handleHit={handleHit}
+                handleSplit={handleSplit}
+                handleStand={handleStand}
               />
 
-              {/* Right Section */}
               <div
                 className={`col-span-12 rounded-tr ${
                   theatreMode
@@ -99,17 +268,17 @@ const Frame = () => {
                   <>
                     <Game
                       userCards={userCards}
-                      setUserCards={setUserCards}
                       dealerCards={dealerCards}
-                      setDealerCards={setDealerCards}
-                      betStarted={betStarted}
-                      createDeck={createDeck}
+                      userValue={userValue}
+                      dealerValue={dealerValue}
+                      userResult={userResult}
+                      dealerResult={dealerResult}
+                      deck={deck}
                     />
                   </>
                 </div>
               </div>
             </div>
-
             <FrameFooter
               isFav={isFav}
               isGameSettings={isGameSettings}
@@ -133,89 +302,6 @@ const Frame = () => {
               theatreMode={theatreMode}
               setTheatreMode={setTheatreMode}
             />
-
-            {isGameSettings && (
-              <div
-                className="absolute bg-transparent top-0 left-0 w-full h-full z-[2] cursor-pointer"
-                onClick={() => setIsGamings(false)}
-              ></div>
-            )}
-
-            {/* Fairness Modal */}
-            {isFairness && (
-              <>
-                <div
-                  className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
-                  onClick={() => setIsFairness(false)}
-                >
-                  <div className="text-white w-full flex items-center justify-center h-full ">
-                    <div
-                      className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <FairnessModal setIsFairness={setIsFairness} />
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {hotkeys && (
-              <>
-                <div
-                  className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
-                  onClick={() => setHotkeys(false)}
-                >
-                  <div className="text-white w-full flex items-center justify-center h-full ">
-                    <div
-                      className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <HotKeysModal
-                        setHotkeys={setHotkeys}
-                        hotkeysEnabled={hotkeysEnabled}
-                        setHotkeysEnabled={setHotkeysEnabled}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {gameInfo && (
-              <div
-                className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
-                onClick={() => setGameInfo(false)}
-              >
-                <div className="text-white w-full flex items-center justify-center h-full ">
-                  <div
-                    className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <GameInfoModal setGameInfo={setGameInfo} />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {maxBet && !maxBetEnable && (
-              <div
-                className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
-                onClick={() => setMaxBet(false)}
-              >
-                <div className="text-white w-full flex items-center justify-center h-full ">
-                  <div
-                    className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <MaxBetModal
-                      setMaxBet={setMaxBet}
-                      setMaxBetEnable={setMaxBetEnable}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>

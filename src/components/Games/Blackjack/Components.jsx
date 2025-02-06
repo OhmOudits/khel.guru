@@ -16,22 +16,24 @@ export const CardBack = ({ rand, top = "50%" }) => (
   </div>
 );
 
-export const FlippableCard = ({ card, position }) => {
+export const FlippableCard = ({ card, position, isFlipped = true }) => {
   const [flipped, setFlipped] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setFlipped(true), 700);
-    return () => clearTimeout(timer);
-  }, []);
+    if (isFlipped) {
+      const timer = setTimeout(() => setFlipped(true), 700);
+      return () => clearTimeout(timer);
+    } else {
+      setFlipped(false);
+    }
+  }, [isFlipped]);
 
   return (
     <motion.div
       initial={{ scale: 0.5, top: "-4.5rem", left: "calc(100% - 6rem)" }}
       animate={{
         scale: 1,
-        // eslint-disable-next-line
         top: `${position.top}%`,
-        // eslint-disable-next-line
         left: `${position.left}%`,
       }}
       transition={{ duration: 0.4 }}
@@ -39,11 +41,9 @@ export const FlippableCard = ({ card, position }) => {
     >
       <div className={`flip-card ${flipped ? "flipped" : ""}`}>
         <div className="card-back">
-          {/* eslint-disable-next-line */}
           <CardBack rand={card.rand} />
         </div>
         <div className="card-front">
-          {/* eslint-disable-next-line */}
           <Card medium={true} value={card.value} suit={card.suit} />
         </div>
       </div>

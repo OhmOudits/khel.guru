@@ -1,19 +1,12 @@
 import { motion } from "framer-motion";
 
 const Card = ({
-  // eslint-disable-next-line
   shrink = false,
-  // eslint-disable-next-line
   small = false,
-  // eslint-disable-next-line
   medium = false,
-  // eslint-disable-next-line
   index = 0,
-  // eslint-disable-next-line
   value,
-  // eslint-disable-next-line
   suit,
-  // eslint-disable-next-line
   isRed = false,
 }) => {
   return (
@@ -47,7 +40,7 @@ const Card = ({
           ? "h-[8.4rem] w-[5.6rem] rounded"
           : medium
           ? "w-24 h-36 rounded"
-          : "w-32 h-48 rounded-xl"
+          : "w-28 h-[10.5rem] rounded-xl"
       } shadow-lg ${isRed ? "text-red-600" : "text-black"} ${
         shrink
           ? "bg-transparent text-gray-600 border border-gray-600"
