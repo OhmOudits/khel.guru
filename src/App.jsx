@@ -52,6 +52,7 @@ import Sessions from "./pages/settings/Sessions";
 import IgnoredUsers from "./pages/settings/IgnoredUsers";
 import OtherSettings from "./pages/settings/Others";
 import Verify from "./pages/settings/Verify";
+import Signout from "./components/tabs/Signout";
 
 function App() {
   const user = useSelector((state) => state.auth?.user?.user);
@@ -63,6 +64,7 @@ function App() {
   const [showWalletSettings, setShowWalletSettings] = useState(false);
   const [ShowValut, setShowValut] = useState(false);
   const [Statistics, setStatistics] = useState(false);
+  const [signout  ,setsignout] = useState(false)
 
   const [loading, setLoading] = useState(true);
   // eslint-disable-next-line
@@ -79,6 +81,7 @@ function App() {
     setShowValut(params.get("tab") === "vault");
     setShowWalletSettings(params.get("tab") === "walletSettings");
     setStatistics(params.get("tab") === "statistics");
+    setsignout(params.get("tab")=="signout")
 
     setTimeout(() => {
       setLoading(false);
@@ -152,6 +155,7 @@ function App() {
           {showWalletSettings && <WalletSettings />}
           {ShowValut && <Vault />}
           {Statistics && <StatisticsPop/>}
+          {signout && <Signout/> }
 
           <div className="w-full flex min-h-screen bg-primary">
             <Sidebar setSideOpen={setSideOpen} sideOpen={sideOpen} />

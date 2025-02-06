@@ -220,7 +220,7 @@ const Header = () => {
                         </div>
                       );
                     })}
-                    <div className="flex text-zinc-300 hover:bg-zinc-800 text-[1.1rem] font-semibold items-center px-3 gap-2 py-2">
+                    <div onClick={()=>handleTabNavigation("signout")} className="flex text-zinc-300 hover:bg-zinc-800 text-[1.1rem] font-semibold items-center px-3 gap-2 py-2">
                       {/* Dynamically rendering the icon */}
                       <FaSignOutAlt />
                       Sign Out
