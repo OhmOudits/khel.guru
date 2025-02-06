@@ -44,6 +44,14 @@ import BetArcheive from "./pages/transactions/BetArcheive";
 import Others from "./pages/transactions/Others";
 import Withdrawls from "./pages/transactions/Withdrawal";
 import Mybets from "./pages/MyBets";
+import General from "./pages/settings/General";
+import Security from "./pages/settings/Security";
+import Preferences from "./pages/settings/Prefernces";
+import Api from "./pages/settings/Api";
+import Sessions from "./pages/settings/Sessions";
+import IgnoredUsers from "./pages/settings/IgnoredUsers";
+import OtherSettings from "./pages/settings/Others";
+import Verify from "./pages/settings/Verify";
 
 function App() {
   const user = useSelector((state) => state.auth?.user?.user);
@@ -194,12 +202,20 @@ function App() {
                 <Route path="/game/twist" element={<TwistPage />} />
                 <Route path="/game/roulette" element={<RoulettePage />} />
                 <Route path="/game/pump" element={<PumpPage />} />
-                <Route path="*" element={<LandingPage />} />
                 <Route path="/transactions/deposits" element={<Deposits/>} />
                 <Route path="/transactions/withdrawls" element={<Withdrawls/>}/>
                 <Route path="/transactions/bet-archeive" element={<BetArcheive/>}/>
                 <Route path="/transactions/other" element={<Others/>} />
                 <Route path="/casino/my-bets" element={<Mybets/>}/>
+                <Route path="/settings/general" element={<General/>} />
+                <Route path="/settings/security" element={<Security/>} />
+                <Route path="/settings/preferences" element={<Preferences/>} />
+                <Route path="/settings/api" element={<Api/>} /> 
+                <Route path="/settings/sessions" element={<Sessions/>} />
+                <Route path="/settings/ignored-users" element={<IgnoredUsers/>} />
+                <Route path="/settings/verify" element={< Verify/>} />
+                <Route path="/settings/others" element={<OtherSettings/>} />
+                <Route path="*" element={<LandingPage />} />
               </Routes>
             </div>
 

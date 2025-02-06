@@ -208,6 +208,8 @@ const Header = () => {
                               navigate("/transactions/deposits");
                             } else if (l.name == "My Bets") {
                               navigate("/casino/my-bets");
+                            }else if (l.name == "Settings"){
+                              navigate('/settings/general')
                             } else {
                               handleTabNavigation(l.name.toLowerCase());
                             }
