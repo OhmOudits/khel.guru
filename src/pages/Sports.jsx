@@ -1,4 +1,5 @@
 import { IoIosBasketball, IoIosTennisball } from "react-icons/io";
+import { FaTableTennis } from "react-icons/fa";
 import GamesLines from "../components/MainFrame/GamesLines";
 import { topGames } from "../constants";
 import { FaSearch } from "react-icons/fa";
@@ -7,6 +8,9 @@ import { IoClose } from "react-icons/io5";
 import CricketHome from "../components/Sports/Cricket/CricketHome";
 import { GiSoccerBall } from "react-icons/gi";
 import { BiSolidCricketBall } from "react-icons/bi";
+import FootBall from "../components/Sports/football/Football";
+import Tennis from "../components/Sports/Tennis/Tennis";
+import TableTennis from "../components/Sports/TableTennis/TableTennis";
 
 const Sports = () => {
   const events = [
@@ -15,7 +19,7 @@ const Sports = () => {
     { id: 3, events: 1, icon: <IoIosTennisball />, name: "Tennis" },
     { id: 4, events: 5, icon: <BiSolidCricketBall />, name: "Badminton" },
     { id: 5, events: 12, icon: <GiSoccerBall />, name: "Golf" },
-    { id: 6, events: 1, icon: <IoIosTennisball />, name: "Table Tennis" },
+    { id: 6, events: 1, icon: <FaTableTennis />, name: "Table Tennis" },
     { id: 7, events: 5, icon: <BiSolidCricketBall />, name: "Boxing" },
     { id: 8, events: 12, icon: <GiSoccerBall />, name: "CS2" },
     { id: 9, events: 1, icon: <IoIosTennisball />, name: "Volley Ball" },
@@ -88,8 +92,7 @@ const Sports = () => {
             })}
           </div>
         </div>
-
-        <CricketHome />
+        {event == "Cricket" ?  <CricketHome /> : event== "Football" ?<FootBall/> : event == "Tennis" ?<Tennis/> : event == "Table Tennis" ? <TableTennis/> :""}
       </div>
     </div>
   );
