@@ -1,14 +1,14 @@
-import LiveFootballEvents from "./LiveFootballEvents";
+import LiveTennisEvents from "./LiveTennisEvents";
 import UpcomingEventsCard from "../UpcomingEventCard";
 import List from "../../MainFrame/List";
 
-const CricketHome = () => {
+const TennisHome = () => {
   return (
     <>
       {/* Live Cards */}
       <div className="text-xl font-semibold mt-5">
         <h1>Live Events</h1>
-        <LiveFootballEvents />
+        <LiveTennisEvents />
       </div>
 
       {/* Upcoming Cards */}
@@ -69,4 +69,4 @@ const CricketHome = () => {
   );
 };
 
-export default CricketHome;
+export default TennisHome;

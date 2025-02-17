@@ -1,25 +1,24 @@
 import { useState } from "react";
-import { BiSolidTennisBall } from "react-icons/bi";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
-import TennisBet from "./TennisBet";
+import BadmintonBet from "./BadmintonBet";
+import { MdSportsTennis } from "react-icons/md";
 
-const LiveTennisEvents = () => {
+const LiveBadmintonEvents = () => {
   const [isExpanded, setIsExpanded] = useState(true);
-  const [isExpanded2, setIsExpanded2] = useState(false);
+  const [isExpanded1, setIsExpanded1] = useState(false);
 
-  const Wta = [
-    { teams: ["Sawangkaew, Mananchaya", "Marino, Rebecca"], score: ["1", "0"] },
+  const BadmintonEvents = [
+    { teams: ["India", "Australia"], score: [1, 2] },
+    { teams: ["England", "New Zealand"], score: [2, 3] },
   ];
 
-  const Qatar = [
-    { teams: ["Bucsa, Cristina", "Siegemund, Laura"], score: ["2", "3"] },
-    { teams: ["Bucsa, Cristina", "Siegemund, Laura"], score: ["2", "3"] },
-    { teams: ["Bucsa, Cristina", "Siegemund, Laura"], score: ["2", "3"] },
-    { teams: ["Bucsa, Cristina", "Siegemund, Laura"], score: ["2", "3"] },
+  const fifaBadmintonEvents = [
+    { teams: ["India", "Australia"], score: [1, 2] },
+    { teams: ["England", "New Zealand"], score: [2, 3] },
   ];
 
   const toggleExpansion = () => setIsExpanded(!isExpanded);
-  const toggleExpansion2 = () => setIsExpanded2(!isExpanded2);
+  const toggleExpansion1 = () => setIsExpanded1(!isExpanded1);
 
   return (
     <>
@@ -30,12 +29,13 @@ const LiveTennisEvents = () => {
           onClick={toggleExpansion}
         >
           <div className="flex items-center gap-1.5">
-            WTA 125K / WTA 125K Mumbai, India Women Singles{" "}
+            <MdSportsTennis />
+            Euro Cup
           </div>
           <div className="flex items-center gap-2">
             {!isExpanded && (
               <span className="text-xs text-black font-semibold w-[18px] h-[18px] bg-gray-400 rounded-full flex items-center justify-center">
-                {Wta.length}
+                {BadmintonEvents.length}
               </span>
             )}
             {isExpanded ? (
@@ -50,8 +50,12 @@ const LiveTennisEvents = () => {
         <div
           className={`overflow-hidden ${isExpanded ? "max-h-fit" : "max-h-0"}`}
         >
-          {Wta.map((bets, index) => (
-            <TennisBet key={index} teams={bets.teams} score={bets.score} />
+          {BadmintonEvents.map((teams, index) => (
+            <BadmintonBet
+              key={index}
+              teams={BadmintonEvents[index].teams}
+              score={BadmintonEvents[index].score}
+            />
           ))}
         </div>
       </div>
@@ -60,18 +64,19 @@ const LiveTennisEvents = () => {
         {/* Header */}
         <div
           className="flex items-center justify-between bg-inactive px-3 py-2.5 rounded-md hover:bg-activeHover cursor-pointer"
-          onClick={toggleExpansion2}
+          onClick={toggleExpansion1}
         >
           <div className="flex items-center gap-1.5">
-            WTA / WTA Doha, Qatar Women Singles
+            <MdSportsTennis />
+            FIFA
           </div>
           <div className="flex items-center gap-2">
-            {!isExpanded2 && (
+            {!isExpanded1 && (
               <span className="text-xs text-black font-semibold w-[18px] h-[18px] bg-gray-400 rounded-full flex items-center justify-center">
-                {Qatar.length}
+                {fifaBadmintonEvents.length}
               </span>
             )}
-            {isExpanded2 ? (
+            {isExpanded1 ? (
               <FaChevronUp size={14} />
             ) : (
               <FaChevronDown size={14} />
@@ -81,10 +86,14 @@ const LiveTennisEvents = () => {
 
         {/* transition-all duration-[800ms] ease-in-out */}
         <div
-          className={`overflow-hidden ${isExpanded2 ? "max-h-fit" : "max-h-0"}`}
+          className={`overflow-hidden ${isExpanded1 ? "max-h-fit" : "max-h-0"}`}
         >
-          {Qatar.map((bets, index) => (
-            <TennisBet key={index} teams={bets.teams} score={bets.score} />
+          {BadmintonEvents.map((teams, index) => (
+            <BadmintonBet
+              key={index}
+              teams={fifaBadmintonEvents[index].teams}
+              score={fifaBadmintonEvents[index].score}
+            />
           ))}
         </div>
       </div>
@@ -92,4 +101,4 @@ const LiveTennisEvents = () => {
   );
 };
 
-export default LiveTennisEvents;
+export default LiveBadmintonEvents;

@@ -1,14 +1,14 @@
-import LiveTennisEvents from "./LiveTennisEvents";
 import UpcomingEventsCard from "../UpcomingEventCard";
+import LiveBadmintonEvents from "./LiveBadmintonEvents";
 import List from "../../MainFrame/List";
 
-const Tennis = () => {
+const BadmintonHome = () => {
   return (
     <>
       {/* Live Cards */}
       <div className="text-xl font-semibold mt-5">
         <h1>Live Events</h1>
-        <LiveTennisEvents />
+        <LiveBadmintonEvents />
       </div>
 
       {/* Upcoming Cards */}
@@ -62,11 +62,11 @@ const Tennis = () => {
         </div>
       </div>
 
-      <div className="mt-5">
+      <div className="mt-4">
         <List />
       </div>
     </>
   );
 };
 
-export default Tennis;
+export default BadmintonHome;

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // eslint-disable-next-line
-const CricketBet = ({ teams, score }) => {
+const TennisBet = ({ teams, score }) => {
   const [bet, setBet] = useState("0.000000");
   const [select, setSelect] = useState("Draw");
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ const CricketBet = ({ teams, score }) => {
       <div className="grid px-2 grid-cols-8 max-lg:grid-cols-1 gap-2 place-items-center bg-primary-1">
         <div
           onClick={() => {
-            navigate("/sports/cricket/bet");
+            navigate("/sports/tennis/bet");
           }}
           className="flex flex-col gap-2 max-lg:gap-0 px-3.5 py-1.5 max-lg:pb-2 col-span-3 w-full hover:bg-activeHover rounded-sm cursor-pointer"
         >
@@ -47,9 +47,7 @@ const CricketBet = ({ teams, score }) => {
           </div>
           <div className="flex flex-col text-[1rem]">
             <div className="flex items-center justify-between">
-              <h1 className="flex items-center gap-2.5">
-                {teams[0]}
-              </h1>
+              <h1 className="flex items-center gap-2.5">{teams[0]}</h1>
               <h3>{score[0]}</h3>
             </div>
             <div className="flex items-center justify-between">
@@ -75,7 +73,7 @@ const CricketBet = ({ teams, score }) => {
               </h1>
               <p className="text-[#4391E7]">1.45</p>
             </div>
-            
+
             <div
               onClick={() => setSelect(teams[1])}
               className={`bg-[#071824] cursor-pointer hover:bg-[#082f5a] rounded px-2 py-0.5 ${
@@ -110,4 +108,4 @@ const CricketBet = ({ teams, score }) => {
   );
 };
 
-export default CricketBet;
+export default TennisBet;

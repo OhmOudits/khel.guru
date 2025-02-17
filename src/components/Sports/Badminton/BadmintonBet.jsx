@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // eslint-disable-next-line
-const CricketBet = ({ teams, score }) => {
+const BadmintonBet = ({ teams, score }) => {
   const [bet, setBet] = useState("0.000000");
   const [select, setSelect] = useState("Draw");
   const navigate = useNavigate();
@@ -35,25 +35,23 @@ const CricketBet = ({ teams, score }) => {
     <>
       <div className="grid px-2 grid-cols-8 max-lg:grid-cols-1 gap-2 place-items-center bg-primary-1">
         <div
-          onClick={() => {
-            navigate("/sports/cricket/bet");
-          }}
           className="flex flex-col gap-2 max-lg:gap-0 px-3.5 py-1.5 max-lg:pb-2 col-span-3 w-full hover:bg-activeHover rounded-sm cursor-pointer"
+          onClick={() => {
+            navigate("/sports/Badminton/bet");
+          }}
         >
           <div className="flex items-center gap-3.5 mb-1 text-sm">
             <h1 className="px-1.5 rounded font-semibold bg-red-600">Live</h1>
-            <h1 className="text-gray-400 w-[200px]"> <span className="text-xl">88'</span> 2nd Half</h1>
+            <h1 className="text-gray-400 w-[200px]">2nd Half</h1>
             <div className="w-full h-[1px] bg-gray-700"></div>
           </div>
           <div className="flex flex-col text-[1rem]">
             <div className="flex items-center justify-between">
-              <h1 className="flex items-center gap-2.5">
-                {teams[0]}
-              </h1>
+              <h1>{teams[0]}</h1>
               <h3>{score[0]}</h3>
             </div>
             <div className="flex items-center justify-between">
-              <h1 className="flex items-center gap-2.5">{teams[1]}</h1>
+              <h1>{teams[1]}</h1>
               <h3>{score[1]}</h3>
             </div>
           </div>
@@ -118,4 +116,4 @@ const CricketBet = ({ teams, score }) => {
   );
 };
 
-export default CricketBet;
+export default BadmintonBet;

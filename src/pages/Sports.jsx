@@ -8,9 +8,10 @@ import { IoClose } from "react-icons/io5";
 import CricketHome from "../components/Sports/Cricket/CricketHome";
 import { GiSoccerBall } from "react-icons/gi";
 import { BiSolidCricketBall } from "react-icons/bi";
-import FootBall from "../components/Sports/football/Football";
-import Tennis from "../components/Sports/Tennis/Tennis";
+import FootBall from "../components/Sports/Football/FootballHome.jsx";
+import Tennis from "../components/Sports/Tennis/TennisHome.jsx";
 import TableTennis from "../components/Sports/TableTennis/TableTennis";
+import Badminton from "../components/Sports/Badminton/BadmintonHome.jsx";
 
 const Sports = () => {
   const events = [
@@ -92,7 +93,19 @@ const Sports = () => {
             })}
           </div>
         </div>
-        {event == "Cricket" ?  <CricketHome /> : event== "Football" ?<FootBall/> : event == "Tennis" ?<Tennis/> : event == "Table Tennis" ? <TableTennis/> :""}
+        {event == "Cricket" ? (
+          <CricketHome />
+        ) : event == "Football" ? (
+          <FootBall />
+        ) : event == "Tennis" ? (
+          <Tennis />
+        ) : event == "Table Tennis" ? (
+          <TableTennis />
+        ) : event == "Badminton" ? (
+          <Badminton />
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );

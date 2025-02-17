@@ -37,7 +37,7 @@ const FootballBet = ({ teams, score }) => {
         <div
           className="flex flex-col gap-2 max-lg:gap-0 px-3.5 py-1.5 max-lg:pb-2 col-span-3 w-full hover:bg-activeHover rounded-sm cursor-pointer"
           onClick={() => {
-            navigate("/sports/cricket/bet");
+            navigate("/sports/football/bet");
           }}
         >
           <div className="flex items-center gap-3.5 mb-1 text-sm">
