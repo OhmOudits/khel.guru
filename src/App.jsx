@@ -36,6 +36,7 @@ const socket = io("http://localhost:3000");
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import BlackjackGame from "./components/Games/Blackjack/Blackjack";
+import SlidePage from "./components/Games/Slide/Slide";
 
 function App() {
   const user = useSelector((state) => state.auth?.user?.user);
@@ -178,6 +179,8 @@ function App() {
                 <Route path="/game/tower" element={<TowerPage />} />
                 <Route path="/game/twist" element={<TwistPage />} />
                 <Route path="/game/roulette" element={<RoulettePage />} />
+                <Route path="/game/slide" element={<SlidePage />} />
+
                 <Route path="*" element={<LandingPage />} />
               </Routes>
             </div>
