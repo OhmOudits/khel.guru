@@ -53,6 +53,7 @@ import IgnoredUsers from "./pages/settings/IgnoredUsers";
 import OtherSettings from "./pages/settings/Others";
 import Verify from "./pages/settings/Verify";
 import Signout from "./components/tabs/Signout";
+import SlidePage from "./components/Games/Slide/Slide";
 
 function App() {
   const user = useSelector((state) => state.auth?.user?.user);
@@ -64,7 +65,7 @@ function App() {
   const [showWalletSettings, setShowWalletSettings] = useState(false);
   const [ShowValut, setShowValut] = useState(false);
   const [Statistics, setStatistics] = useState(false);
-  const [signout  ,setsignout] = useState(false)
+  const [signout, setsignout] = useState(false);
 
   const [loading, setLoading] = useState(true);
   // eslint-disable-next-line
@@ -81,7 +82,7 @@ function App() {
     setShowValut(params.get("tab") === "vault");
     setShowWalletSettings(params.get("tab") === "walletSettings");
     setStatistics(params.get("tab") === "statistics");
-    setsignout(params.get("tab")=="signout")
+    setsignout(params.get("tab") == "signout");
 
     setTimeout(() => {
       setLoading(false);
@@ -154,8 +155,8 @@ function App() {
           {showSearch && <Search />}
           {showWalletSettings && <WalletSettings />}
           {ShowValut && <Vault />}
-          {Statistics && <StatisticsPop/>}
-          {signout && <Signout/> }
+          {Statistics && <StatisticsPop />}
+          {signout && <Signout />}
 
           <div className="w-full flex min-h-screen bg-primary">
             <Sidebar setSideOpen={setSideOpen} sideOpen={sideOpen} />
@@ -206,19 +207,28 @@ function App() {
                 <Route path="/game/twist" element={<TwistPage />} />
                 <Route path="/game/roulette" element={<RoulettePage />} />
                 <Route path="/game/pump" element={<PumpPage />} />
-                <Route path="/transactions/deposits" element={<Deposits/>} />
-                <Route path="/transactions/withdrawls" element={<Withdrawls/>}/>
-                <Route path="/transactions/bet-archeive" element={<BetArcheive/>}/>
-                <Route path="/transactions/other" element={<Others/>} />
-                <Route path="/casino/my-bets" element={<Mybets/>}/>
-                <Route path="/settings/general" element={<General/>} />
-                <Route path="/settings/security" element={<Security/>} />
-                <Route path="/settings/preferences" element={<Preferences/>} />
-                <Route path="/settings/api" element={<Api/>} /> 
-                <Route path="/settings/sessions" element={<Sessions/>} />
-                <Route path="/settings/ignored-users" element={<IgnoredUsers/>} />
-                <Route path="/settings/verify" element={< Verify/>} />
-                <Route path="/settings/others" element={<OtherSettings/>} />
+                <Route path="/transactions/deposits" element={<Deposits />} />
+                <Route
+                  path="/transactions/withdrawls"
+                  element={<Withdrawls />}
+                />
+                <Route
+                  path="/transactions/bet-archeive"
+                  element={<BetArcheive />}
+                />
+                <Route path="/transactions/other" element={<Others />} />
+                <Route path="/casino/my-bets" element={<Mybets />} />
+                <Route path="/settings/general" element={<General />} />
+                <Route path="/settings/security" element={<Security />} />
+                <Route path="/settings/preferences" element={<Preferences />} />
+                <Route path="/settings/api" element={<Api />} />
+                <Route path="/settings/sessions" element={<Sessions />} />
+                <Route
+                  path="/settings/ignored-users"
+                  element={<IgnoredUsers />}
+                />
+                <Route path="/settings/verify" element={<Verify />} />
+                <Route path="/settings/others" element={<OtherSettings />} />
                 <Route path="*" element={<LandingPage />} />
               </Routes>
             </div>
