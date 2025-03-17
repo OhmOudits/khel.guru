@@ -136,6 +136,24 @@ export const originals = [
     new: false,
     link: "/game/dice",
   },
+  {
+    id: 13,
+    name: "Slide",
+    creator: "Khel Guru",
+    img: "",
+    exclusive: false,
+    new: false,
+    link: "/game/slide",
+  },
+  {
+    id: 13,
+    name: "Pump",
+    creator: "Khel Guru",
+    img: "",
+    exclusive: false,
+    new: false,
+    link: "/game/pump",
+  },
 ];
 
 export const topGames = [
