@@ -193,7 +193,7 @@ const Login = () => {
                 <h2 className="pt-1 font-semibold text-lg max-md:text-base">
                   Don't have an account?{" "}
                   <span
-                    onClick={() => handleTabNavigation("register")}
+                    onClick={() =>("register")}
                     className="text-textColor hover:text-white hover:underline cursor-pointer"
                   >
                     Register

@@ -23,6 +23,7 @@ import ScratchPage from "./components/Games/BallonScratch/BallonScratch";
 import TowerPage from "./components/Games/tower/tower";
 import TwistPage from "./components/Games/twist/Twist";
 import RoulettePage from "./components/Games/roulette/roulette";
+import PumpPage from "./components/Games/pump/pump";
 
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
@@ -30,12 +31,28 @@ import { SportsBet, Sports, SportsCricket, SportsFootball } from "./pages";
 import Wallet from "./components/tabs/Wallet";
 import Search from "./components/tabs/Search";
 import WalletSettings from "./components/tabs/WalletSettings";
+import Vault from "./components/tabs/Vault";
 import DicePage from "./components/Games/DiceGame/Dice";
 const socket = io("http://localhost:3000");
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import BlackjackGame from "./components/Games/Blackjack/Blackjack";
+import StatisticsPop from "./components/tabs/Statistics";
+import Deposits from "./pages/transactions/Deposits";
+import BetArcheive from "./pages/transactions/BetArcheive";
+import Others from "./pages/transactions/Others";
+import Withdrawls from "./pages/transactions/Withdrawal";
+import Mybets from "./pages/MyBets";
+import General from "./pages/settings/General";
+import Security from "./pages/settings/Security";
+import Preferences from "./pages/settings/Prefernces";
+import Api from "./pages/settings/Api";
+import Sessions from "./pages/settings/Sessions";
+import IgnoredUsers from "./pages/settings/IgnoredUsers";
+import OtherSettings from "./pages/settings/Others";
+import Verify from "./pages/settings/Verify";
+import Signout from "./components/tabs/Signout";
 
 function App() {
   const user = useSelector((state) => state.auth?.user?.user);
@@ -45,6 +62,10 @@ function App() {
   const [showSearch, setShowSearch] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showWalletSettings, setShowWalletSettings] = useState(false);
+  const [ShowValut, setShowValut] = useState(false);
+  const [Statistics, setStatistics] = useState(false);
+  const [signout  ,setsignout] = useState(false)
+
   const [loading, setLoading] = useState(true);
   // eslint-disable-next-line
   const [loggedInUsers, setLoggedInUsers] = useState([]);
@@ -57,7 +78,10 @@ function App() {
     setShowRegister(params.get("tab") === "register");
     setShowWallet(params.get("tab") === "wallet");
     setShowSearch(params.get("tab") === "search");
+    setShowValut(params.get("tab") === "vault");
     setShowWalletSettings(params.get("tab") === "walletSettings");
+    setStatistics(params.get("tab") === "statistics");
+    setsignout(params.get("tab")=="signout")
 
     setTimeout(() => {
       setLoading(false);
@@ -129,6 +153,9 @@ function App() {
           {showWallet && <Wallet />}
           {showSearch && <Search />}
           {showWalletSettings && <WalletSettings />}
+          {ShowValut && <Vault />}
+          {Statistics && <StatisticsPop/>}
+          {signout && <Signout/> }
 
           <div className="w-full flex min-h-screen bg-primary">
             <Sidebar setSideOpen={setSideOpen} sideOpen={sideOpen} />
@@ -178,6 +205,20 @@ function App() {
                 <Route path="/game/tower" element={<TowerPage />} />
                 <Route path="/game/twist" element={<TwistPage />} />
                 <Route path="/game/roulette" element={<RoulettePage />} />
+                <Route path="/game/pump" element={<PumpPage />} />
+                <Route path="/transactions/deposits" element={<Deposits/>} />
+                <Route path="/transactions/withdrawls" element={<Withdrawls/>}/>
+                <Route path="/transactions/bet-archeive" element={<BetArcheive/>}/>
+                <Route path="/transactions/other" element={<Others/>} />
+                <Route path="/casino/my-bets" element={<Mybets/>}/>
+                <Route path="/settings/general" element={<General/>} />
+                <Route path="/settings/security" element={<Security/>} />
+                <Route path="/settings/preferences" element={<Preferences/>} />
+                <Route path="/settings/api" element={<Api/>} /> 
+                <Route path="/settings/sessions" element={<Sessions/>} />
+                <Route path="/settings/ignored-users" element={<IgnoredUsers/>} />
+                <Route path="/settings/verify" element={< Verify/>} />
+                <Route path="/settings/others" element={<OtherSettings/>} />
                 <Route path="*" element={<LandingPage />} />
               </Routes>
             </div>
