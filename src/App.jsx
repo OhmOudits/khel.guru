@@ -54,6 +54,11 @@ import OtherSettings from "./pages/settings/Others";
 import Verify from "./pages/settings/Verify";
 import Signout from "./components/tabs/Signout";
 import SlidePage from "./components/Games/Slide/Slide";
+import SportsBetFootball from "./pages/SportBetFootball";
+import SportsTennis from "./pages/SportsTennis";
+import SportsBetTennis from "./pages/SportBetTennis";
+import SportsBadminton from "./pages/SportsBadminton";
+import SportsBetBadminton from "./pages/SportBetBadminton";
 
 function App() {
   const user = useSelector((state) => state.auth?.user?.user);
@@ -191,6 +196,20 @@ function App() {
                 <Route path="/sports/cricket" element={<SportsCricket />} />
                 <Route path="/sports/cricket/bet" element={<SportsBet />} />
                 <Route path="/sports/football" element={<SportsFootball />} />
+                <Route
+                  path="/sports/football/bet"
+                  element={<SportsBetFootball />}
+                />
+                <Route path="/sports/tennis" element={<SportsTennis />} />
+                <Route
+                  path="/sports/tennis/bet"
+                  element={<SportsBetTennis />}
+                />
+                <Route path="/sports/badminton" element={<SportsBadminton />} />
+                <Route
+                  path="/sports/badminton/bet"
+                  element={<SportsBetBadminton />}
+                />
                 <Route path="/game/wheel" element={<WheelPage />} />
                 <Route path="/game/mines" element={<MinesPage />} />
                 <Route path="/game/parachute" element={<BalloonPage />} />

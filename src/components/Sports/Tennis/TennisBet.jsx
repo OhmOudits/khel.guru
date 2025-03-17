@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // eslint-disable-next-line
-const FootballBet = ({ teams, score }) => {
+const TennisBet = ({ teams, score }) => {
   const [bet, setBet] = useState("0.000000");
   const [select, setSelect] = useState("Draw");
   const navigate = useNavigate();
@@ -35,23 +35,23 @@ const FootballBet = ({ teams, score }) => {
     <>
       <div className="grid px-2 grid-cols-8 max-lg:grid-cols-1 gap-2 place-items-center bg-primary-1">
         <div
-          className="flex flex-col gap-2 max-lg:gap-0 px-3.5 py-1.5 max-lg:pb-2 col-span-3 w-full hover:bg-activeHover rounded-sm cursor-pointer"
           onClick={() => {
-            navigate("/sports/football/bet");
+            navigate("/sports/tennis/bet");
           }}
+          className="flex flex-col gap-2 max-lg:gap-0 px-3.5 py-1.5 max-lg:pb-2 col-span-3 w-full hover:bg-activeHover rounded-sm cursor-pointer"
         >
           <div className="flex items-center gap-3.5 mb-1 text-sm">
             <h1 className="px-1.5 rounded font-semibold bg-red-600">Live</h1>
-            <h1 className="text-gray-400 w-[200px]">2nd Half</h1>
+            <h1 className="text-gray-400 w-[200px]"> 2nd Set</h1>
             <div className="w-full h-[1px] bg-gray-700"></div>
           </div>
           <div className="flex flex-col text-[1rem]">
             <div className="flex items-center justify-between">
-              <h1>{teams[0]}</h1>
+              <h1 className="flex items-center gap-2.5">{teams[0]}</h1>
               <h3>{score[0]}</h3>
             </div>
             <div className="flex items-center justify-between">
-              <h1>{teams[1]}</h1>
+              <h1 className="flex items-center gap-2.5">{teams[1]}</h1>
               <h3>{score[1]}</h3>
             </div>
           </div>
@@ -60,7 +60,7 @@ const FootballBet = ({ teams, score }) => {
           <h1 className="w-full text-center text-sm text-gray-400 max-lg:hidden">
             Winner
           </h1>
-          <div className="grid grid-cols-3 text-[1rem] gap-2.5">
+          <div className="grid grid-cols-2 text-[1rem] gap-2.5">
             <div
               onClick={() => setSelect(teams[0])}
               className={`bg-[#071824] cursor-pointer hover:bg-[#082f5a] rounded px-2 py-0.5 ${
@@ -73,15 +73,7 @@ const FootballBet = ({ teams, score }) => {
               </h1>
               <p className="text-[#4391E7]">1.45</p>
             </div>
-            <div
-              onClick={() => setSelect("Draw")}
-              className={`bg-[#071824] cursor-pointer hover:bg-[#082f5a] rounded px-2 py-0.5 ${
-                select === "Draw" && "bg-[#082f5a]"
-              }`}
-            >
-              <h1>Draw</h1>
-              <p className="text-[#4391E7]">1.95</p>
-            </div>
+
             <div
               onClick={() => setSelect(teams[1])}
               className={`bg-[#071824] cursor-pointer hover:bg-[#082f5a] rounded px-2 py-0.5 ${
@@ -116,4 +108,4 @@ const FootballBet = ({ teams, score }) => {
   );
 };
 
-export default FootballBet;
+export default TennisBet;
