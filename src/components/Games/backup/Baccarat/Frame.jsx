@@ -13,7 +13,6 @@ const Frame = () => {
   const [betMode, setBetMode] = useState("manual");
   const [bet, setBet] = useState("0.000000");
   const [betStarted, setBettingStarted] = useState(false);
-  const [chipBet, setChipBet] = useState(0.00);
 
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
@@ -26,13 +25,6 @@ const Frame = () => {
   const [maxBet, setMaxBet] = useState(false);
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
-
-
-  const [playerBet, setPlayerBet] = useState(0);
-  const [tieBet, setTieBet] = useState(0);
-  const [bankerBet, setBankerBet] = useState(0);
-
-  const totalBet = playerBet + tieBet + bankerBet;
 
   const handleBet = () => {
     if (!betStarted) {
@@ -70,10 +62,6 @@ const Frame = () => {
                 handleBet={handleBet}
                 bettingStarted={betStarted}
                 handleCheckout={handleCheckout}
-                chipBet={chipBet}
-                setChipBet={setChipBet}
-                totalBet = {totalBet}
-                
               />
 
               {/* Right Section */}
@@ -85,19 +73,7 @@ const Frame = () => {
                 } xl:col-span-9 bg-gray-900 order-1`}
               >
                 <div className="w-full  text-white rounded-tr h-full justify-center text-3xl">
-                  <Game
-                    betStarted={betStarted}
-                    bet={bet}
-                    chipBet={chipBet}
-                    setBettingStarted={setBettingStarted}
-                    playerBet={playerBet}
-                    setPlayerBet={setPlayerBet}
-                    bankerBet={bankerBet}
-                    setBankerBet={setBankerBet}
-                    tieBet={tieBet}
-                    setTieBet={setTieBet}
-                    
-                    />
+                  <Game betStarted={betStarted} />
                 </div>
               </div>
             </div>

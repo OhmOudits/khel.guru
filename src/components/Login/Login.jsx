@@ -2,18 +2,23 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-
-import { GoogleLogin } from "@react-oauth/google";
-import axios from "axios";
 import {
-  FaDiscord,
   FaEye,
   FaEyeSlash,
-  FaTelegram
+  FaGoogle,
+  FaTelegram,
+  FaTwitter,
 } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUserProfile, signInFailure, signInStart } from "../../store/authSlice";
+import {
+  login,
+  googleAuth,
+  xAuth,
+  telegramAuth,
+} from "../../store/slices/authSlice";
 import LoadingComponent from "../LoadingComponent";
+import { auth, googleProvider, twitterProvider } from "../../config/firebase";
+import { signInWithPopup } from "firebase/auth";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -22,8 +27,17 @@ const Login = () => {
   const [forgotPassword, setForgotPassword] = useState(false);
   const [restore, setRestore] = useState(false);
   const [sendingRestore, setSendingRestore] = useState(false);
-  const loading = useSelector((state) => state.auth.loading);
-  const error = useSelector((state) => state.auth.error);
+  const { loading, error, isAuthenticated } = useSelector(
+    (state) => state.auth
+  );
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleTabNavigation = (tab) => {
     navigate(`?tab=${tab}`, { replace: true });
@@ -33,85 +47,85 @@ const Login = () => {
     navigate(window.location.pathname, { replace: true });
   };
 
-  const handleGoogleSuccess = (response) => {
-    console.log("Google OAuth success:", response);
-  };
-
-  const handleGoogleFailure = (error) => {
-    console.log("Google OAuth error:", error);
-  };
-
-  const telegramLoginUrl = "https://telegram.me/ohmouditsbot?start=login";
-  const discordLoginUrl =
-    "https://discord.com/oauth2/authorize?client_id=1298314418748391454&response_type=code&redirect_uri=https%3A%2F%2Flwframe.netlify.app%3Ftab%3Dlogin&scope=identify+email";
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleLogin = async () => {
-    dispatch(signInStart());
+  const handleGoogleLogin = async () => {
     try {
-      const response = await axios.post("https://lossers-world-backend.onrender.com/api/users/login", {
-        email,
-        password,
-      });
-      // Store JWT token in local storage
-      localStorage.setItem("jwtToken", response.data.token);
-      
-      // Dispatch fetchUserProfile to load user data after login
-      dispatch(fetchUserProfile());
-  
-      // Redirect or reload page after successful login and profile fetch
-      console.log("Login successful", response.data);
-      navigate("/")
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      await dispatch(
+        googleAuth({
+          googleId: user.uid,
+          email: user.email,
+        })
+      ).unwrap();
+
+      navigate("/");
     } catch (error) {
-      dispatch(signInFailure(error.response?.data?.message || "Login failed"));
-      console.error("Login error:", error);
+      console.error("Google auth error:", error);
     }
   };
 
-  useEffect(() => {
-    const code = new URLSearchParams(window.location.search).get("code");
+  const handleTwitterLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, twitterProvider);
+      const user = result.user;
 
-    if (code) {
-      const data = {
-        client_id: "1298314418748391454",
-        client_secret: "CkroBO306p7eMTLn7iwNoJ8R_vEmyjo1",
-        grant_type: "authorization_code",
-        code,
-        redirect_uri: "http://localhost:5173?tab=login",
-        scope: "identify email",
-      };
-
-      fetch("https://discord.com/api/oauth2/token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams(data),
-      })
-        .then((response) => response.json())
-        .then((tokenData) => {
-          const accessToken = tokenData.access_token;
-
-          fetch("https://discord.com/api/users/@me", {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          })
-            .then((response) => response.json())
-            .then((userData) => {
-              console.log("User Details:", userData);
-            })
-            .catch((error) =>
-              console.error("Error fetching user details:", error)
-            );
+      await dispatch(
+        xAuth({
+          xId: user.uid,
         })
-        .catch((error) =>
-          console.error("Error exchanging code for token:", error)
-        );
+      ).unwrap();
+
+      navigate("/");
+    } catch (error) {
+      console.error("Twitter auth error:", error);
     }
-  }, []);
+  };
+
+  const handleTelgramClick = () => {
+    if (window.Telegram?.Login?.auth) {
+      window.Telegram.Login.auth(
+        {
+          bot_id: "7996647658",
+          request_access: "write",
+        },
+        async (user) => {
+          if (!user) return;
+
+          try {
+            await dispatch(
+              telegramAuth({
+                telegramId: user.id.toString(),
+                first_name: user.first_name,
+                auth_date: user.auth_date,
+                hash: user.hash,
+              })
+            ).unwrap();
+
+            navigate("/");
+          } catch (error) {
+            console.error("Telegram auth error:", error);
+          }
+        }
+      );
+    } else {
+      console.error("Telegram widget not loaded yet");
+    }
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!email || !password) {
+      alert("Please fill in all fields");
+      return;
+    }
+    try {
+      await dispatch(login({ email, password })).unwrap();
+      // Redirect is handled by useEffect
+    } catch (err) {
+      console.error("Login error:", err);
+    }
+  };
 
   return (
     <>
@@ -193,95 +207,114 @@ const Login = () => {
                 <h2 className="pt-1 font-semibold text-lg max-md:text-base">
                   Don't have an account?{" "}
                   <span
-                    onClick={() =>("register")}
+                    onClick={() => handleTabNavigation("register")}
                     className="text-textColor hover:text-white hover:underline cursor-pointer"
                   >
                     Register
                   </span>
                 </h2>
-                <div className="mt-8">
-                  <div className="flex flex-col gap-2 mt-4">
-                    <label
-                      htmlFor="username"
-                      className="text-textColor w-full font-semibold text-lg max-md:text-base"
-                    >
-                      Username or Email
-                    </label>
-                    <input
-                      id="username"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="px-3 py-3 rounded-lg bg-inactive font-semibold text-xl max-md:text-base border-[3px] border-activeHover hover:border-active outline-none"
-                      placeholder="Username or Email"
-                    />
+
+                {error && (
+                  <div className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    {error}
                   </div>
-                  <div className="flex flex-col gap-2 mt-4">
-                    <label
-                      htmlFor="password"
-                      className="text-textColor font-semibold text-lg max-md:text-base"
-                    >
-                      Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="px-3 py-3 rounded-lg w-full bg-inactive font-semibold text-xl max-md:text-base border-[3px] border-activeHover hover:border-active outline-none"
-                        placeholder="Password"
-                      />
-                      <span
-                        onClick={() => setShowPassword((prev) => !prev)}
-                        className="absolute right-3 top-[50%] translate-y-[-50%] cursor-pointer text-lg"
+                )}
+
+                <form onSubmit={handleLogin}>
+                  <div className="mt-8">
+                    <div className="flex flex-col gap-2 mt-4">
+                      <label
+                        htmlFor="username"
+                        className="text-textColor w-full font-semibold text-lg max-md:text-base"
                       >
-                        {showPassword ? (
-                          <FaEyeSlash />
-                        ) : (
-                          <FaEye />
-                        )}
-                      </span>
+                        Username or Email
+                      </label>
+                      <input
+                        id="username"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="px-3 py-3 rounded-lg bg-inactive font-semibold text-xl max-md:text-base border-[3px] border-activeHover hover:border-active outline-none"
+                        placeholder="Username or Email"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2 mt-4">
+                      <label
+                        htmlFor="password"
+                        className="text-textColor font-semibold text-lg max-md:text-base"
+                      >
+                        Password
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="px-3 py-3 rounded-lg w-full bg-inactive font-semibold text-xl max-md:text-base border-[3px] border-activeHover hover:border-active outline-none"
+                          placeholder="Password"
+                        />
+                        <span
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          className="absolute right-3 top-[50%] translate-y-[-50%] cursor-pointer text-lg"
+                        >
+                          {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="mt-6 flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="checkbox"
-                      className="h-5 w-5"
-                    />
-                    <label className="text-textColor font-semibold max-md:text-base">
-                      Remember me
-                    </label>
+
+                  <div className="mt-6 flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <input type="checkbox" className="h-5 w-5" />
+                      <label className="text-textColor font-semibold max-md:text-base">
+                        Remember me
+                      </label>
+                    </div>
+                    <h2
+                      onClick={() => setForgotPassword(true)}
+                      className="text-textColor cursor-pointer hover:underline"
+                    >
+                      Forgot Password?
+                    </h2>
                   </div>
-                  <h2
-                    onClick={() => setForgotPassword(true)}
-                    className="text-textColor cursor-pointer hover:underline"
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-inactive hover:bg-activeHover text-xl py-2 rounded-lg mt-5"
                   >
-                    Forgot Password?
-                  </h2>
-                </div>
-                <button
-                  onClick={handleLogin}
-                  className="w-full bg-inactive hover:bg-activeHover text-xl py-2 rounded-lg mt-5"
-                >
-                  {loading ? <LoadingComponent /> : "Play Now"}
-                </button>
-                {error && <p className="text-red-500">{error}</p>}
+                    {loading ? <LoadingComponent /> : "Play Now"}
+                  </button>
+                </form>
+
                 <h2 className="text-center font-semibold mt-4">
                   or continue with
                 </h2>
+
                 <div className="flex items-center justify-center gap-4 mt-4">
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={handleGoogleFailure}
-                  />
-                  <a href={telegramLoginUrl}>
-                    <FaTelegram className="text-2xl text-[#3B5998]" />
+                  <button
+                    onClick={handleGoogleLogin}
+                    className="flex items-center gap-2 bg-inactive hover:bg-activeHover px-4 py-2 rounded-lg"
+                  >
+                    <FaGoogle />
+                    Google
+                  </button>
+
+                  <a
+                    onClick={handleTelgramClick}
+                    className="flex items-center gap-2 bg-inactive hover:bg-activeHover px-4 py-2 rounded-lg cursor-pointer"
+                  >
+                    <FaTelegram />
+                    Telegram
                   </a>
-                  <a href={discordLoginUrl}>
-                    <FaDiscord className="text-2xl text-[#3B5998]" />
-                  </a>
+
+                  <button
+                    onClick={handleTwitterLogin}
+                    className="flex items-center gap-2 bg-inactive hover:bg-activeHover px-4 py-2 rounded-lg"
+                  >
+                    <FaTwitter />
+                    Twitter
+                  </button>
                 </div>
               </div>
             </div>

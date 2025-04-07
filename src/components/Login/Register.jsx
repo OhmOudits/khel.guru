@@ -1,5 +1,3 @@
-import { GoogleLogin } from "@react-oauth/google";
-import axios from "axios";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
@@ -8,13 +6,28 @@ import {
   FaEyeSlash,
   FaGoogle,
   FaTelegram,
+  FaTwitter,
 } from "react-icons/fa";
 import { FaBoltLightning } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import LoadingComponent from "../LoadingComponent";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  register,
+  googleAuth,
+  telegramAuth,
+  xAuth,
+  instantRegister,
+} from "../../store/slices/authSlice";
+import { auth, googleProvider, twitterProvider } from "../../config/firebase";
+import { signInWithPopup } from "firebase/auth";
 
 const Register = () => {
+  const dispatch = useDispatch();
+  const { loading, error, isAuthenticated, credentials } = useSelector(
+    (state) => state.auth
+  );
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const [code, setCode] = useState(false);
@@ -27,9 +40,14 @@ const Register = () => {
   const [passwordDetails, setPasswordDetails] = useState("");
   const [email, setEmail] = useState("");
   const [isCopied, setIsCopied] = useState(false);
-  const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [close, setClose] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleTabNavigation = (tab) => {
     navigate(`?tab=${tab}`, { replace: true });
@@ -39,99 +57,96 @@ const Register = () => {
     navigate(window.location.pathname, { replace: true });
   };
 
-  const handleGoogleSuccess = (response) => {
-    console.log("Google OAuth success:", response);
-  };
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
 
-  const handleGoogleFailure = (error) => {
-    console.log("Google OAuth error:", error);
-  };
-
-  const telegramLoginUrl = "https://telegram.me/ohmouditsbot?start=login";
-  const discordLoginUrl =
-    "https://discord.com/oauth2/authorize?client_id=1298314418748391454&response_type=code&redirect_uri=https%3A%2F%2Flwframe.netlify.app%3Ftab%3Dregister&scope=identify+email";
-  // const discordLoginUrl = `https://discord.com/oauth2/authorize?client_id=1298314418748391454&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A5173%3Ftab%3Dlogin&scope=identify+email`;
-
-  useEffect(() => {
-    const code = new URLSearchParams(window.location.search).get("code");
-
-    if (code) {
-      const data = {
-        client_id: "1298314418748391454",
-        client_secret: "CkroBO306p7eMTLn7iwNoJ8R_vEmyjo1",
-        grant_type: "authorization_code",
-        code,
-        redirect_uri: "http://localhost:5173?tab=login",
-        scope: "identify email",
-      };
-
-      fetch("https://discord.com/api/oauth2/token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams(data),
-      })
-        .then((response) => response.json())
-        .then((tokenData) => {
-          const accessToken = tokenData.access_token;
-
-          fetch("https://discord.com/api/users/@me", {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          })
-            .then((response) => response.json())
-            .then((userData) => {
-              console.log("User Details:", userData);
-            })
-            .catch((error) =>
-              console.error("Error fetching user details:", error)
-            );
+      await dispatch(
+        googleAuth({
+          googleId: user.uid,
+          email: user.email,
         })
-        .catch((error) =>
-          console.error("Error exchanging code for token:", error)
-        );
-    }
-  }, []);
+      ).unwrap();
 
-  // const handleInstantRegister = () => {
-  //   setInstantLoading(true);
-  //   setTimeout(() => {
-  //     setInstant(false);
-  //     setDetails(true);
-  //     setUsernameDetails("Yash210984");
-  //     setPasswordDetails("i9uy78k90@12");
-  //     setInstantLoading(false);
-  //   }, 2000);
-  // };
+      navigate("/");
+    } catch (error) {
+      console.error("Google auth error:", error);
+    }
+  };
+
+  const handleTwitterLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, twitterProvider);
+      const user = result.user;
+
+      await dispatch(
+        xAuth({
+          xId: user.uid,
+        })
+      ).unwrap();
+
+      navigate("/");
+    } catch (error) {
+      console.error("Twitter auth error:", error);
+    }
+  };
+
+  const handleTelgramClick = () => {
+    if (window.Telegram?.Login?.auth) {
+      window.Telegram.Login.auth(
+        {
+          bot_id: "7996647658",
+          request_access: "write",
+        },
+        async (user) => {
+          if (!user) return;
+
+          try {
+            await dispatch(
+              telegramAuth({
+                telegramId: user.id.toString(),
+                first_name: user.first_name,
+                auth_date: user.auth_date,
+                hash: user.hash,
+              })
+            ).unwrap();
+
+            navigate("/");
+          } catch (error) {
+            console.error("Telegram auth error:", error);
+          }
+        }
+      );
+    } else {
+      console.error("Telegram widget not loaded yet");
+    }
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(false);
-    console.log("register");
+
+    if (!age || !terms) {
+      alert("Please accept all required terms and conditions");
+      return;
+    }
+
+    if (!usernameDetails || !email || !passwordDetails) {
+      alert("Please fill in all required fields");
+      return;
+    }
 
     try {
-      const response = await axios.post(
-        "https://lossers-world-backend.onrender.com/api/users",
-        {
-          email,
+      await dispatch(
+        register({
           username: usernameDetails,
+          email,
           password: passwordDetails,
-        }
-      );
-
-      if (response.status === 201) {
-        setSuccess(true);
-        alert("registration successful");
-        navigate("/?tab=login"); // Redirect to login on success
-      }
+        })
+      ).unwrap();
+      // Success is handled by the useEffect above
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Registration failed. Please try again."
-      );
-      console.log(err);
+      console.error("Registration error:", err);
     }
   };
 
@@ -145,6 +160,57 @@ const Register = () => {
     document.body.removeChild(link);
   };
 
+  const handleInstantRegister = async () => {
+    setInstantLoading(true);
+    try {
+      const result = await dispatch(instantRegister()).unwrap();
+      setInstant(false);
+      setDetails(true);
+      setUsernameDetails(result.credentials.username);
+      setPasswordDetails(result.credentials.password);
+    } catch (error) {
+      console.error("Instant registration error:", error);
+    } finally {
+      setInstantLoading(false);
+    }
+  };
+
+  const copyCredentials = () => {
+    const credentials = {
+      username: usernameDetails,
+      password: passwordDetails,
+    };
+    navigator.clipboard.writeText(JSON.stringify(credentials, null, 2));
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  // Telegram Login Widget setup
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://telegram.org/js/telegram-widget.js?22";
+    script.setAttribute("data-telegram-login", "YOUR_BOT_NAME"); // Replace with your bot name
+    script.setAttribute("data-size", "large");
+    script.setAttribute("data-onauth", "onTelegramAuth(user)");
+    script.setAttribute("data-request-access", "write");
+    document.head.appendChild(script);
+
+    // Telegram auth callback
+    window.onTelegramAuth = (user) => {
+      dispatch(
+        telegramAuth({
+          telegramId: user.id.toString(),
+          username: user.username || `tg${user.id}`,
+        })
+      );
+    };
+
+    return () => {
+      document.head.removeChild(script);
+      delete window.onTelegramAuth;
+    };
+  }, [dispatch]);
+
   return (
     <>
       {instant && !close && (
@@ -155,29 +221,37 @@ const Register = () => {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-primary w-[90%] max-w-[500px] rounded px-4 py-5 animate-fadeUp"
+            className="bg-primary w-[90%] max-w-[500px] rounded-lg px-6 py-8 animate-fadeUp"
           >
-            <h1 className="text-textColor text-xl text-center pt-2">
-              Are you sure you want to create a random username and password
-              using instant registration?
+            <h1 className="text-textColor text-xl text-center font-semibold mb-6">
+              Instant Registration
             </h1>
-            <div className="mt-5 mb-2 flex items-center justify-around">
+            <p className="text-textColor text-center mb-6">
+              This will create a random username and strong password for you.
+              Make sure to save them securely.
+            </p>
+            <div className="flex justify-center gap-4">
               {instantLoading ? (
-                <LoadingComponent />
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-12 h-12 border-4 border-inactive border-t-active rounded-full animate-spin"></div>
+                  <p className="text-textColor">Creating your account...</p>
+                </div>
               ) : (
-                <h1
-                  onClick={handleInstantRegister}
-                  className="px-10 py-1.5 rounded bg-inactive text-white cursor-pointer hover:bg-activeHover"
-                >
-                  Yes
-                </h1>
+                <>
+                  <button
+                    onClick={handleInstantRegister}
+                    className="px-6 py-2.5 rounded-lg bg-active hover:bg-activeHover text-white font-semibold transition-colors"
+                  >
+                    Continue
+                  </button>
+                  <button
+                    onClick={() => setInstant(false)}
+                    className="px-6 py-2.5 rounded-lg bg-inactive hover:bg-activeHover text-white font-semibold transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </>
               )}
-              <h1
-                onClick={() => setInstant(false)}
-                className="px-10 py-1.5 rounded bg-inactive text-white"
-              >
-                No
-              </h1>
             </div>
           </div>
         </div>
@@ -186,55 +260,45 @@ const Register = () => {
       {details && (
         <div
           style={{ position: "fixed" }}
-          className="w-full h-screen absolute rounded top-0 left-0 flex items-center justify-center z-[121] bg-[rgba(0,0,0,0.6)] transition-opacity duration-300 ease-in-out opacity-100"
+          className="w-full h-screen absolute top-0 left-0 flex items-center justify-center z-[121] bg-[rgba(0,0,0,0.6)] transition-opacity duration-300 ease-in-out opacity-100"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-primary rounded flex items-center justify-center flex-col w-[90%] max-w-[400px] px-4 py-5 animate-fadeUp relative"
+            className="bg-primary rounded-lg flex items-center justify-center flex-col w-[90%] max-w-[500px] px-6 py-8 animate-fadeUp relative"
           >
-            <h1 className="mt-1 font-semibold text-xl max-md:text-base text-textColor">
-              Username: {usernameDetails}
-            </h1>
-            <h1 className="mt-1 font-semibold text-xl max-md:text-base text-textColor">
-              Password: {passwordDetails}
+            <h1 className="text-textColor text-xl font-semibold mb-6">
+              Your Account Credentials
             </h1>
 
-            <div className="mt-4 flex gap-3">
+            <div className="w-full bg-inactive rounded-lg p-4 mb-6">
+              <pre className="text-white text-sm overflow-x-auto">
+                {JSON.stringify(
+                  {
+                    username: usernameDetails,
+                    password: passwordDetails,
+                  },
+                  null,
+                  2
+                )}
+              </pre>
+            </div>
+
+            <div className="flex gap-4">
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    `Username: ${usernameDetails}, Password: ${passwordDetails}`
-                  );
-                  setIsCopied(true);
-                  setClose(true);
-                  setTimeout(() => setIsCopied(false), 2000);
-                }}
-                className="px-4 py-1 bg-inactive text-white rounded-md cursor-pointer hover:bg-activeHover"
+                onClick={copyCredentials}
+                className="px-6 py-2.5 rounded-lg bg-active hover:bg-activeHover text-white font-semibold transition-colors"
               >
-                {isCopied ? "Copied !" : "Copy"}
+                {isCopied ? "Copied!" : "Copy JSON"}
               </button>
               <button
                 onClick={() => {
-                  saveToFile(
-                    `Username: ${usernameDetails}\nPassword: ${passwordDetails}`
-                  );
-                  setClose(true);
+                  setDetails(false);
+                  setClose(false);
                 }}
-                className="px-4 py-1 bg-inactive text-white rounded-md cursor-pointer hover:bg-activeHover"
+                className="px-6 py-2.5 rounded-lg bg-inactive hover:bg-activeHover text-white font-semibold transition-colors"
               >
-                Save to File
+                Close
               </button>
-              {close && (
-                <button
-                  onClick={() => {
-                    setDetails(false);
-                    setClose(false);
-                  }}
-                  className="px-4 py-1 bg-inactive text-white rounded-md cursor-pointer hover:bg-activeHover"
-                >
-                  Close
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -281,183 +345,199 @@ const Register = () => {
                   </span>
                 </h2>
 
-                <div className="mt-4">
-                  <div className="flex flex-col gap-2">
-                    <label
-                      htmlFor="username"
-                      className="text-textColor w-full font-semibold text-[0.88rem]"
-                    >
-                      Username
-                    </label>
-                    <input
-                      id="username"
-                      onChange={(e) => setUsernameDetails(e.target.value)}
-                      className="px-3 py-2.5 rounded-lg bg-inactive font-semibold text-[0.9rem] border-[3px] border-activeHover hover:border-active outline-none"
-                      placeholder="Username"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-2 mt-4">
-                    <label
-                      htmlFor="email"
-                      className="text-textColor w-full font-semibold text-[0.88rem]"
-                    >
-                      Email Address
-                    </label>
-                    <input
-                      id="email"
-                      type="email"
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="px-3 py-2.5 rounded-lg bg-inactive font-semibold text-[0.9rem] border-[3px] border-activeHover hover:border-active outline-none"
-                      placeholder="Email Address"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-2 mt-4">
-                    <label
-                      htmlFor="password"
-                      className="text-textColor font-semibold text-[0.88rem]"
-                    >
-                      Password
-                    </label>
-                    <div className="relative w-full">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        id="password"
-                        onChange={(e) => setPasswordDetails(e.target.value)}
-                        className="px-3 w-full py-2.5 rounded-lg bg-inactive font-semibold text-[0.9rem] border-[3px] border-activeHover hover:border-active outline-none"
-                        placeholder="Password"
-                      />
-                      <div
-                        className="absolute top-4 right-4 cursor-pointer"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {!showPassword ? (
-                          <FaEyeSlash size={24} />
-                        ) : (
-                          <FaEye size={24} />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-2 mb-3 text-textColor font-semibold cursor-pointer text-[0.9rem]">
-                  Password must be at least 7 characters
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="checkkeys"
-                      className="absolute left-0 opacity-0 z-[-1]"
-                      checked={code}
-                      onChange={() => setCode(!code)}
-                    />
-                    <span
-                      className={`bg-inactive border border-solid border-input outline-0 w-6 h-6 flex-shrink-0 bg-center bg-no-repeat rounded cursor-pointer p-3`}
-                      style={{
-                        backgroundImage: `${
-                          code
-                            ? "url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNy4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgOCA4IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA4IDgiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBhdGggZmlsbD0iI0ZGRkZGRiIgZD0iTTYuNCwxTDUuNywxLjdMMi45LDQuNUwyLjEsMy43TDEuNCwzTDAsNC40bDAuNywwLjdsMS41LDEuNWwwLjcsMC43bDAuNy0wLjdsMy41LTMuNWwwLjctMC43TDYuNCwxTDYuNCwxeiINCgkvPg0KPC9zdmc+DQo=')"
-                            : ""
-                        }`,
-                      }}
-                      onClick={() => setCode(!code)}
-                    ></span>
-                  </div>
-                  <label
-                    htmlFor="code"
-                    onClick={() => setCode(!code)}
-                    className="text-textColor font-semibold cursor-pointer bg-transparent"
-                  >
-                    Refferal Code (Optional)
-                  </label>
-                </div>
-
-                {code && (
-                  <div className="flex flex-col gap-2 mt-4 max-md:text-sm">
-                    <input
-                      id="code"
-                      type="text"
-                      className="px-3 py-3 rounded-lg bg-inactive font-semibold text-base border-[3px] border-activeHover hover:border-active outline-none"
-                      placeholder="Refferal Code (optional)"
-                    />
+                {error && (
+                  <div className="error-message mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    {error}
                   </div>
                 )}
 
-                <div className="my-4 h-0.5 bg-inactive w-full"></div>
+                <form onSubmit={handleRegister}>
+                  <div className="mt-4">
+                    <div className="flex flex-col gap-2">
+                      <label
+                        htmlFor="username"
+                        className="text-textColor w-full font-semibold text-[0.88rem]"
+                      >
+                        Username
+                      </label>
+                      <input
+                        id="username"
+                        onChange={(e) => setUsernameDetails(e.target.value)}
+                        className="px-3 py-2.5 rounded-lg bg-inactive font-semibold text-[0.9rem] border-[3px] border-activeHover hover:border-active outline-none"
+                        placeholder="Username"
+                        required
+                      />
+                    </div>
 
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center max-md:text-sm">
-                    <input
-                      type="checkbox"
-                      id="checkkeys"
-                      className="absolute left-0 opacity-0 z-[-1]"
-                      checked={age}
-                      onChange={() => setAge(!age)}
-                    />
-                    <div
-                      className={`bg-inactive border border-solid border-input outline-0 w-6 h-6 flex-shrink-0 bg-center bg-no-repeat rounded cursor-pointer p-3`}
-                      style={{
-                        backgroundImage: `${
-                          age
-                            ? "url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNy4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgOCA4IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA4IDgiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBhdGggZmlsbD0iI0ZGRkZGRiIgZD0iTTYuNCwxTDUuNywxLjdMMi45LDQuNUwyLjEsMy43TDEuNCwzTDAsNC40bDAuNywwLjdsMS41LDEuNWwwLjcsMC43bDAuNy0wLjdsMy41LTMuNWwwLjctMC43TDYuNCwxTDYuNCwxeiINCgkvPg0KPC9zdmc+DQo=')"
-                            : ""
-                        }`,
-                      }}
-                      onClick={() => setAge(!age)}
-                    >
-                      <span></span>
+                    <div className="flex flex-col gap-2 mt-4">
+                      <label
+                        htmlFor="email"
+                        className="text-textColor w-full font-semibold text-[0.88rem]"
+                      >
+                        Email Address
+                      </label>
+                      <input
+                        id="email"
+                        type="email"
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="px-3 py-2.5 rounded-lg bg-inactive font-semibold text-[0.9rem] border-[3px] border-activeHover hover:border-active outline-none"
+                        placeholder="Email Address"
+                        required
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-2 mt-4">
+                      <label
+                        htmlFor="password"
+                        className="text-textColor font-semibold text-[0.88rem]"
+                      >
+                        Password
+                      </label>
+                      <div className="relative w-full">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          id="password"
+                          onChange={(e) => setPasswordDetails(e.target.value)}
+                          className="px-3 w-full py-2.5 rounded-lg bg-inactive font-semibold text-[0.9rem] border-[3px] border-activeHover hover:border-active outline-none"
+                          placeholder="Password"
+                          required
+                        />
+                        <div
+                          className="absolute top-4 right-4 cursor-pointer"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {!showPassword ? (
+                            <FaEyeSlash size={24} />
+                          ) : (
+                            <FaEye size={24} />
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <label
-                    onClick={() => setAge(!age)}
-                    className="text-textColor max-md:text-sm font-semibold cursor-pointer bg-transparent"
-                  >
-                    I confirm I am 18 years or older, located in a permitted
-                    territory, and have no self-exclusions.*
-                  </label>
-                </div>
 
-                <div className="flex my-1 items-center gap-4 mb-4">
-                  <div className="flex items-center max-md:text-sm">
-                    <input
-                      type="checkbox"
-                      id="checkkeys"
-                      className="absolute left-0 opacity-0 z-[-1]"
-                      checked={terms}
-                      onChange={() => setTerms(!terms)}
-                    />
-                    <span
-                      className={`bg-inactive border border-solid border-input outline-0 w-6 h-6 flex-shrink-0 bg-center bg-no-repeat rounded cursor-pointer p-3`}
-                      style={{
-                        backgroundImage: `${
-                          terms
-                            ? "url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNy4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgOCA4IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA4IDgiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBhdGggZmlsbD0iI0ZGRkZGRiIgZD0iTTYuNCwxTDUuNywxLjdMMi45LDQuNUwyLjEsMy43TDEuNCwzTDAsNC40bDAuNywwLjdsMS41LDEuNWwwLjcsMC43bDAuNy0wLjdsMy41LTMuNWwwLjctMC43TDYuNCwxTDYuNCwxeiINCgkvPg0KPC9zdmc+DQo=')"
-                            : ""
-                        }`,
-                      }}
-                      onClick={() => setTerms(!terms)}
-                    ></span>
+                  <div className="mt-2 mb-3 text-textColor font-semibold cursor-pointer text-[0.9rem]">
+                    Password must be at least 7 characters
                   </div>
-                  <label
-                    onClick={() => setTerms(!terms)}
-                    className="text-textColor max-md:text-sm mt-2 font-semibold cursor-pointer bg-transparent"
-                  >
-                    I have read and accept the Terms of Service, Privacy Policy,
-                    Responsible Gambling Policy, and all associated policies.*
-                  </label>
-                </div>
 
-                <div
-                  type="submit"
-                  className="w-full py-2 bg-button rounded-xl flex items-center justify-center text-lg font-semibold cursor-pointer"
-                  onClick={handleRegister}
-                >
-                  Play Now
-                </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="checkkeys"
+                        className="absolute left-0 opacity-0 z-[-1]"
+                        checked={code}
+                        onChange={() => setCode(!code)}
+                      />
+                      <span
+                        className={`bg-inactive border border-solid border-input outline-0 w-6 h-6 flex-shrink-0 bg-center bg-no-repeat rounded cursor-pointer p-3`}
+                        style={{
+                          backgroundImage: `${
+                            code
+                              ? "url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNy4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgOCA4IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA4IDgiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBhdGggZmlsbD0iI0ZGRkZGRiIgZD0iTTYuNCwxTDUuNywxLjdMMi45LDQuNUwyLjEsMy43TDEuNCwzTDAsNC40bDAuNywwLjdsMS41LDEuNWwwLjcsMC43bDAuNy0wLjdsMy41LTMuNWwwLjctMC43TDYuNCwxTDYuNCwxeiINCgkvPg0KPC9zdmc+DQo=')"
+                              : ""
+                          }`,
+                        }}
+                        onClick={() => setCode(!code)}
+                      ></span>
+                    </div>
+                    <label
+                      htmlFor="code"
+                      onClick={() => setCode(!code)}
+                      className="text-textColor font-semibold cursor-pointer bg-transparent"
+                    >
+                      Refferal Code (Optional)
+                    </label>
+                  </div>
+
+                  {code && (
+                    <div className="flex flex-col gap-2 mt-4 max-md:text-sm">
+                      <input
+                        id="code"
+                        type="text"
+                        className="px-3 py-3 rounded-lg bg-inactive font-semibold text-base border-[3px] border-activeHover hover:border-active outline-none"
+                        placeholder="Refferal Code (optional)"
+                      />
+                    </div>
+                  )}
+
+                  <div className="my-4 h-0.5 bg-inactive w-full"></div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center max-md:text-sm">
+                      <input
+                        type="checkbox"
+                        id="checkkeys"
+                        className="absolute left-0 opacity-0 z-[-1]"
+                        checked={age}
+                        onChange={() => setAge(!age)}
+                      />
+                      <div
+                        className={`bg-inactive border border-solid border-input outline-0 w-6 h-6 flex-shrink-0 bg-center bg-no-repeat rounded cursor-pointer p-3`}
+                        style={{
+                          backgroundImage: `${
+                            age
+                              ? "url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNy4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgOCA4IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA4IDgiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBhdGggZmlsbD0iI0ZGRkZGRiIgZD0iTTYuNCwxTDUuNywxLjdMMi45LDQuNUwyLjEsMy43TDEuNCwzTDAsNC40bDAuNywwLjdsMS41LDEuNWwwLjcsMC43bDAuNy0wLjdsMy41LTMuNWwwLjctMC43TDYuNCwxTDYuNCwxeiINCgkvPg0KPC9zdmc+DQo=')"
+                              : ""
+                          }`,
+                        }}
+                        onClick={() => setAge(!age)}
+                      >
+                        <span></span>
+                      </div>
+                    </div>
+                    <label
+                      onClick={() => setAge(!age)}
+                      className="text-textColor max-md:text-sm font-semibold cursor-pointer bg-transparent"
+                    >
+                      I confirm I am 18 years or older, located in a permitted
+                      territory, and have no self-exclusions.*
+                    </label>
+                  </div>
+
+                  <div className="flex my-1 items-center gap-4 mb-4">
+                    <div className="flex items-center max-md:text-sm">
+                      <input
+                        type="checkbox"
+                        id="checkkeys"
+                        className="absolute left-0 opacity-0 z-[-1]"
+                        checked={terms}
+                        onChange={() => setTerms(!terms)}
+                      />
+                      <span
+                        className={`bg-inactive border border-solid border-input outline-0 w-6 h-6 flex-shrink-0 bg-center bg-no-repeat rounded cursor-pointer p-3`}
+                        style={{
+                          backgroundImage: `${
+                            terms
+                              ? "url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNy4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgOCA4IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA4IDgiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBhdGggZmlsbD0iI0ZGRkZGRiIgZD0iTTYuNCwxTDUuNywxLjdMMi45LDQuNUwyLjEsMy43TDEuNCwzTDAsNC40bDAuNywwLjdsMS41LDEuNWwwLjcsMC43bDAuNy0wLjdsMy41LTMuNWwwLjctMC43TDYuNCwxTDYuNCwxeiINCgkvPg0KPC9zdmc+DQo=')"
+                              : ""
+                          }`,
+                        }}
+                        onClick={() => setTerms(!terms)}
+                      ></span>
+                    </div>
+                    <label
+                      onClick={() => setTerms(!terms)}
+                      className="text-textColor max-md:text-sm mt-2 font-semibold cursor-pointer bg-transparent"
+                    >
+                      I have read and accept the Terms of Service, Privacy
+                      Policy, Responsible Gambling Policy, and all associated
+                      policies.*
+                    </label>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className={`w-full py-2 bg-button rounded-xl flex items-center justify-center text-lg font-semibold ${
+                      loading
+                        ? "opacity-50 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                  >
+                    {loading ? <LoadingComponent /> : "Play Now"}
+                  </button>
+                </form>
               </div>
 
               <div className="flex w-[60%] lg:min-h-[500px] max-lg:w-full pl-6 max-lg:pl-0">
@@ -478,61 +558,54 @@ const Register = () => {
                     <div className="w-full h-1 mt-1 bg-inactive"></div>
                   </div>
 
-                  <div className="flex items-center w-full justify-between gap-3 mt-6 lg:flex-col max-sm:flex-col ">
-                    <div className="flex items-center relative justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer">
-                      <div className="w-full absolute top-0 left-0 z-[2] opacity-0">
-                        <GoogleLogin
-                          onSuccess={handleGoogleSuccess}
-                          onError={handleGoogleFailure}
-                          render={(renderProps) => (
-                            <div
-                              onClick={renderProps.onClick}
-                              className="flex items-center gap-2"
-                            >
-                              <FaGoogle />
-                              Google
-                            </div>
-                          )}
-                        />
-                      </div>
+                  <div className="flex items-center w-full justify-between gap-3 mt-6 lg:flex-col max-sm:flex-col">
+                    <button
+                      onClick={handleGoogleLogin}
+                      className="flex items-center justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer"
+                    >
                       <div className="flex items-center gap-2">
                         <FaGoogle />
                         Google
                       </div>
-                    </div>
-                    <a
-                      href={telegramLoginUrl}
-                      target="_blank"
+                    </button>
+
+                    {/* Telegram Login Widget Container */}
+                    <button
+                      onClick={handleTelgramClick}
                       className="flex items-center justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer"
                     >
                       <div className="flex items-center gap-2">
                         <FaTelegram />
                         Telegram
                       </div>
-                    </a>
-                    <a
-                      href={discordLoginUrl}
-                      target="_blank"
+                    </button>
+
+                    <button
+                      onClick={handleTwitterLogin}
                       className="flex items-center justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer"
                     >
                       <div className="flex items-center gap-2">
-                        <FaDiscord />
-                        Discord
+                        <FaTwitter />
+                        Twitter
                       </div>
-                    </a>
-                    <div
+                    </button>
+
+                    <button
                       onClick={() => setInstant(!instant)}
-                      className="flex items-center justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer"
+                      className="flex items-center justify-center w-full bg-inactive hover:bg-activeHover py-2.5 rounded-xl cursor-pointer transition-colors"
                     >
                       {instantLoading ? (
-                        <LoadingComponent />
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>Creating...</span>
+                        </div>
                       ) : (
                         <div className="flex items-center gap-2">
                           <FaBoltLightning />
                           Instant
                         </div>
                       )}
-                    </div>
+                    </button>
                   </div>
 
                   <div className="mt-10 max-lg:mt-6 mb-6 text-sm text-textColor w-full text-center">

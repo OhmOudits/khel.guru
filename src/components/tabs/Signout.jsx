@@ -1,12 +1,18 @@
 import { FaSignOutAlt } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import { logout } from "../../store/slices/authSlice";
 
 const Vault = () => {
   const navigate = useNavigate();
 
   const handleClose = () => {
     navigate(window.location.pathname, { replace: true });
+  };
+
+  const handleSignOut = () => {
+    logout();
+    handleClose();
   };
 
   return (
@@ -34,8 +40,14 @@ const Vault = () => {
         </div>
         {/** main  */}
         <div className="py-3 mx-auto   text-white rounded-lg ">
-          <div className="text-gray-300">Are you sure you want to end your session and log out?</div>
-          <button className="w-full py-3 text-center bg-red-500 font-semibold text-white mt-5 " type="button">
+          <div className="text-gray-300">
+            Are you sure you want to end your session and log out?
+          </div>
+          <button
+            className="w-full py-3 text-center bg-red-500 font-semibold text-white mt-5 "
+            type="button"
+            onClick={handleSignOut}
+          >
             Signout
           </button>
         </div>

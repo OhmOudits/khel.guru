@@ -25,7 +25,7 @@ import TwistPage from "./components/Games/twist/Twist";
 import RoulettePage from "./components/Games/roulette/roulette";
 import PumpPage from "./components/Games/pump/pump";
 
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { io } from "socket.io-client";
 import { SportsBet, Sports, SportsCricket, SportsFootball } from "./pages";
 import Wallet from "./components/tabs/Wallet";
@@ -33,6 +33,7 @@ import Search from "./components/tabs/Search";
 import WalletSettings from "./components/tabs/WalletSettings";
 import Vault from "./components/tabs/Vault";
 import DicePage from "./components/Games/DiceGame/Dice";
+import { fetchUserData } from "./store/slices/authSlice";
 const socket = io("http://localhost:3000");
 
 import { ToastContainer } from "react-toastify";
@@ -61,7 +62,11 @@ import SportsBadminton from "./pages/SportsBadminton";
 import SportsBetBadminton from "./pages/SportBetBadminton";
 
 function App() {
-  const user = useSelector((state) => state.auth?.user?.user);
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth?.user);
+  const token = useSelector((state) => state.auth?.token);
+  const authLoading = useSelector((state) => state.auth?.loading);
+  const [loading, setLoading] = useState(true);
   const [sideOpen, setSideOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showWallet, setShowWallet] = useState(false);
@@ -72,7 +77,6 @@ function App() {
   const [Statistics, setStatistics] = useState(false);
   const [signout, setsignout] = useState(false);
 
-  const [loading, setLoading] = useState(true);
   // eslint-disable-next-line
   const [loggedInUsers, setLoggedInUsers] = useState([]);
   const location = useLocation();
@@ -108,31 +112,20 @@ function App() {
   }, [location.pathname]);
 
   useEffect(() => {
-    const storedEmail = user?.email;
-    const storedToken = localStorage.getItem("jwtToken");
-
-    if (storedEmail && storedToken) {
-      socket.emit("userLoggedIn", { email: storedEmail, socketId: socket.id });
+    const storedToken = localStorage.getItem("token");
+    console.log(storedToken);
+    if (storedToken) {
+      dispatch(fetchUserData());
     }
+  }, [dispatch]);
 
-    socket.on("userUpdate", (users) => {
-      setLoggedInUsers(users);
-    });
-
-    socket.on("connect", () => {
-      if (storedEmail && storedToken) {
-        socket.emit("userLoggedIn", {
-          email: storedEmail,
-          socketId: socket.id,
-        });
-      }
-    });
-
-    return () => {
-      socket.off("userUpdate");
-      socket.off("connect");
-    };
-  }, [user?.email]);
+  useEffect(() => {
+    if (user && token) {
+      setLoading(false);
+    } else if (!token) {
+      setLoading(false);
+    }
+  }, [user, token]);
 
   const { pathname } = useLocation();
 
