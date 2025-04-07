@@ -2,17 +2,21 @@ import { FaSignOutAlt } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../store/slices/authSlice";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 
 const Vault = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleClose = () => {
     navigate(window.location.pathname, { replace: true });
   };
 
   const handleSignOut = () => {
-    logout();
+    dispatch(logout());
     handleClose();
+    toast.success("User Signed Out Successfully");
   };
 
   return (

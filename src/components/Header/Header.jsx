@@ -36,8 +36,7 @@ const Header = () => {
   const dropdownRef2 = useRef(null);
   const dropdownRef3 = useRef(null);
 
-  const [loggedIn, setLoggedIn] = useState(false);
-  const user = useSelector((state) => state.auth?.user?.user);
+  const user = useSelector((state) => state.auth?.user);
   const [search, setSearch] = useState("");
   const [sortedCurrencies, setSortedCurrencies] = useState(currencies);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -46,8 +45,9 @@ const Header = () => {
 
   const handleTabNavigation = (tab) => {
     navigate(`?tab=${tab}`, { replace: true });
-    setLoggedIn(true);
   };
+
+  useEffect(() => {});
 
   // Handle search filtering
   useEffect(() => {
@@ -105,7 +105,7 @@ const Header = () => {
         </h1>
       </Link>
 
-      {loggedIn && (
+      {user ? (
         <>
           <div className="flex">
             <div
@@ -208,8 +208,8 @@ const Header = () => {
                               navigate("/transactions/deposits");
                             } else if (l.name == "My Bets") {
                               navigate("/casino/my-bets");
-                            }else if (l.name == "Settings"){
-                              navigate('/settings/general')
+                            } else if (l.name == "Settings") {
+                              navigate("/settings/general");
                             } else {
                               handleTabNavigation(l.name.toLowerCase());
                             }
@@ -220,8 +220,10 @@ const Header = () => {
                         </div>
                       );
                     })}
-                    <div onClick={()=>handleTabNavigation("signout")} className="flex text-zinc-300 hover:bg-zinc-800 text-[1.1rem] font-semibold items-center px-3 gap-2 py-2">
-                      {/* Dynamically rendering the icon */}
+                    <div
+                      onClick={() => handleTabNavigation("signout")}
+                      className="flex text-zinc-300 hover:bg-zinc-800 text-[1.1rem] font-semibold items-center px-3 gap-2 py-2"
+                    >
                       <FaSignOutAlt />
                       Sign Out
                     </div>
@@ -265,40 +267,29 @@ const Header = () => {
             </div>
           </div>
         </>
-      )}
-
-      {!loggedIn && (
+      ) : (
         <div className="flex items-stretch gap-1.5">
-          <div className="max-md:hidden p-1 rounded-xl ">
+          <div className="max-md:hidden p-1 rounded-xl">
             <div
               onClick={() => handleTabNavigation("search")}
-              className="py-2 px-3 w-full h-full flex items-center justify-center text-black  cursor-pointer rounded-md bg-ter"
+              className="py-2 px-3 w-full h-full flex items-center justify-center text-black cursor-pointer rounded-md bg-ter"
             >
               <FaSearch size={12} />
             </div>
           </div>
           <div className="p-1 text-[0.8rem] rounded-xl flex gap-1 text-white">
-            {user && (
-              <div className="font-semibold px-2 py-1 text-2xl text-purple-600">
-                {user.username}
-              </div>
-            )}
-            {!user && (
-              <>
-                <div
-                  className="cursor-pointer text-[0.88rem] login py-2 px-4 bg-ter flex text-black items-center justify-center  rounded-md font-semibold"
-                  onClick={() => handleTabNavigation("login")}
-                >
-                  Login
-                </div>
-                <div
-                  className="cursor-pointer text-[0.88rem] register py-2 px-4 rounded-md bg-ter text-black font-bold"
-                  onClick={() => handleTabNavigation("register")}
-                >
-                  Register
-                </div>
-              </>
-            )}
+            <div
+              className="cursor-pointer text-[0.88rem] login py-2 px-4 bg-ter flex text-black items-center justify-center rounded-md font-semibold"
+              onClick={() => handleTabNavigation("login")}
+            >
+              Login
+            </div>
+            <div
+              className="cursor-pointer text-[0.88rem] register py-2 px-4 rounded-md bg-ter text-black font-bold"
+              onClick={() => handleTabNavigation("register")}
+            >
+              Register
+            </div>
           </div>
         </div>
       )}

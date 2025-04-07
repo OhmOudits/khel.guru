@@ -19,6 +19,7 @@ import {
 import LoadingComponent from "../LoadingComponent";
 import { auth, googleProvider, twitterProvider } from "../../config/firebase";
 import { signInWithPopup } from "firebase/auth";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -35,9 +36,18 @@ const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/");
+      const currentPath = location.pathname;
+      const params = new URLSearchParams(location.search);
+
+      if (params.has("tab")) {
+        params.delete("tab");
+        const newSearch = params.toString();
+        navigate(`${currentPath}${newSearch ? `?${newSearch}` : ""}`, {
+          replace: true,
+        });
+      }
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, location, navigate]);
 
   const handleTabNavigation = (tab) => {
     navigate(`?tab=${tab}`, { replace: true });
@@ -59,7 +69,7 @@ const Login = () => {
         })
       ).unwrap();
 
-      navigate("/");
+      toast.success("User Logged In Successfully");
     } catch (error) {
       console.error("Google auth error:", error);
     }
@@ -76,7 +86,7 @@ const Login = () => {
         })
       ).unwrap();
 
-      navigate("/");
+      toast.success("User Logged In Successfully");
     } catch (error) {
       console.error("Twitter auth error:", error);
     }
@@ -102,7 +112,7 @@ const Login = () => {
               })
             ).unwrap();
 
-            navigate("/");
+            toast.success("User Logged In Successfully");
           } catch (error) {
             console.error("Telegram auth error:", error);
           }
@@ -121,7 +131,7 @@ const Login = () => {
     }
     try {
       await dispatch(login({ email, password })).unwrap();
-      // Redirect is handled by useEffect
+      toast.success("User Logged In Successfully");
     } catch (err) {
       console.error("Login error:", err);
     }

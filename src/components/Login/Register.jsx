@@ -45,7 +45,16 @@ const Register = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/");
+      const currentPath = location.pathname;
+      const params = new URLSearchParams(location.search);
+
+      if (params.has("tab")) {
+        params.delete("tab");
+        const newSearch = params.toString();
+        navigate(`${currentPath}${newSearch ? `?${newSearch}` : ""}`, {
+          replace: true,
+        });
+      }
     }
   }, [isAuthenticated, navigate]);
 
@@ -69,7 +78,7 @@ const Register = () => {
         })
       ).unwrap();
 
-      navigate("/");
+      toast.success("User Logged In Successfully");
     } catch (error) {
       console.error("Google auth error:", error);
     }
@@ -86,7 +95,7 @@ const Register = () => {
         })
       ).unwrap();
 
-      navigate("/");
+      toast.success("User Logged In Successfully");
     } catch (error) {
       console.error("Twitter auth error:", error);
     }
@@ -112,7 +121,7 @@ const Register = () => {
               })
             ).unwrap();
 
-            navigate("/");
+            toast.success("User Logged In Successfully");
           } catch (error) {
             console.error("Telegram auth error:", error);
           }
@@ -144,7 +153,7 @@ const Register = () => {
           password: passwordDetails,
         })
       ).unwrap();
-      // Success is handled by the useEffect above
+      toast.success("User Logged In Successfully");
     } catch (err) {
       console.error("Registration error:", err);
     }
@@ -172,6 +181,7 @@ const Register = () => {
       console.error("Instant registration error:", error);
     } finally {
       setInstantLoading(false);
+      toast.success("User Logged In Successfully");
     }
   };
 

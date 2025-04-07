@@ -34,7 +34,6 @@ import WalletSettings from "./components/tabs/WalletSettings";
 import Vault from "./components/tabs/Vault";
 import DicePage from "./components/Games/DiceGame/Dice";
 import { fetchUserData } from "./store/slices/authSlice";
-const socket = io("http://localhost:3000");
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -113,7 +112,7 @@ function App() {
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
-    console.log(storedToken);
+
     if (storedToken) {
       dispatch(fetchUserData());
     }
