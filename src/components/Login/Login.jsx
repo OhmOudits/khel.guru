@@ -96,7 +96,7 @@ const Login = () => {
     if (window.Telegram?.Login?.auth) {
       window.Telegram.Login.auth(
         {
-          bot_id: "7996647658",
+          bot_id: "7946592761",
           request_access: "write",
         },
         async (user) => {
