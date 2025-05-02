@@ -9,6 +9,7 @@ import Login from "./components/Login/Login";
 import Register from "./components/Login/Register";
 import { Routes, Route } from "react-router-dom";
 import Frame from "./components/Frame/Frame";
+import { initializeSocket } from "./socket/socket";
 
 import WheelPage from "./components/Games/WheelGame/WheelPage";
 import MinesPage from "./components/Games/MinesGame/Diamond";
@@ -115,6 +116,7 @@ function App() {
 
     if (storedToken) {
       dispatch(fetchUserData());
+      initializeSocket(storedToken);
     }
   }, [dispatch]);
 

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { initializeSocket, disconnectSocket } from "../../socket/socket";
 import {
   currentUser,
   googleAuthEndpoint,
@@ -71,6 +72,7 @@ export const login = createAsyncThunk(
     try {
       const response = await api.post(loginEndpoint, credentials);
       localStorage.setItem("token", response.data.token);
+      initializeSocket(response.data.token);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -101,6 +103,7 @@ export const googleAuth = createAsyncThunk(
     try {
       const response = await api.post(googleAuthEndpoint, data);
       localStorage.setItem("token", response.data.token);
+      initializeSocket(response.data.token);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -116,6 +119,7 @@ export const telegramAuth = createAsyncThunk(
     try {
       const response = await api.post(telegramAuthEndpoint, data);
       localStorage.setItem("token", response.data.token);
+      initializeSocket(response.data.token);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -131,6 +135,7 @@ export const xAuth = createAsyncThunk(
     try {
       const response = await api.post(xAuthEndpoint, data);
       localStorage.setItem("token", response.data.token);
+      initializeSocket(response.data.token);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -146,6 +151,7 @@ export const instantRegister = createAsyncThunk(
     try {
       const response = await api.post(instantRegisterEndpoint);
       localStorage.setItem("token", response.data.token);
+      initializeSocket(response.data.token);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -170,6 +176,7 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       localStorage.removeItem("token");
+      disconnectSocket();
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
