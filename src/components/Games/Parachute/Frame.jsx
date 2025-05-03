@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../../../styles/Frame.css";
 import FairnessModal from "../../Frame/FairnessModal";
 import FrameFooter from "../../Frame/FrameFooter";
@@ -8,20 +8,27 @@ import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
 import Game from "./Game";
 import SideBar from "./Sidebar";
+import checkLoggedIn from "../../../utils/isloggedIn";
+import { useNavigate } from "react-router-dom";
+import {
+  getParachuteSocket,
+  initializeParachuteSocket,
+} from "../../../socket/games/parachute";
+import { useSelector } from "react-redux";
 
 const Frame = () => {
+  const navigate = useNavigate();
+
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [nbets, setNBets] = useState(0);
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
-
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
   const [maxBetEnable, setMaxBetEnable] = useState(false);
   const [theatreMode, setTheatreMode] = useState(false);
-
   const [volume, setVolume] = useState(50);
   const [instantBet, setInstantBet] = useState(false);
   const [animations, setAnimations] = useState(true);
@@ -29,7 +36,6 @@ const Frame = () => {
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
-
   const [bettingStarted, setBettingStarted] = useState(false);
   const [startAutoBet, setStartAutoBet] = useState(false);
   const [checkout, setCheckout] = useState(false);
@@ -38,18 +44,53 @@ const Frame = () => {
   const [difficulty, setDifficulty] = useState("medium");
   const [autoMultipyTarget, setAutoMultipyTarget] = useState("1.01");
 
+  const token = useSelector((state) => state.auth?.token);
+
+  const initSocket = () => {
+    const parachuteSocket = getParachuteSocket();
+    if (!parachuteSocket) {
+      initializeParachuteSocket(token);
+    }
+  };
+
   const handleBetClick = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
     setBettingStarted(true);
     setPause(false);
     setValue(1.0);
   };
 
   const handleCheckout = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    const parachuteSocket = getParachuteSocket();
+    if (parachuteSocket) {
+      parachuteSocket.emit("checkout", { value });
+      console.log("Emitted checkout event");
+    } else {
+      console.error("Parachute socket not initialized");
+      alert("Failed to join game: Socket not connected");
+    }
+
     setCheckout(false);
     setPause(true);
   };
 
   const handleAutoBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
     if (!startAutoBet && nbets != 0 && autoMultipyTarget >= 1.01) {
       setStartAutoBet(true);
       setCheckout(true);

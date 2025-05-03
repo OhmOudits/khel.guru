@@ -4,6 +4,12 @@ import clouds from "../../../assets/Balloon/clouds.png";
 import balloon from "../../../assets/Balloon/balloon.png";
 import "../../../styles/Balloon.css";
 import Background from "./Background";
+import {
+  disconnectParachuteSocket,
+  getParachuteSocket,
+} from "../../../socket/games/parachute";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const Game = ({
   setCheckout,
@@ -24,15 +30,47 @@ const Game = ({
   const gameIntervalRef = useRef(null);
   const speed = 100;
   const cloudCount = 1000;
-
   const [mult, setMult] = useState(18);
 
-  // Adjust multiplier based on difficulty
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const parachuteSocket = getParachuteSocket();
+
+      if (parachuteSocket) {
+        parachuteSocket.on("error", ({ message }) => {
+          console.error("Join game error:", message);
+          toast.error(`Error joining game: ${message}`);
+        });
+      }
+    }
+
+    return () => {
+      const parachuteSocket = getParachuteSocket();
+      if (parachuteSocket) {
+        parachuteSocket.off("error");
+      }
+      disconnectParachuteSocket();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (bettingStarted) {
+      const parachuteSocket = getParachuteSocket();
+      if (parachuteSocket) {
+        parachuteSocket.emit("add_game", {});
+        console.log("Emitted add_game event");
+      } else {
+        console.error("Parachute socket not initialized");
+        alert("Failed to join game: Socket not connected");
+      }
+    }
+  }, [bettingStarted]);
+
   useEffect(() => {
     setMult(difficulty === "low" ? 24 : difficulty === "medium" ? 18 : 12);
   }, [difficulty]);
 
-  // Utility function to stop the game
   const stopGame = () => {
     if (gameIntervalRef.current) {
       clearInterval(gameIntervalRef.current);
@@ -41,7 +79,6 @@ const Game = ({
     setBettingStarted(false);
   };
 
-  // Main game logic
   const runGame = () => {
     if (pause || isCrashed || !bettingStarted) return;
 
@@ -51,7 +88,6 @@ const Game = ({
       const newValue = Math.exp(localTime / mult);
       setValue(newValue);
 
-      // Auto-bet stop condition
       if (startAutoBet && newValue >= autoMultipyTarget) {
         stopGame();
         setPause(true);
@@ -59,8 +95,17 @@ const Game = ({
         return;
       }
 
-      // Random crash condition
-      if (Math.random() < 0.01) {
+      let rand = Math.random();
+      if (rand < 0.01) {
+        const parachuteSocket = getParachuteSocket();
+        if (parachuteSocket) {
+          parachuteSocket.emit("crash", { value: newValue });
+          console.log("Emitted crash event");
+        } else {
+          console.error("Parachute socket not initialized");
+          alert("Failed to join game: Socket not connected");
+        }
+
         setIsCrashed(true);
         stopGame();
         setValue(1);
@@ -79,7 +124,6 @@ const Game = ({
     setPause(false);
   };
 
-  // Pause handling effect
   useEffect(() => {
     if (pause) {
       setIsCrashed(true);
@@ -88,7 +132,19 @@ const Game = ({
     }
   }, [pause, value, setIsCrashed]);
 
-  // Auto-bet logic
+  const user = useSelector((state) => state.auth?.user);
+
+  useEffect(() => {
+    if (bettingStarted) {
+      toast.error("Game Intterupted");
+    }
+
+    if (!user) {
+      setBettingStarted(false);
+      resetGame();
+    }
+  }, [user]);
+
   useEffect(() => {
     if (startAutoBet && nbets > 0) {
       const performAutoBet = () => {
@@ -97,16 +153,14 @@ const Game = ({
           setCurrentBetCount((prev) => prev + 1);
         } else {
           setStartAutoBet(false);
-          setCurrentBetCount(0); // Reset count after all bets are completed
+          setCurrentBetCount(0);
         }
       };
 
-      // Start game immediately for the first bet
       if (currentBetCount === 0 && !bettingStarted) {
         performAutoBet();
       }
 
-      // Add delay between games for subsequent bets
       const interval = setInterval(() => {
         if (currentBetCount > 0 && !bettingStarted && !pause && !isCrashed) {
           performAutoBet();
@@ -115,7 +169,7 @@ const Game = ({
         }
       }, 1000 + speed);
 
-      return () => clearInterval(interval); // Cleanup
+      return () => clearInterval(interval);
     }
   }, [
     startAutoBet,
@@ -127,7 +181,6 @@ const Game = ({
     isCrashed,
   ]);
 
-  // Start the game when betting starts
   useEffect(() => {
     if (bettingStarted) {
       runGame();

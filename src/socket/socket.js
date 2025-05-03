@@ -42,7 +42,7 @@ export const initializeSocket = (token) => {
     console.log("Socket disconnected");
   });
 
-  return socket;
+  return { socket };
 };
 
 export const getSocket = () => {
