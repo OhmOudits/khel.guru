@@ -66,11 +66,6 @@ const Frame = () => {
   };
 
   const handleCheckout = () => {
-    if (!checkLoggedIn()) {
-      navigate(`?tab=${"login"}`, { replace: true });
-      return;
-    }
-
     const parachuteSocket = getParachuteSocket();
     if (parachuteSocket) {
       parachuteSocket.emit("checkout", { value });

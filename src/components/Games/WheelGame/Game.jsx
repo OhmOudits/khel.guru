@@ -1,6 +1,11 @@
 /* eslint-disable */
 import { useEffect, useState, useRef } from "react";
 import { segments } from "../../../constants";
+import {
+  disconnectWheelSocket,
+  getWheelSocket,
+} from "../../../socket/games/wheel";
+import { toast } from "react-toastify";
 
 /* eslint-disable react/prop-types */
 const Game = ({
@@ -22,6 +27,25 @@ const Game = ({
   const spinCount = useRef(0);
 
   const radius = 100;
+
+  useEffect(() => {
+    const wheelSocket = getWheelSocket();
+
+    if (wheelSocket) {
+      wheelSocket.on("error", ({ message }) => {
+        console.error("Join game error:", message);
+        toast.error(`Error joining game: ${message}`);
+      });
+    }
+
+    return () => {
+      const wheelSocket = getWheelSocket();
+      if (wheelSocket) {
+        wheelSocket.off("error");
+      }
+      disconnectWheelSocket();
+    };
+  }, []);
 
   useEffect(() => {
     const foundSegment = segments.find((s) => s.risk === risk);
@@ -49,6 +73,15 @@ const Game = ({
 
   useEffect(() => {
     if (betStarted) {
+      const wheelSocket = getWheelSocket();
+      if (wheelSocket) {
+        wheelSocket.emit("add_game", {});
+        console.log("Emitted add_game event");
+      } else {
+        console.error("Wheel socket not initialized");
+        toast.error("Failed to join game: Socket not connected");
+      }
+
       spinWheel();
     }
   }, [betStarted, targetIndex]);
@@ -132,7 +165,7 @@ const Game = ({
       ></div>
 
       {/* Rotating Circle */}
-      <div className="relative w-[360px] h-[360px] max-lg:w-[290px] max-lg:h-[290px] z-10">
+      <div className="relative w-[360px] h-[360px] max-lg:w-[290px] max-lg:h-[290px] z-[2]">
         {/* Segments */}
         <div
           style={{
@@ -169,7 +202,7 @@ const Game = ({
 
       {/* Pointer */}
       <div
-        className="absolute top-[-3.5%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-red-500 z-[15]"
+        className="absolute top-[-3.5%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-red-500 z-[2]"
         style={{
           clipPath: "polygon(25% 0, 75% 0, 50% 100%, 50% 100%)",
         }}

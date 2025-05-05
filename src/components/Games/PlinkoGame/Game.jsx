@@ -2,16 +2,36 @@ import React, { useEffect, useRef, useState } from "react";
 import { CircleNotch } from "phosphor-react";
 import BinsRow from "./BinsRow";
 import { binColorsByRowCount } from "./constant";
-
+import {
+  disconnectPlinkoSocket,
+  getPlinkoSocket,
+} from "../../../socket/games/plinko";
 
 const Game = ({ bet, rows, risk, engine, width, height, canvasRef }) => {
-
   const [binColors, setBinColors] = useState(binColorsByRowCount(rows)); // State for bin colors based on rows
 
-  // Update bin colors when row count changes
   useEffect(() => {
     setBinColors(binColorsByRowCount(rows));
   }, [rows]);
+
+  useEffect(() => {
+    const plinkoSocket = getPlinkoSocket();
+
+    if (plinkoSocket) {
+      plinkoSocket.on("error", ({ message }) => {
+        console.error("Join game error:", message);
+        toast.error(`Error joining game: ${message}`);
+      });
+    }
+
+    return () => {
+      const plinkoSocket = getPlinkoSocket();
+      if (plinkoSocket) {
+        plinkoSocket.off("error");
+      }
+      disconnectPlinkoSocket();
+    };
+  }, []);
 
   return (
     <div className="relative w-full h-full bg-gray-900">
@@ -43,9 +63,9 @@ const Game = ({ bet, rows, risk, engine, width, height, canvasRef }) => {
             className="absolute inset-0 h-full w-full"
           />
         </div>
-         
+
         {/*Bin row at the bottom */}
-         <BinsRow
+        <BinsRow
           plinkoEngine={engine}
           rowCount={rows}
           riskLevel={risk}

@@ -11,6 +11,15 @@ import Sidebar from "./Sidebar";
 import Game from "./Game";
 import PlinkoEngine from "./PlinkoEngine";
 import usePlinkoStore from "./store";
+import { toast } from "react-toastify";
+
+import { useSelector } from "react-redux";
+import checkLoggedIn from "../../../utils/isloggedIn";
+import { useNavigate } from "react-router-dom";
+import {
+  getPlinkoSocket,
+  initializePlinkoSocket,
+} from "../../../socket/games/plinko";
 
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
@@ -40,6 +49,17 @@ const Frame = () => {
   const canvasRef = useRef(null);
   const [engine, setEngine] = useState(null);
 
+  const token = useSelector((state) => state.auth?.token);
+
+  const initSocket = () => {
+    const wheelSocket = getPlinkoSocket();
+    if (!wheelSocket) {
+      initializePlinkoSocket(token);
+    }
+  };
+
+  const navigate = useNavigate();
+
   const setCurrentBinIndex = usePlinkoStore(
     (state) => state.setCurrentBinIndex
   );
@@ -66,9 +86,30 @@ const Frame = () => {
 
   const handleBetClick = () => {
     engine.dropBall();
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
+    const plinkoSocket = getPlinkoSocket();
+    if (plinkoSocket) {
+      plinkoSocket.emit("add_game", {});
+      console.log("Emitted add_game event");
+    } else {
+      console.error("Plinko socket not initialized");
+      toast.error("Failed to join game: Socket not connected");
+    }
   };
 
   const handleAutoBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
+
     if (!startAutoBet && nbets > 0) {
       setStartAutoBet(true);
       let count = 0;
@@ -76,6 +117,15 @@ const Frame = () => {
       const interval = setInterval(() => {
         if (engine && count < nbets) {
           engine.dropBall();
+          const plinkoSocket = getPlinkoSocket();
+          if (plinkoSocket) {
+            plinkoSocket.emit("add_game", {});
+            console.log("Emitted add_game event");
+          } else {
+            console.error("Wheel socket not initialized");
+            toast.error("Failed to join game: Socket not connected");
+          }
+
           count++;
         } else {
           clearInterval(interval);

@@ -10,6 +10,13 @@ import SideBar from "./SideBar";
 import History from "../../Frame/History";
 import Chances from "./Chances";
 import Game from "./Game";
+import { useSelector } from "react-redux";
+import {
+  getWheelSocket,
+  initializeWheelSocket,
+} from "../../../socket/games/wheel";
+import checkLoggedIn from "../../../utils/isloggedIn";
+import { useNavigate } from "react-router-dom";
 
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
@@ -40,6 +47,15 @@ const Frame = () => {
   const [betStarted, setBettingStarted] = useState(false);
   const [autoStart, setAutoStart] = useState(false);
 
+  const token = useSelector((state) => state.auth?.token);
+
+  const initSocket = () => {
+    const wheelSocket = getWheelSocket();
+    if (!wheelSocket) {
+      initializeWheelSocket(token);
+    }
+  };
+
   const history = [
     { id: 1, value: "1.64", color: "#f7b32b" },
     { id: 2, value: "0.04", color: "#28a745" },
@@ -49,14 +65,26 @@ const Frame = () => {
     { id: 6, value: "0.64", color: "#28a745" },
   ];
 
+  const navigate = useNavigate();
   const handleMineBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
     if (!betStarted) {
       setBettingStarted(true);
     }
   };
 
   const handleAutoBet = () => {
-    console.log("ok");
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
     if (!autoStart) {
       setAutoStart(true);
     }
