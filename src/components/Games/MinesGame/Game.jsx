@@ -172,6 +172,16 @@ const Game = ({
       return;
     }
 
+    const minesSocket = getMinesSocket();
+    if (minesSocket) {
+      minesSocket.emit("add_game", {});
+      console.log("Emitted add_game event");
+    } else {
+      console.error("Mines socket not initialized");
+      toast.error("Failed to join game: Socket not connected");
+      return;
+    }
+
     // run game here
     setGrid(createGrid());
     for (let i = 0; i < selectedBoxes.length; i++) {

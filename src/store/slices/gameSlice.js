@@ -32,10 +32,48 @@ export const getGames = createAsyncThunk(
   }
 );
 
+export const getPopularGames = createAsyncThunk(
+  "game/getPopularGames",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/game/popular`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: "Failed to fetch popular games" }
+      );
+    }
+  }
+);
+
+export const fetchContinueGames = createAsyncThunk(
+  "game/getContinueGames",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem(token);
+      if (!token) {
+        return rejectWithValue({ message: "User Not Authenticated" });
+      }
+      const response = await api.get(`/game/continue`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: "Failed to fetch continue games" }
+      );
+    }
+  }
+);
+
 const initialState = {
   games: [],
+  popularGames: [],
+  continueGames: [],
   loading: false,
+  popularLoading: false,
+  continueLoading: false,
   error: null,
+  popularError: null,
+  continueError: null,
 };
 
 const gameSlice = createSlice({
@@ -59,6 +97,32 @@ const gameSlice = createSlice({
       .addCase(getGames.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Failed to fetch games";
+      })
+      .addCase(getPopularGames.pending, (state) => {
+        state.popularLoading = true;
+        state.popularError = null;
+      })
+      .addCase(getPopularGames.fulfilled, (state, action) => {
+        state.popularLoading = false;
+        state.popularGames = action.payload.games;
+      })
+      .addCase(getPopularGames.rejected, (state, action) => {
+        state.popularLoading = false;
+        state.popularError =
+          action.payload?.message || "Failed to fetch popular games";
+      })
+      .addCase(fetchContinueGames.pending, (state) => {
+        state.continueLoading = true;
+        state.continueError = null;
+      })
+      .addCase(fetchContinueGames.fulfilled, (state, action) => {
+        state.continueLoading = false;
+        state.continueGames = action.payload.games;
+      })
+      .addCase(fetchContinueGames.rejected, (state, action) => {
+        state.continueLoading = false;
+        state.continueError =
+          action.payload?.message || "Failed to fetch continue games";
       });
   },
 });

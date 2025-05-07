@@ -22,6 +22,7 @@ import {
 } from "../../store/slices/authSlice";
 import { auth, googleProvider, twitterProvider } from "../../config/firebase";
 import { signInWithPopup } from "firebase/auth";
+import { fetchContinueGames } from "../../store/slices/gameSlice";
 
 const Register = () => {
   const dispatch = useDispatch();
@@ -78,6 +79,7 @@ const Register = () => {
         })
       ).unwrap();
 
+      dispatch(fetchContinueGames());
       toast.success("User Logged In Successfully");
     } catch (error) {
       console.error("Google auth error:", error);
@@ -95,6 +97,7 @@ const Register = () => {
         })
       ).unwrap();
 
+      dispatch(fetchContinueGames());
       toast.success("User Logged In Successfully");
     } catch (error) {
       console.error("Twitter auth error:", error);
@@ -121,6 +124,7 @@ const Register = () => {
               })
             ).unwrap();
 
+            dispatch(fetchContinueGames());
             toast.success("User Logged In Successfully");
           } catch (error) {
             console.error("Telegram auth error:", error);
@@ -153,6 +157,7 @@ const Register = () => {
           password: passwordDetails,
         })
       ).unwrap();
+      dispatch(fetchContinueGames());
       toast.success("User Logged In Successfully");
     } catch (err) {
       console.error("Registration error:", err);
@@ -177,6 +182,7 @@ const Register = () => {
       setDetails(true);
       setUsernameDetails(result.credentials.username);
       setPasswordDetails(result.credentials.password);
+      dispatch(fetchContinueGames());
     } catch (error) {
       console.error("Instant registration error:", error);
     } finally {
@@ -213,6 +219,7 @@ const Register = () => {
           username: user.username || `tg${user.id}`,
         })
       );
+      dispatch(fetchContinueGames());
     };
 
     return () => {

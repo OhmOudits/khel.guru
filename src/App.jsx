@@ -60,6 +60,7 @@ import SportsTennis from "./pages/SportsTennis";
 import SportsBetTennis from "./pages/SportBetTennis";
 import SportsBadminton from "./pages/SportsBadminton";
 import SportsBetBadminton from "./pages/SportBetBadminton";
+import { fetchContinueGames, getPopularGames } from "./store/slices/gameSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -116,8 +117,11 @@ function App() {
 
     if (storedToken) {
       dispatch(fetchUserData());
+      dispatch(fetchContinueGames());
       initializeSocket(storedToken);
     }
+
+    dispatch(getPopularGames());
   }, [dispatch]);
 
   useEffect(() => {

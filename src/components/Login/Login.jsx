@@ -20,6 +20,7 @@ import LoadingComponent from "../LoadingComponent";
 import { auth, googleProvider, twitterProvider } from "../../config/firebase";
 import { signInWithPopup } from "firebase/auth";
 import { toast } from "react-toastify";
+import { fetchContinueGames } from "../../store/slices/gameSlice";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -69,6 +70,7 @@ const Login = () => {
         })
       ).unwrap();
 
+      dispatch(fetchContinueGames());
       toast.success("User Logged In Successfully");
     } catch (error) {
       console.error("Google auth error:", error);
@@ -85,6 +87,7 @@ const Login = () => {
           xId: user.uid,
         })
       ).unwrap();
+      dispatch(fetchContinueGames());
 
       toast.success("User Logged In Successfully");
     } catch (error) {
@@ -111,6 +114,7 @@ const Login = () => {
                 hash: user.hash,
               })
             ).unwrap();
+            dispatch(fetchContinueGames());
 
             toast.success("User Logged In Successfully");
           } catch (error) {
@@ -131,6 +135,7 @@ const Login = () => {
     }
     try {
       await dispatch(login({ email, password })).unwrap();
+      dispatch(fetchContinueGames());
       toast.success("User Logged In Successfully");
     } catch (err) {
       console.error("Login error:", err);
