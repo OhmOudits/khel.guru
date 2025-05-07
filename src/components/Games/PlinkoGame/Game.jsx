@@ -6,6 +6,7 @@ import {
   disconnectPlinkoSocket,
   getPlinkoSocket,
 } from "../../../socket/games/plinko";
+import { toast } from "react-toastify";
 
 const Game = ({ bet, rows, risk, engine, width, height, canvasRef }) => {
   const [binColors, setBinColors] = useState(binColorsByRowCount(rows)); // State for bin colors based on rows

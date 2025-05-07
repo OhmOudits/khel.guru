@@ -7,6 +7,13 @@ import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import {
+  getScratchSocket,
+  initializeScratchSocket,
+} from "../../../socket/games/scratch";
+import checkLoggedIn from "../../../utils/isloggedIn";
 
 // constansts
 export const balloonTypes = [
@@ -51,13 +58,34 @@ const Frame = () => {
   const [hotkeys, setHotkeys] = useState(false);
   const [startAutoBet, setStartAutoBet] = useState(false);
 
+  const navigate = useNavigate();
+  const token = useSelector((state) => state.auth?.token);
+  const initSocket = () => {
+    const scratchSocket = getScratchSocket();
+    if (!scratchSocket) {
+      initializeScratchSocket(token);
+    }
+  };
+
   const handleAutoBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
     if (!startAutoBet && nbets > 0) {
       setStartAutoBet(true);
     }
   };
 
   const handleMineBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
     if (!betStarted) {
       setBettingStarted(true);
     }

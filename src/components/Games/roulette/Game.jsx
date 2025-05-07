@@ -1,5 +1,11 @@
 import { BettingBoard } from "./comp/BettingBoard";
 import Roulette from "./comp/roulettewheel";
+import { toast } from "react-toastify";
+import {
+  disconnectRouletteSocket,
+  getRouletteSocket,
+} from "../../../socket/games/roulette";
+import { useEffect } from "react";
 
 function Game({
   // eslint-disable-next-line
@@ -17,8 +23,31 @@ function Game({
   // eslint-disable-next-line
   setCurrentBets,
 }) {
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const rouletteSocket = getRouletteSocket();
+
+      if (rouletteSocket) {
+        rouletteSocket.on("error", ({ message }) => {
+          console.error("Join game error:", message);
+          toast.error(`Error joining game: ${message}`);
+        });
+      }
+    }
+
+    return () => {
+      const rouletteSocket = getRouletteSocket();
+      if (rouletteSocket) {
+        rouletteSocket.off("error");
+      }
+      disconnectRouletteSocket();
+    };
+  }, []);
+
   const handlePlaceBet = (number) => {
     console.log("betStarted:", betStarted, "startAutoBet:", startAutoBet);
+
     if (betStarted || startAutoBet) {
       console.log("Cannot place bet while betting is active.");
       return;

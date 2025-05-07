@@ -32,6 +32,7 @@ const GameComponent = ({
       resetGame();
     }
   }, [bettingStarted]);
+
   useEffect(() => {
     if (balloonNumber >= targetMultiplier) {
       setCurrenthistory((prev) => [

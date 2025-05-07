@@ -1,6 +1,6 @@
+import Frame from "./Frame";
 import { useSelector } from "react-redux";
 import { getSocket } from "../../../socket/socket";
-import Frame from "./Frame";
 import { initializeWheelSocket } from "../../../socket/games/wheel";
 import { useEffect } from "react";
 

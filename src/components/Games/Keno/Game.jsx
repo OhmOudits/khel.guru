@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { io } from "socket.io-client";
 import gift from "../../../assets/gift.svg";
+import {
+  disconnectKenoSocket,
+  getKenoSocket,
+} from "../../../socket/games/keno";
+import { toast } from "react-toastify";
 
 const Game = ({
   mines,
@@ -16,6 +21,41 @@ const Game = ({
   arrayLength,
 }) => {
   const [grid, setGrid] = useState([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const kenoSocket = getKenoSocket();
+
+      if (kenoSocket) {
+        kenoSocket.on("error", ({ message }) => {
+          console.error("Join game error:", message);
+          toast.error(`Error joining game: ${message}`);
+        });
+      }
+    }
+
+    return () => {
+      const kenoSocket = getKenoSocket();
+      if (kenoSocket) {
+        kenoSocket.off("error");
+      }
+      disconnectKenoSocket();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (betStarted) {
+      const kenoSocket = getKenoSocket();
+      if (kenoSocket) {
+        kenoSocket.emit("add_game", {});
+        console.log("Emitted add_game event");
+      } else {
+        console.error("Keno socket not initialized");
+        alert("Failed to join game: Socket not connected");
+      }
+    }
+  }, [betStarted]);
 
   // Helper function to create grid
   useEffect(() => {

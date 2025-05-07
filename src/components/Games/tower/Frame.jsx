@@ -9,6 +9,13 @@ import SideBar from "./SideBar";
 import Game from "./Game";
 import { useSelector } from "react-redux";
 
+import checkLoggedIn from "../../../utils/isloggedIn";
+import { useNavigate } from "react-router-dom";
+import {
+  getTowerSocket,
+  initializeTowerSocket,
+} from "../../../socket/games/tower";
+
 const Frame = () => {
   const user = useSelector((state) => state?.auth?.user?.user);
   const [isFav, setIsFav] = useState(false);
@@ -43,7 +50,23 @@ const Frame = () => {
     Array.from({ length: rows }, () => Array(cols).fill(0))
   );
 
+  const navigate = useNavigate();
+  const token = useSelector((state) => state.auth?.token);
+  const initSocket = () => {
+    const towerSocket = getTowerSocket();
+    if (!towerSocket) {
+      initializeTowerSocket(token);
+    }
+  };
+
   const handleBetstarted = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
+
     if (!betStarted) {
       setBettingStarted(true);
     }
@@ -55,6 +78,12 @@ const Frame = () => {
   };
 
   const handleAutoBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
     if (!startAutoBet && nbets != 0) {
       setStartAutoBet(true);
     }

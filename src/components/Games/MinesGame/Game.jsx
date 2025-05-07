@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import bomb from "../../../assets/boom.png";
 import diamond from "../../../assets/diamond.png";
+import {
+  disconnectMinesSocket,
+  getMinesSocket,
+} from "../../../socket/games/mines";
+import { toast } from "react-toastify";
 
 const Game = ({
   mines,
@@ -19,7 +24,7 @@ const Game = ({
   setSelectedBoxes,
   mode,
   nbets,
-  setSelectBoxes
+  setSelectBoxes,
 }) => {
   const [grid, setGrid] = useState([]);
   const [gameOver, setGameOver] = useState(false);
@@ -27,15 +32,49 @@ const Game = ({
 
   const autoGrid = Array.from({ length: 25 });
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const minesSocket = getMinesSocket();
+
+      if (minesSocket) {
+        minesSocket.on("error", ({ message }) => {
+          console.error("Join game error:", message);
+          toast.error(`Error joining game: ${message}`);
+        });
+      }
+    }
+
+    return () => {
+      const minesSocket = getMinesSocket();
+      if (minesSocket) {
+        minesSocket.off("error");
+      }
+      disconnectMinesSocket();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (betStarted) {
+      const minesSocket = getMinesSocket();
+      if (minesSocket) {
+        minesSocket.emit("add_game", {});
+        console.log("Emitted add_game event");
+      } else {
+        console.error("Parachute socket not initialized");
+        alert("Failed to join game: Socket not connected");
+      }
+    }
+  }, [betStarted]);
+
   const handleAutoGridClick = (index) => {
-    
-    if(selectedBoxes.includes(index)){
+    if (selectedBoxes.includes(index)) {
       setSelectedBoxes((prev) => prev.filter((i) => i !== index));
-    }else{
-      if(selectedBoxes.length >= 25 - mines)  return;
+    } else {
+      if (selectedBoxes.length >= 25 - mines) return;
       setSelectedBoxes((prev) => [...prev, index]);
     }
-  }  
+  };
 
   // Helper function to create the grid
   const createGrid = () => {
@@ -73,15 +112,15 @@ const Game = ({
 
   const handleBoxClick = (index) => {
     if (gameOver || gameWon || grid[index]?.revealed) return;
-    if(!betStarted && !startAutoBet) return;
+    if (!betStarted && !startAutoBet) return;
 
-    console.log(index)
+    console.log(index);
 
     setGrid((prevGrid) =>
       prevGrid.map((box, idx) => {
         if (idx === index) {
           if (box.type === "bomb") {
-            if(!startAutoBet){
+            if (!startAutoBet) {
               setGameOver(true);
             }
             return { ...box, revealed: true };
@@ -121,22 +160,16 @@ const Game = ({
       startAutoBet &&
       selectedBoxes.length > 0
     ) {
-      autoBet(nbets)
+      autoBet(nbets);
     }
-  }, [
-    mode,
-    selectBoxes,
-    startAutoBet,
-    selectedBoxes,
-    nbets,
-  ]);
+  }, [mode, selectBoxes, startAutoBet, selectedBoxes, nbets]);
 
   const autoBet = async (count) => {
-    if(count <= 0){
+    if (count <= 0) {
       setSelectBoxes(false);
       setStartAutoBet(false);
       resetGame();
-      return
+      return;
     }
 
     // run game here
@@ -147,7 +180,7 @@ const Game = ({
     }
 
     setTimeout(() => autoBet(count - 1), 2000);
-  }
+  };
 
   useEffect(() => {
     if (gameOver || gameWon || gameCheckout) {
@@ -178,39 +211,65 @@ const Game = ({
   return (
     <div className="flex flex-col items-center justify-center py-10 w-full relative">
       <div className="grid grid-cols-5 gap-2">
-        {(mode === "auto") && (
-          !selectBoxes ? (
+        {mode === "auto" &&
+          (!selectBoxes ? (
             <>
-            {autoGrid.map((_, index) => (
-            <motion.div
-              key={index}
-              className={`w-24 h-24 max-lg:w-16 max-lg:h-16 ${
-                selectedBoxes.includes(index)
-                  ? "bg-green-500"
-                  : `${selectedBoxes.length === 25 - mines ? "bg-gray-950" : "bg-gray-800 hover:bg-gray-700" }`
-              } rounded-lg flex items-center justify-center cursor-pointer`}
-              whileHover={{ y: -5 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => handleAutoGridClick(index)}
-            >
-            </motion.div>
-          ))}          
-          </> 
-          ) : 
-          (
+              {autoGrid.map((_, index) => (
+                <motion.div
+                  key={index}
+                  className={`w-24 h-24 max-lg:w-16 max-lg:h-16 ${
+                    selectedBoxes.includes(index)
+                      ? "bg-green-500"
+                      : `${
+                          selectedBoxes.length === 25 - mines
+                            ? "bg-gray-950"
+                            : "bg-gray-800 hover:bg-gray-700"
+                        }`
+                  } rounded-lg flex items-center justify-center cursor-pointer`}
+                  whileHover={{ y: -5 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => handleAutoGridClick(index)}
+                ></motion.div>
+              ))}
+            </>
+          ) : (
+            <>
+              {grid.map((box, index) => (
+                <motion.div
+                  key={index}
+                  className={`w-24 h-24 max-lg:w-16 max-lg:h-16 ${
+                    box.revealed
+                      ? "bg-gray-950"
+                      : selectedBoxes.includes(index)
+                      ? "bg-gray-800"
+                      : "bg-gray-700"
+                  } rounded-lg flex items-center justify-center cursor-pointer`}
+                  whileHover={!box.revealed ? { y: -5 } : {}}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  {box.revealed && (
+                    <img
+                      src={box.type === "diamond" ? diamond : bomb}
+                      alt={box.type}
+                      className="w-10 h-10"
+                    />
+                  )}
+                </motion.div>
+              ))}
+            </>
+          ))}
+
+        {mode === "manual" && (
           <>
             {grid.map((box, index) => (
               <motion.div
                 key={index}
                 className={`w-24 h-24 max-lg:w-16 max-lg:h-16 ${
-                  box.revealed
-                    ? "bg-gray-950"
-                    : selectedBoxes.includes(index)
-                    ? "bg-gray-800"
-                    : "bg-gray-700"
+                  box.revealed ? "bg-gray-950" : "bg-gray-700 hover:bg-gray-600"
                 } rounded-lg flex items-center justify-center cursor-pointer`}
                 whileHover={!box.revealed ? { y: -5 } : {}}
                 whileTap={{ scale: 0.9 }}
+                onClick={() => handleBoxClick(index)}
               >
                 {box.revealed && (
                   <img
@@ -220,32 +279,7 @@ const Game = ({
                   />
                 )}
               </motion.div>
-          ))}          
-          </> 
-          )
-        )}
-
-        {mode === "manual" && (
-          <>
-            {grid.map((box, index) => (
-            <motion.div
-              key={index}
-              className={`w-24 h-24 max-lg:w-16 max-lg:h-16 ${
-                box.revealed ? "bg-gray-950" : "bg-gray-700 hover:bg-gray-600"
-              } rounded-lg flex items-center justify-center cursor-pointer`}
-              whileHover={!box.revealed ? { y: -5 } : {}}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => handleBoxClick(index)}
-            >
-              {box.revealed && (
-                <img
-                  src={box.type === "diamond" ? diamond : bomb}
-                  alt={box.type}
-                  className="w-10 h-10"
-                />
-              )}
-            </motion.div>
-          ))}          
+            ))}
           </>
         )}
       </div>

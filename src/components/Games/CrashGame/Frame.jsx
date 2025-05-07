@@ -10,6 +10,14 @@ import Game from "./Game";
 import SideBar from "./Sidebar";
 import History from "../../Frame/History";
 
+import { useSelector } from "react-redux";
+import {
+  getCrashSocket,
+  initializeCrashSocket,
+} from "../../../socket/games/crash";
+import checkLoggedIn from "../../../utils/isloggedIn";
+import { useNavigate } from "react-router-dom";
+
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
@@ -42,7 +50,32 @@ const Frame = () => {
   const [value, setValue] = useState(1.0);
   const [autoMultipyTarget, setAutoMultipyTarget] = useState("1.01");
 
+  const token = useSelector((state) => state.auth?.token);
+  const initSocket = () => {
+    const wheelSocket = getCrashSocket();
+    if (!wheelSocket) {
+      initializeCrashSocket(token);
+    }
+  };
+
+  const navigate = useNavigate();
   const handleBetClick = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
+
+    const crashSocket = getCrashSocket();
+    if (crashSocket) {
+      crashSocket.emit("add_game", {});
+      console.log("Emitted add_game event");
+    } else {
+      console.error("Wheel socket not initialized");
+      toast.error("Failed to join game: Socket not connected");
+    }
+
     if (!disableBet) {
       setBettingStarted(true);
       setCheckout(false);
@@ -70,6 +103,13 @@ const Frame = () => {
       autoMultipyTarget >= 1.01 &&
       !disableBet
     ) {
+      if (!checkLoggedIn()) {
+        navigate(`?tab=${"login"}`, { replace: true });
+        return;
+      }
+
+      initSocket();
+
       setStartAutoBet(true);
       setCheckout(true);
     }

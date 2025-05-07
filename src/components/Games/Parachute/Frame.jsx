@@ -17,8 +17,6 @@ import {
 import { useSelector } from "react-redux";
 
 const Frame = () => {
-  const navigate = useNavigate();
-
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [nbets, setNBets] = useState(0);
@@ -44,8 +42,8 @@ const Frame = () => {
   const [difficulty, setDifficulty] = useState("medium");
   const [autoMultipyTarget, setAutoMultipyTarget] = useState("1.01");
 
+  const navigate = useNavigate();
   const token = useSelector((state) => state.auth?.token);
-
   const initSocket = () => {
     const parachuteSocket = getParachuteSocket();
     if (!parachuteSocket) {

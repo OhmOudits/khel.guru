@@ -9,6 +9,13 @@ import SideBar from "./SideBar";
 import Game from "./Game";
 import { chances } from "./constants";
 import Chances from "./Chances";
+import { useNavigate } from "react-router-dom";
+import {
+  getKenoSocket,
+  initializeKenoSocket,
+} from "../../../socket/games/keno";
+import checkLoggedIn from "../../../utils/isloggedIn";
+import { useSelector } from "react-redux";
 
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
@@ -47,12 +54,28 @@ const Frame = () => {
   const [valid, setValid] = useState(false);
   const [things, setThings] = useState([]);
 
+  const navigate = useNavigate();
+  const token = useSelector((state) => state.auth?.token);
+  const initSocket = () => {
+    const kenoSocket = getKenoSocket();
+    if (!kenoSocket) {
+      initializeKenoSocket(token);
+    }
+  };
+
   useEffect(() => {
     setThings(chances(Risk));
   }, [Risk]);
 
   const handleMineBet = () => {
     if (!betStarted && valid) {
+      if (!checkLoggedIn()) {
+        navigate(`?tab=${"login"}`, { replace: true });
+        return;
+      }
+
+      initSocket();
+
       setBettingStarted(true);
       setWinnedGifts(-1);
       setGameOver(false);
@@ -65,6 +88,13 @@ const Frame = () => {
   };
 
   const handleAutoBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
+
     if (!startAutoBet && nbets != 0 && valid) {
       setStartAutoBet(true);
     }

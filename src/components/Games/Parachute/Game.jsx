@@ -62,7 +62,7 @@ const Game = ({
         console.log("Emitted add_game event");
       } else {
         console.error("Parachute socket not initialized");
-        alert("Failed to join game: Socket not connected");
+        toast.error("Failed to join game: Socket not connected");
       }
     }
   }, [bettingStarted]);

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import "../../../../styles/Roulette.css";
+import { getRouletteSocket } from "../../../../socket/games/roulette";
+import { toast } from "react-toastify";
 
 const Roulette = ({
   // eslint-disable-next-line
@@ -27,6 +29,16 @@ const Roulette = ({
   // eslint-disable-next-line
   const spinRoulette = () => {
     if (isSpinning) return;
+
+    const rouletteSocket = getRouletteSocket();
+    if (rouletteSocket) {
+      rouletteSocket.emit("add_game", {});
+      console.log("Emitted add_game event");
+    } else {
+      console.error("Roulette socket not initialized");
+      toast.error("Failed to join game: Socket not connected");
+      return;
+    }
 
     setIsSpinning(true);
     const randomIndex = Math.floor(Math.random() * numbers.length);

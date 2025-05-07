@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../../../styles/Frame.css";
 import FairnessModal from "../../Frame/FairnessModal";
 import FrameFooter from "../../Frame/FrameFooter";
@@ -8,6 +8,16 @@ import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
 import { CARD_SUITS, CARD_VALUES } from "./constant";
+
+import { useSelector } from "react-redux";
+import {
+  disconnectHiloSocket,
+  getHiloSocket,
+  initializeHiloSocket,
+} from "../../../socket/games/hilo";
+import checkLoggedIn from "../../../utils/isloggedIn";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
@@ -31,6 +41,35 @@ const Frame = () => {
   const [hotkeys, setHotkeys] = useState(false);
   const [hotkeysEnableddiamondCounts, setHotkeysEnabled] = useState(false);
 
+  const navigate = useNavigate();
+  const token = useSelector((state) => state.auth?.token);
+
+  const initSocket = () => {
+    const hiloSocket = getHiloSocket();
+    if (!hiloSocket) {
+      initializeHiloSocket(token);
+    }
+  };
+
+  useEffect(() => {
+    const hiloSocket = getHiloSocket();
+
+    if (hiloSocket) {
+      hiloSocket.on("error", ({ message }) => {
+        console.error("Join game error:", message);
+        toast.error(`Error joining game: ${message}`);
+      });
+    }
+
+    return () => {
+      const hiloSocket = getHiloSocket();
+      if (hiloSocket) {
+        hiloSocket.off("error");
+      }
+      disconnectHiloSocket();
+    };
+  }, []);
+
   const [currentCard, setCurrentCard] = useState({
     value: CARD_VALUES[4],
     suit: CARD_SUITS[2],
@@ -53,7 +92,24 @@ const Frame = () => {
   };
 
   const handleBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
+
     if (!betStarted) {
+      const hiloSocket = getHiloSocket();
+      if (hiloSocket) {
+        hiloSocket.emit("add_game", {});
+        console.log("Emitted add_game event");
+      } else {
+        console.error("Hilo socket not initialized");
+        toast.error("Failed to join game: Check Your Internet Connection");
+        return;
+      }
+
       setBettingStarted(true);
       const newCard = getRandomCard();
 

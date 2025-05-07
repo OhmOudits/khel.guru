@@ -7,6 +7,15 @@ import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
+
+import checkLoggedIn from "../../../utils/isloggedIn";
+import { useNavigate } from "react-router-dom";
+import {
+  getRouletteSocket,
+  initializeRouletteSocket,
+} from "../../../socket/games/roulette";
+import { useSelector } from "react-redux";
+
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
@@ -20,11 +29,8 @@ const Frame = () => {
   const [profit, setProfit] = useState("0.000000");
   const [Difficulty, setDifficulty] = useState("Easy");
   const [betStarted, setBettingStarted] = useState(false);
-  // eslint-disable-next-line
   const [loading, setLoading] = useState(false);
-  // eslint-disable-next-line
   const [totalProfit, setTotalProfit] = useState("0.000000");
-  // for autopickup and clearing the table
 
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
@@ -44,7 +50,22 @@ const Frame = () => {
 
   const [currentBets, setCurrentBets] = useState({});
 
+  const navigate = useNavigate();
+  const token = useSelector((state) => state.auth?.token);
+  const initSocket = () => {
+    const rouletteSocket = getRouletteSocket();
+    if (!rouletteSocket) {
+      initializeRouletteSocket(token);
+    }
+  };
+
   const handleBetstarted = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
     if (!betStarted && currentBets.length !== 0) {
       setBettingStarted(true);
     }
@@ -56,6 +77,12 @@ const Frame = () => {
   };
 
   const handleAutoBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
     if (!startAutoBet && nbets != 0 && currentBets.length !== 0) {
       setStartAutoBet(true);
     }

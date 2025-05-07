@@ -13,6 +13,15 @@ import History from "../../Frame/History";
 import BetCalculator from "./Chances";
 import { toast } from "react-toastify";
 
+import checkLoggedIn from "../../../utils/isloggedIn";
+import { useNavigate } from "react-router-dom";
+import {
+  disconnectSlideSocket,
+  getSlideSocket,
+  initializeSlideSocket,
+} from "../../../socket/games/slide";
+import { useSelector } from "react-redux";
+
 const DiceFrame = () => {
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
@@ -54,12 +63,62 @@ const DiceFrame = () => {
   const [startAutoBet, setStartAutoBet] = useState(false);
 
   console.log(gamestarted, bettingStarted, TargetNumber);
+
+  const navigate = useNavigate();
+  const token = useSelector((state) => state.auth?.token);
+  const initSocket = () => {
+    const slideSocket = getSlideSocket();
+    if (!slideSocket) {
+      initializeSlideSocket(token);
+    }
+  };
+
   useEffect(() => {
     if (gamestarted == false && bettingStarted == true) {
       setBettingStarted(false);
     }
   }, [gamestarted]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const slideSocket = getSlideSocket();
+
+      if (slideSocket) {
+        slideSocket.on("error", ({ message }) => {
+          console.error("Join game error:", message);
+          toast.error(`Error joining game: ${message}`);
+        });
+      }
+    }
+
+    return () => {
+      const slideSocket = getSlideSocket();
+      if (slideSocket) {
+        slideSocket.off("error");
+      }
+      disconnectSlideSocket();
+    };
+  }, []);
+
   const handleBetClick = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
+
+    const slideSocket = getSlideSocket();
+    if (slideSocket) {
+      slideSocket.emit("add_game", {});
+      console.log("Emitted add_game event");
+    } else {
+      console.error("Slide socket not initialized");
+      toast.error("Failed to join game: Socket not connected");
+      return;
+    }
+
     if (enteredMultipler > 1 && enteredMultipler < 9990) {
       setBettingStarted(true);
       setStart(true);
@@ -78,6 +137,12 @@ const DiceFrame = () => {
   };
 
   const handleAutoBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
     if (!startAutoBet && nbets > 0) {
       setStartAutoBet(true);
       autoBet(nbets);

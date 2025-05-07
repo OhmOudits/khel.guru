@@ -1,4 +1,10 @@
 import { useEffect, useState } from "react";
+import {
+  getTowerSocket,
+  disconnectTowerSocket,
+} from "../../../socket/games/tower";
+import { toast } from "react-toastify";
+
 export default function Game({
   bettingStarted,
   Difficulty,
@@ -83,6 +89,42 @@ export default function Game({
     setRightIndices([]);
     getBoxes();
   }, [Difficulty]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const towerSocket = getTowerSocket();
+
+      if (towerSocket) {
+        towerSocket.on("error", ({ message }) => {
+          console.error("Join game error:", message);
+          toast.error(`Error joining game: ${message}`);
+        });
+      }
+    }
+
+    return () => {
+      const towerSocket = getTowerSocket();
+      if (towerSocket) {
+        towerSocket.off("error");
+      }
+      disconnectTowerSocket();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (bettingStarted) {
+      const towerSocket = getTowerSocket();
+      if (towerSocket) {
+        towerSocket.emit("add_game", {});
+        console.log("Emitted add_game event");
+      } else {
+        console.error("Tower socket not initialized");
+        alert("Failed to join game: Socket not connected");
+        return;
+      }
+    }
+  }, [bettingStarted]);
 
   useEffect(() => {
     if (bettingStarted) {
@@ -275,6 +317,15 @@ export default function Game({
       return;
     }
 
+    const towerSocket = getTowerSocket();
+    if (towerSocket) {
+      towerSocket.emit("add_game", {});
+      console.log("Emitted add_game event");
+    } else {
+      console.error("Tower socket not initialized");
+      alert("Failed to join game: Socket not connected");
+      return;
+    }
     setCurrentRow(rows - 1);
     const indices = generateRightIndices(rows, cols, right);
     setRightIndices(indices);
@@ -283,7 +334,7 @@ export default function Game({
 
     for (let i = 0; i < autoSelectedBoxes.length; i++) {
       const { row, col } = autoSelectedBoxes[i];
-      console.log(row, col);
+
       const end = handleBoxClick(row, col, indices);
 
       if (end) {

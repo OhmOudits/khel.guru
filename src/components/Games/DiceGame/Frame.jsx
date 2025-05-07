@@ -11,7 +11,16 @@ import Sidebar from "./Sidebar";
 import GameComponent from "./Game";
 import History from "../../Frame/History";
 import BetCalculator from "./Chances";
+
 import { toast } from "react-toastify";
+import checkLoggedIn from "../../../utils/isloggedIn";
+import { useNavigate } from "react-router-dom";
+import {
+  getDiceSocket,
+  initializeDiceSocket,
+  disconnectDiceSocket,
+} from "../../../socket/games/dice";
+import { useSelector } from "react-redux";
 
 const DiceFrame = () => {
   const [isFav, setIsFav] = useState(false);
@@ -50,7 +59,55 @@ const DiceFrame = () => {
   const [winChance, setWinChance] = useState("50");
   const [startAutoBet, setStartAutoBet] = useState(false);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const diceSocket = getDiceSocket();
+
+      if (diceSocket) {
+        diceSocket.on("error", ({ message }) => {
+          console.error("Join game error:", message);
+          toast.error(`Error joining game: ${message}`);
+        });
+      }
+    }
+
+    return () => {
+      const diceSocket = getDiceSocket();
+      if (diceSocket) {
+        diceSocket.off("error");
+      }
+      disconnectDiceSocket();
+    };
+  }, []);
+
+  const navigate = useNavigate();
+  const token = useSelector((state) => state.auth?.token);
+  const initSocket = () => {
+    const diceSocket = getDiceSocket();
+    if (!diceSocket) {
+      initializeDiceSocket(token);
+    }
+  };
+
   const handleBetClick = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
+
+    const diceSocket = getDiceSocket();
+    if (diceSocket) {
+      diceSocket.emit("add_game", {});
+      console.log("Emitted add_game event");
+    } else {
+      console.error("Parachute socket not initialized");
+      toast.error("Failed to join game: Socket not connected");
+      return;
+    }
+
     if (Multiplier > 1 && Multiplier < 9990) {
       setBettingStarted(true);
       setStart(true);
@@ -69,6 +126,13 @@ const DiceFrame = () => {
   };
 
   const handleAutoBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
+
     if (!startAutoBet && nbets > 0) {
       setStartAutoBet(true);
       autoBet(nbets);

@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
 import ResponsiveSegmentedCircles from "./Rod";
+
+import {
+  disconnectTwistSocket,
+  getTwistSocket,
+} from "../../../socket/games/twist";
+import { toast } from "react-toastify";
+
 const BonusWheel = ({
   betTrigger,
   betInfo,
@@ -16,6 +23,41 @@ const BonusWheel = ({
   const diamonds = ["orange", "green", "purple", "skull", "null"];
 
   const [CurrentDiamond, setCurrentDiamond] = useState("purple");
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const twistSocket = getTwistSocket();
+
+      if (twistSocket) {
+        twistSocket.on("error", ({ message }) => {
+          console.error("Join game error:", message);
+          toast.error(`Error joining game: ${message}`);
+        });
+      }
+    }
+
+    return () => {
+      const twistSocket = getTwistSocket();
+      if (twistSocket) {
+        twistSocket.off("error");
+      }
+      disconnectTwistSocket();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (betTrigger) {
+      const twistSocket = getTwistSocket();
+      if (twistSocket) {
+        twistSocket.emit("add_game", {});
+        console.log("Emitted add_game event");
+      } else {
+        console.error("Twist socket not initialized");
+        alert("Failed to join game: Socket not connected");
+      }
+    }
+  }, [betTrigger]);
 
   useEffect(() => {
     if (betTrigger) {

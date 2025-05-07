@@ -14,6 +14,12 @@ import {
 import "tailwindcss/tailwind.css";
 import "../../../styles/Crash.css";
 
+import {
+  disconnectCrashSocket,
+  getCrashSocket,
+} from "../../../socket/games/crash";
+import { toast } from "react-toastify";
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -55,6 +61,19 @@ const Game = ({
   }, [countdown]);
 
   useEffect(() => {
+    if (isPlaying && startAutoBet) {
+      const crashSocket = getCrashSocket();
+      if (crashSocket) {
+        crashSocket.emit("add_game", {});
+        console.log("Emitted add_game event");
+      } else {
+        console.error("Wheel socket not initialized");
+        toast.error("Failed to join game: Socket not connected");
+      }
+    }
+  }, [isPlaying, startAutoBet]);
+
+  useEffect(() => {
     let interval;
     if (isPlaying) {
       interval = setInterval(() => {
@@ -91,6 +110,25 @@ const Game = ({
     nbets,
     targetHitCount,
   ]);
+
+  useEffect(() => {
+    const crashSocket = getCrashSocket();
+
+    if (crashSocket) {
+      crashSocket.on("error", ({ message }) => {
+        console.error("Join game error:", message);
+        toast.error(`Error joining game: ${message}`);
+      });
+    }
+
+    return () => {
+      const crashSocket = getCrashSocket();
+      if (crashSocket) {
+        crashSocket.off("error");
+      }
+      disconnectCrashSocket();
+    };
+  }, []);
 
   useEffect(() => {
     if (targetHitCount >= nbets) {

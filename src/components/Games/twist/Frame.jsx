@@ -8,6 +8,14 @@ import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
 
+import checkLoggedIn from "../../../utils/isloggedIn";
+import { useNavigate } from "react-router-dom";
+import {
+  getTwistSocket,
+  initializeTwistSocket,
+} from "../../../socket/games/twist";
+import { useSelector } from "react-redux";
+
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
@@ -42,12 +50,28 @@ const Frame = () => {
 
   const [startAutoBet, setStartAutoBet] = useState(false);
 
+  const navigate = useNavigate();
+  const token = useSelector((state) => state.auth?.token);
+  const initSocket = () => {
+    const twistSocket = getTwistSocket();
+    if (!twistSocket) {
+      initializeTwistSocket(token);
+    }
+  };
+
   const handlebet = () => {
     if (!betStarted) {
       setBettingStarted(true);
       setBettrigger(true);
     }
     setBettrigger(true);
+
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
 
     setTimeout(() => {
       setBettrigger(false);
@@ -69,6 +93,12 @@ const Frame = () => {
   };
 
   const handleAutoBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
     if (!startAutoBet && nbets > 0) {
       setStartAutoBet(true);
       autoBet(nbets);

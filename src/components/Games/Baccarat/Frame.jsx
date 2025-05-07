@@ -8,12 +8,22 @@ import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
 
+import { useSelector } from "react-redux";
+import {
+  disconnectBaccaratSocket,
+  getBaccaratSocket,
+  initializeBaccaratSocket,
+} from "../../../socket/games/baccarat";
+import checkLoggedIn from "../../../utils/isloggedIn";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [bet, setBet] = useState("0.000000");
   const [betStarted, setBettingStarted] = useState(false);
-  const [chipBet, setChipBet] = useState(0.00);
+  const [chipBet, setChipBet] = useState(0.0);
 
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
@@ -27,15 +37,60 @@ const Frame = () => {
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
 
-
   const [playerBet, setPlayerBet] = useState(0);
   const [tieBet, setTieBet] = useState(0);
   const [bankerBet, setBankerBet] = useState(0);
 
   const totalBet = playerBet + tieBet + bankerBet;
 
+  const navigate = useNavigate();
+  const token = useSelector((state) => state.auth?.token);
+
+  const initSocket = () => {
+    const baccaratSocket = getBaccaratSocket();
+    if (!baccaratSocket) {
+      initializeBaccaratSocket(token);
+    }
+  };
+
+  useEffect(() => {
+    const baccaratSocket = getBaccaratSocket();
+
+    if (baccaratSocket) {
+      baccaratSocket.on("error", ({ message }) => {
+        console.error("Join game error:", message);
+        toast.error(`Error joining game: ${message}`);
+      });
+    }
+
+    return () => {
+      const baccaratSocket = getBaccaratSocket();
+      if (baccaratSocket) {
+        baccaratSocket.off("error");
+      }
+      disconnectBaccaratSocket();
+    };
+  }, []);
+
   const handleBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
+
     if (!betStarted) {
+      const baccaratSocket = getBaccaratSocket();
+      if (baccaratSocket) {
+        baccaratSocket.emit("add_game", {});
+        console.log("Emitted add_game event");
+      } else {
+        console.error("Hilo socket not initialized");
+        toast.error("Failed to join game: Check Your Internet Connection");
+        return;
+      }
+
       setBettingStarted(true);
     }
   };
@@ -72,8 +127,7 @@ const Frame = () => {
                 handleCheckout={handleCheckout}
                 chipBet={chipBet}
                 setChipBet={setChipBet}
-                totalBet = {totalBet}
-                
+                totalBet={totalBet}
               />
 
               {/* Right Section */}
@@ -96,8 +150,7 @@ const Frame = () => {
                     setBankerBet={setBankerBet}
                     tieBet={tieBet}
                     setTieBet={setTieBet}
-                    
-                    />
+                  />
                 </div>
               </div>
             </div>

@@ -80,6 +80,7 @@ const Game = ({
       } else {
         console.error("Wheel socket not initialized");
         toast.error("Failed to join game: Socket not connected");
+        return;
       }
 
       spinWheel();

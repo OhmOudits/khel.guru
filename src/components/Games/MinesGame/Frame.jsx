@@ -7,7 +7,13 @@ import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
-// import { useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import {
+  getMinesSocket,
+  initializeMinesSocket,
+} from "../../../socket/games/mines";
+import checkLoggedIn from "../../../utils/isloggedIn";
 
 const Frame = () => {
   // const user = useSelector((state) => state.auth.user.user);
@@ -39,10 +45,26 @@ const Frame = () => {
   const [randomSelect, setRandomSelect] = useState(false);
   const [gameCheckout, setGameCheckout] = useState(false);
   const [startAutoBet, setStartAutoBet] = useState(false);
-  const [selectBoxes,setSelectBoxes] = useState(false);
-  const [selectedBoxes,setSelectedBoxes] = useState([]);
+  const [selectBoxes, setSelectBoxes] = useState(false);
+  const [selectedBoxes, setSelectedBoxes] = useState([]);
+
+  const token = useSelector((state) => state.auth?.token);
+
+  const initSocket = () => {
+    const minesSocket = getMinesSocket();
+    if (!minesSocket) {
+      initializeMinesSocket(token);
+    }
+  };
 
   const handleMineBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
+
     if (!betStarted) {
       setBettingStarted(true);
     }
@@ -52,7 +74,7 @@ const Frame = () => {
     setGameCheckout(true);
     setTimeout(() => {
       setBettingStarted(false);
-    },2000);
+    }, 2000);
   };
 
   const handleRandomSelect = () => {
@@ -73,23 +95,30 @@ const Frame = () => {
   }, [mines]);
 
   const handleAutoBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
+
     if (!startAutoBet && nbets != 0) {
       setStartAutoBet(true);
     }
   };
 
   const setback = () => {
-    if(!startAutoBet){
+    if (!startAutoBet) {
       setStartAutoBet(false);
       setSelectBoxes(false);
     }
-  }
+  };
 
   const handleSelectBoxes = () => {
-    if(!selectBoxes && selectedBoxes.length > 0){
-      setSelectBoxes(true)
+    if (!selectBoxes && selectedBoxes.length > 0) {
+      setSelectBoxes(true);
     }
-  }
+  };
 
   return (
     <>

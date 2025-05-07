@@ -85,12 +85,6 @@ const Frame = () => {
   }, [bet, rows, risk]);
 
   const handleBetClick = () => {
-    engine.dropBall();
-    if (!checkLoggedIn()) {
-      navigate(`?tab=${"login"}`, { replace: true });
-      return;
-    }
-
     initSocket();
     const plinkoSocket = getPlinkoSocket();
     if (plinkoSocket) {
@@ -99,6 +93,13 @@ const Frame = () => {
     } else {
       console.error("Plinko socket not initialized");
       toast.error("Failed to join game: Socket not connected");
+      return;
+    }
+
+    engine.dropBall();
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
     }
   };
 
@@ -116,7 +117,6 @@ const Frame = () => {
 
       const interval = setInterval(() => {
         if (engine && count < nbets) {
-          engine.dropBall();
           const plinkoSocket = getPlinkoSocket();
           if (plinkoSocket) {
             plinkoSocket.emit("add_game", {});
@@ -124,8 +124,10 @@ const Frame = () => {
           } else {
             console.error("Wheel socket not initialized");
             toast.error("Failed to join game: Socket not connected");
+            return;
           }
 
+          engine.dropBall();
           count++;
         } else {
           clearInterval(interval);

@@ -5,6 +5,16 @@ import SideBar from "./SideBar";
 import Game from "./Game";
 import { CARD_SUITS, CARD_VALUES, getCardValue } from "./constant";
 
+import { useSelector } from "react-redux";
+import {
+  disconnectBlackjackSocket,
+  getBlackjackSocket,
+  initializeBlackjackSocket,
+} from "../../../socket/games/blackjack";
+import checkLoggedIn from "../../../utils/isloggedIn";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
@@ -35,6 +45,35 @@ const Frame = () => {
   const [cards, setCards] = useState([]);
   const [isSmt, setIsSmt] = useState(true);
 
+  const navigate = useNavigate();
+  const token = useSelector((state) => state.auth?.token);
+
+  const initSocket = () => {
+    const blackjackSocket = getBlackjackSocket();
+    if (!blackjackSocket) {
+      initializeBlackjackSocket(token);
+    }
+  };
+
+  useEffect(() => {
+    const blackjackSocket = getBlackjackSocket();
+
+    if (blackjackSocket) {
+      blackjackSocket.on("error", ({ message }) => {
+        console.error("Join game error:", message);
+        toast.error(`Error joining game: ${message}`);
+      });
+    }
+
+    return () => {
+      const blackjackSocket = getBlackjackSocket();
+      if (blackjackSocket) {
+        blackjackSocket.off("error");
+      }
+      disconnectBlackjackSocket();
+    };
+  }, []);
+
   const createDeck = () => {
     let deck = [];
 
@@ -61,7 +100,24 @@ const Frame = () => {
   const [deck, setDeck] = useState(createDeck());
 
   const handleBetStarted = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
+
     if (!betStarted) {
+      const blackjackSocket = getBlackjackSocket();
+      if (blackjackSocket) {
+        blackjackSocket.emit("add_game", {});
+        console.log("Emitted add_game event");
+      } else {
+        console.error("Blackjack socket not initialized");
+        toast.error("Failed to join game: Check Your Internet Connection");
+        return;
+      }
+
       setBettingStarted(true);
       const deckCards = createDeck();
       setCards(deckCards);

@@ -12,6 +12,16 @@ import GameComponent from "./Game";
 import History from "../../Frame/History";
 import BetCalculator from "./Chances";
 
+import checkLoggedIn from "../../../utils/isloggedIn";
+import { useNavigate } from "react-router-dom";
+import {
+  disconnectLimboSocket,
+  getLimboSocket,
+  initializeLimboSocket,
+} from "../../../socket/games/limbo";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+
 const Frame = () => {
   // main states
   const [isFav, setIsFav] = useState(false);
@@ -45,6 +55,37 @@ const Frame = () => {
   const [currentHistory, setCurrentHistory] = useState([]);
   const [startAutoBet, setStartAutoBet] = useState(false);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const limboSocket = getLimboSocket();
+
+      if (limboSocket) {
+        limboSocket.on("error", ({ message }) => {
+          console.error("Join game error:", message);
+          toast.error(`Error joining game: ${message}`);
+        });
+      }
+    }
+
+    return () => {
+      const limboSocket = getLimboSocket();
+      if (limboSocket) {
+        limboSocket.off("error");
+      }
+      disconnectLimboSocket();
+    };
+  }, []);
+
+  const navigate = useNavigate();
+  const token = useSelector((state) => state.auth?.token);
+  const initSocket = () => {
+    const limboSocket = getLimboSocket();
+    if (!limboSocket) {
+      initializeLimboSocket(token);
+    }
+  };
+
   const startGame = () => {
     setDefaultColor(true);
     setStart(true);
@@ -53,11 +94,36 @@ const Frame = () => {
   };
 
   const handleBetClick = () => {
-    setBettingStarted(true);
-    startGame();
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
+    if (!bettingStarted) {
+      setBettingStarted(true);
+
+      const limboSocket = getLimboSocket();
+      if (limboSocket) {
+        limboSocket.emit("add_game", {});
+        console.log("Emitted add_game event");
+      } else {
+        console.error("Limbo socket not initialized");
+        toast.error("Failed to join game: Socket not connected");
+        return;
+      }
+
+      startGame();
+    }
   };
 
   const handleAutoBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
     if (!startAutoBet && nbets > 0) {
       setStartAutoBet(true);
       autoBet(nbets);
@@ -66,6 +132,16 @@ const Frame = () => {
 
   const autoBet = (remainingBets) => {
     if (remainingBets > 0) {
+      const limboSocket = getLimboSocket();
+      if (limboSocket) {
+        limboSocket.emit("add_game", {});
+        console.log("Emitted add_game event");
+      } else {
+        console.error("Limbo socket not initialized");
+        toast.error("Failed to join game: Socket not connected");
+        return;
+      }
+
       startGame();
       const gameDuration = 1500 + 500;
       setTimeout(() => {

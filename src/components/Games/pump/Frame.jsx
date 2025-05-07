@@ -11,6 +11,16 @@ import Sidebar from "./Sidebar";
 import GameComponent from "./Game";
 import History from "../../Frame/History";
 
+import checkLoggedIn from "../../../utils/isloggedIn";
+import { useNavigate } from "react-router-dom";
+import {
+  disconnectPumpSocket,
+  getPumpSocket,
+  initializePumpSocket,
+} from "../../../socket/games/pump";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+
 const Frame = () => {
   // main states
   const [isFav, setIsFav] = useState(false);
@@ -61,22 +71,54 @@ const Frame = () => {
         144.0, 200.0,
       ]);
     } else if (risk == "Medium") {
-      setPumpMultipler([
-        1.01,
-        1.55,
-        2.56,
-        6.08,
-        12.0,
-        35.0,
-        50.0,
-        73.0,
-        200.0,
-      ]);
+      setPumpMultipler([1.01, 1.55, 2.56, 6.08, 12.0, 35.0, 50.0, 73.0, 200.0]);
     } else if (risk == "High") {
       setPumpMultipler([1.01, 2.56, 6.08, 35.0, 50.0, 73.0, 200.0]);
     }
-  } , [risk]);
+  }, [risk]);
+
+  const navigate = useNavigate();
+  const token = useSelector((state) => state.auth?.token);
+  const initSocket = () => {
+    const pumpSocket = getPumpSocket();
+    if (!pumpSocket) {
+      initializePumpSocket(token);
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const pumpSocket = getPumpSocket();
+
+      if (pumpSocket) {
+        pumpSocket.on("error", ({ message }) => {
+          console.error("Join game error:", message);
+          toast.error(`Error joining game: ${message}`);
+        });
+      }
+    }
+
+    return () => {
+      const pumpSocket = getPumpSocket();
+      if (pumpSocket) {
+        pumpSocket.off("error");
+      }
+      disconnectPumpSocket();
+    };
+  }, []);
+
   const startGame = () => {
+    const pumpSocket = getPumpSocket();
+    if (pumpSocket) {
+      pumpSocket.emit("add_game", {});
+      console.log("Emitted add_game event");
+    } else {
+      console.error("Pump socket not initialized");
+      toast.error("Failed to join game: Socket not connected");
+      return;
+    }
+
     setDefaultColor(true);
     setStart(true);
     setFinalNumber(null);
@@ -84,11 +126,23 @@ const Frame = () => {
   };
 
   const handleBetClick = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
     setBettingStarted(true);
     startGame();
   };
 
   const handleAutoBet = () => {
+    if (!checkLoggedIn()) {
+      navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    initSocket();
     if (!startAutoBet && nbets > 0) {
       setStartAutoBet(true);
       autoBet(nbets);

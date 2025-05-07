@@ -3,6 +3,11 @@ import { balloonTypes, diamondTypes } from "./Frame";
 import DiamondSlots from "./Slots";
 import MobileSlot from "./MobileMainSlot";
 import "../../../styles/Scratch.css";
+import {
+  disconnectScratchSocket,
+  getScratchSocket,
+} from "../../../socket/games/scratch";
+import { toast } from "react-toastify";
 
 const Game = ({
   betStarted,
@@ -18,6 +23,42 @@ const Game = ({
   nbets,
 }) => {
   const [grid, setGrid] = useState([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const scratchSocket = getScratchSocket();
+
+      if (scratchSocket) {
+        scratchSocket.on("error", ({ message }) => {
+          console.error("Join game error:", message);
+          toast.error(`Error joining game: ${message}`);
+        });
+      }
+    }
+
+    return () => {
+      const scratchSocket = getScratchSocket();
+      if (scratchSocket) {
+        scratchSocket.off("error");
+      }
+      disconnectScratchSocket();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (betStarted) {
+      const scratchSocket = getScratchSocket();
+      if (scratchSocket) {
+        scratchSocket.emit("add_game", {});
+        console.log("Emitted add_game event");
+      } else {
+        console.error("Scratch socket not initialized");
+        alert("Failed to join game: Socket not connected");
+        return;
+      }
+    }
+  }, [betStarted]);
 
   const handleBoxClick = (index) => {
     if (!betStarted) return;
@@ -197,6 +238,15 @@ const Game = ({
       return;
     }
 
+    const scratchSocket = getScratchSocket();
+    if (scratchSocket) {
+      scratchSocket.emit("add_game", {});
+      console.log("Emitted add_game event");
+    } else {
+      console.error("Scratch socket not initialized");
+      alert("Failed to join game: Socket not connected");
+      return;
+    }
     console.log("Running Auto Bet:", nbets - remainingBets + 1);
     await new Promise((resolve) => setTimeout(resolve, 500));
     handleAutoClick();
