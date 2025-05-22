@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   getTowerSocket,
   disconnectTowerSocket,
+  initializeTowerSocket,
 } from "../../../socket/games/tower";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import checkLoggedIn from "../../../utils/isloggedIn";
 
 export default function Game({
   bettingStarted,
@@ -22,6 +25,9 @@ export default function Game({
   cols,
   setRows,
   setCols,
+  setSidebarDisabled,
+  bet,
+  setBet,
 }) {
   const [right, setRight] = useState(3);
   const [currentRow, setCurrentRow] = useState(null);
@@ -32,6 +38,260 @@ export default function Game({
   const [showResult, setShowResult] = useState(false);
   const [emoji, setEmoji] = useState("/egg/easy.svg");
   const [bwEmoji, setBwEmoji] = useState("🍎");
+  const [isConnected, setIsConnected] = useState(false);
+  const [hasActiveGame, setHasActiveGame] = useState(false);
+  const [showGameOptions, setShowGameOptions] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [isDisconnected, setIsDisconnected] = useState(false);
+  const [showDisconnectModal, setShowDisconnectModal] = useState(false);
+  const navigate = useNavigate();
+  const isLoggedIn = checkLoggedIn();
+  const socketRef = useRef(null);
+  const [profit, setProfit] = useState(0);
+  const [loss, setLoss] = useState(0);
+  const [checkedOut, setCheckedOut] = useState(false);
+  const [selectedBox, setSelectedBox] = useState(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [lastSelectedBox, setLastSelectedBox] = useState(null);
+  const [isCheckoutInProgress, setIsCheckoutInProgress] = useState(false);
+  const [showGameOverModal, setShowGameOverModal] = useState(false);
+  const [showExistingGameModal, setShowExistingGameModal] = useState(false);
+
+  const getRowColFromIndex = (index) => {
+    const row = Math.floor(index / cols);
+    const col = index % cols;
+    return { row, col };
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      if (!socketRef.current) {
+        const token = localStorage.getItem("token");
+        initializeTowerSocket(token);
+        socketRef.current = getTowerSocket();
+      }
+
+      const towerSocket = socketRef.current;
+
+      if (towerSocket) {
+        towerSocket.on("connect", () => {
+          setIsConnected(true);
+          setIsDisconnected(false);
+          setShowDisconnectModal(false);
+          towerSocket.emit("get_game_state");
+        });
+
+        towerSocket.on("disconnect", () => {
+          setIsConnected(false);
+          setIsDisconnected(true);
+          setShowDisconnectModal(true);
+        });
+
+        towerSocket.on("game_state", (gameState) => {
+          if (gameState) {
+            if (gameState.existingGame) {
+              setShowExistingGameModal(true);
+              if (gameState.currentGame) {
+                setRightIndices(gameState.currentGame.grid);
+                setCurrentRow(gameState.currentGame.currentRow);
+                setSelectedBoxes(gameState.currentGame.selectedBoxes || []);
+              }
+              return;
+            }
+
+            if (gameState.checkedOut) {
+              setBettingStarted(false);
+              setShowGameOptions(false);
+              setShowCheckoutModal(true);
+              setProfit(gameState.profit);
+              setLoss(gameState.loss);
+              if (gameState.grid) {
+                setRightIndices(gameState.grid);
+              }
+              return;
+            }
+
+            if (gameState.grid) {
+              setRightIndices(gameState.grid);
+            }
+
+            if (gameState.betAmount) {
+              setBet(gameState.betAmount);
+            }
+
+            setGameOver(gameState.gameOver);
+            setGameWon(gameState.gameWon);
+            setCurrentRow(gameState.currentRow);
+            setSelectedBoxes(gameState.selectedBoxes || []);
+
+            if (gameState.hasActiveGame) {
+              setHasActiveGame(true);
+              setShowGameOptions(true);
+            } else {
+              setHasActiveGame(false);
+              setShowGameOptions(false);
+            }
+          }
+        });
+
+        towerSocket.on("reveal", (result) => {
+          console.log("Reveal result:", result);
+          setIsAnimating(false);
+
+          if (result.isCorrect) {
+            setSelectedBoxes((prev) => [
+              ...prev,
+              { row: result.row, col: result.col, correct: true },
+            ]);
+
+            if (result.gameWon) {
+              setGameWon(true);
+              setProfit(result.profit);
+              setShowCheckoutModal(true);
+              setBettingStarted(false);
+            } else {
+              setCurrentRow(result.currentRow);
+            }
+          } else {
+            setSelectedBoxes((prev) => [
+              ...prev,
+              { row: result.row, col: result.col, correct: false },
+            ]);
+            setGameOver(true);
+            setLoss(result.loss);
+            setShowGameOverModal(true);
+            setBettingStarted(false);
+          }
+
+          if (result.grid) {
+            setRightIndices(result.grid);
+          }
+        });
+
+        towerSocket.on("checkout_result", (result) => {
+          setProfit(result.profit);
+          setShowCheckoutModal(true);
+          setBettingStarted(false);
+          setGameOver(false);
+          setGameWon(false);
+          setSelectedBoxes([]);
+          setRightIndices([]);
+        });
+
+        towerSocket.on("error", ({ message }) => {
+          console.error("Game error:", message);
+          toast.error(`Error: ${message}`);
+        });
+
+        if (towerSocket.connected) {
+          setIsConnected(true);
+          setSidebarDisabled(false);
+        }
+
+        towerSocket.off("reveal");
+      }
+    }
+
+    return () => {
+      const towerSocket = socketRef.current;
+      if (towerSocket) {
+        towerSocket.off("connect");
+        towerSocket.off("disconnect");
+        towerSocket.off("game_state");
+        towerSocket.off("reveal");
+        towerSocket.off("checkout_result");
+        towerSocket.off("error");
+      }
+      disconnectTowerSocket();
+    };
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (bettingStarted && socketRef.current?.connected) {
+      setGameOver(false);
+      setGameWon(false);
+      setSelectedBoxes([]);
+      setRightIndices([]);
+
+      // Validate bet amount
+      const betAmount = parseFloat(bet);
+      if (isNaN(betAmount) || betAmount <= 0) {
+        toast.error("Please enter a valid bet amount");
+        setBettingStarted(false);
+        return;
+      }
+
+      socketRef.current.emit("add_game", {
+        betAmount: betAmount,
+        difficulty: Difficulty,
+      });
+    }
+  }, [bettingStarted]);
+
+  const handleBoxClick = (index) => {
+    if (
+      !bettingStarted ||
+      !socketRef.current?.connected ||
+      isAnimating ||
+      isCheckoutInProgress ||
+      checkedOut ||
+      gameOver ||
+      gameWon
+    ) {
+      return;
+    }
+
+    const { row, col } = getRowColFromIndex(index);
+    console.log("Clicked box:", { row, col, currentRow });
+
+    if (row !== currentRow) {
+      return;
+    }
+
+    // Check if box is already selected
+    const isAlreadySelected = selectedBoxes.some(
+      (box) => box.row === row && box.col === col
+    );
+    if (isAlreadySelected) {
+      return;
+    }
+
+    if (isAnimating) {
+      return;
+    }
+
+    setSelectedBox(index);
+    setIsAnimating(true);
+    setLastSelectedBox(index);
+
+    if (socketRef.current?.connected) {
+      console.log("Emitting reveal event for index:", index);
+      socketRef.current.emit("reveal", { index });
+    }
+  };
+
+  const handleContinueGame = () => {
+    if (socketRef.current?.connected) {
+      console.log("Continuing game...");
+      socketRef.current.emit("continue_game");
+      setBettingStarted(true);
+      setShowGameOptions(false);
+      setShowExistingGameModal(false);
+      setGameOver(false);
+      setGameWon(false);
+      setIsAnimating(false);
+      setIsCheckoutInProgress(false);
+      setCheckedOut(false);
+    }
+  };
+
+  const handleCheckout = () => {
+    if (socketRef.current?.connected) {
+      socketRef.current.emit("checkout");
+      setShowExistingGameModal(false);
+    }
+  };
 
   useEffect(() => {
     setAutoArray(Array.from({ length: rows }, () => Array(cols).fill(0)));
@@ -90,157 +350,40 @@ export default function Game({
     getBoxes();
   }, [Difficulty]);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const towerSocket = getTowerSocket();
-
-      if (towerSocket) {
-        towerSocket.on("error", ({ message }) => {
-          console.error("Join game error:", message);
-          toast.error(`Error joining game: ${message}`);
-        });
-      }
-    }
-
-    return () => {
-      const towerSocket = getTowerSocket();
-      if (towerSocket) {
-        towerSocket.off("error");
-      }
-      disconnectTowerSocket();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (bettingStarted) {
-      const towerSocket = getTowerSocket();
-      if (towerSocket) {
-        towerSocket.emit("add_game", {});
-        console.log("Emitted add_game event");
-      } else {
-        console.error("Tower socket not initialized");
-        alert("Failed to join game: Socket not connected");
-        return;
-      }
-    }
-  }, [bettingStarted]);
-
-  useEffect(() => {
-    if (bettingStarted) {
-      setGameOver(false);
-      setGameWon(false);
-      setSelectedBoxes([]);
-      setRightIndices([]);
-      setCurrentRow(rows - 1);
-      const indices = generateRightIndices(rows, cols, right);
-      setRightIndices(indices);
-      setShowResult(false);
-    } else {
-      if (gameOver || gameWon) {
-        setShowResult(true);
-      }
-      setCurrentRow(null);
-    }
-  }, [bettingStarted, rows, cols, right, gameOver, gameWon]);
-
-  const handleBoxClick = (rowIndex, colIndex, indices) => {
-    if (!startAutoBet) {
-      if (
-        !bettingStarted ||
-        gameOver ||
-        gameWon ||
-        rowIndex !== currentRow ||
-        selectedBoxes.some(
-          (box) => box.row === rowIndex && box.col === colIndex
-        )
-      ) {
-        return;
-      }
-    }
-
-    let isCorrect = false;
-
-    if (!startAutoBet) {
-      isCorrect = rightIndices[rowIndex].includes(colIndex);
-      setSelectedBoxes([
-        ...selectedBoxes,
-        { row: rowIndex, col: colIndex, correct: isCorrect },
-      ]);
-    } else {
-      isCorrect = indices[rowIndex].includes(colIndex);
-      setSelectedBoxes([
-        ...selectedBoxes,
-        { row: rowIndex, col: colIndex, correct: isCorrect },
-      ]);
-    }
-
-    if (!startAutoBet) {
-      if (!isCorrect) {
-        setGameOver(true);
-        setBettingStarted(false);
-      } else if (currentRow === 0) {
-        setSelectedBoxes([]);
-        setGameOver(false);
-        setGameWon(true);
-        setBettingStarted(false);
-      } else {
-        setCurrentRow(currentRow - 1);
-      }
-    } else {
-      if (!isCorrect) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  };
-
   const getBoxContent = (rowIndex, colIndex) => {
     const selectedBox = selectedBoxes.find(
       (box) => box.row === rowIndex && box.col === colIndex
     );
 
     if (selectedBox) {
-      return selectedBox.correct ? <img className="h-10" src={emoji} /> : "";
+      return selectedBox.correct ? (
+        <img className="h-10" src={emoji} alt="egg" />
+      ) : (
+        ""
+      );
     }
 
     if (showResult && rightIndices[rowIndex]?.includes(colIndex)) {
-      return <img className="h-10" src={emoji} />;
+      return <img className="h-10" src={emoji} alt="egg" />;
     }
 
     return bwEmoji;
   };
 
   const getBoxColor = (rowIndex, colIndex) => {
-    if (showResult) {
-      const isRightBox = rightIndices[rowIndex]?.includes(colIndex);
-      const selectedBox = selectedBoxes.find(
-        (box) => box.row === rowIndex && box.col === colIndex
-      );
-
-      if (selectedBox) {
-        return selectedBox.correct
-          ? "bg-[#1a2c38] border-2 bg-opacity-1 border-[#56687A]"
-          : "!bg-red-500 bg-opacity-75";
-      }
-      return isRightBox
-        ? "bg-[#1a2c28] border-2 bg-opacity-1 border-[#56687A]"
-        : "bg-[#213743] border-1";
-    }
-
     const selected = selectedBoxes.find(
       (box) => box.row === rowIndex && box.col === colIndex
     );
 
     if (selected) {
       return selected.correct
-        ? "bg-[#1a2c38] border-2  bg-opacity-1 border-[#56687A]"
-        : "bg-red-500  border-red-500 border-1";
+        ? "bg-[#1a2c38] border-2 bg-opacity-1 border-[#56687A]"
+        : "!bg-red-500 bg-opacity-75";
     }
 
-    if (rowIndex === currentRow && bettingStarted) {
-      return "bg-yellow-400 bg-opacity-25";
+    // Highlight current row
+    if (rowIndex === currentRow && bettingStarted && !gameOver && !gameWon) {
+      return "bg-yellow-400 bg-opacity-25 hover:bg-yellow-400 hover:bg-opacity-40";
     }
 
     return "bg-[#213743]";
@@ -323,7 +466,7 @@ export default function Game({
       console.log("Emitted add_game event");
     } else {
       console.error("Tower socket not initialized");
-      alert("Failed to join game: Socket not connected");
+      toast.error("Failed to join game: Socket not connected");
       return;
     }
     setCurrentRow(rows - 1);
@@ -335,7 +478,7 @@ export default function Game({
     for (let i = 0; i < autoSelectedBoxes.length; i++) {
       const { row, col } = autoSelectedBoxes[i];
 
-      const end = handleBoxClick(row, col, indices);
+      const end = handleBoxClick(row * cols + col);
 
       if (end) {
         setShowResult(true);
@@ -356,99 +499,220 @@ export default function Game({
   };
 
   return (
-    <>
-      <div className="w-full flex flex-col items-center justify-center h-full gap-1">
-        <img src="/tower.gif" className="-mb-14" alt="Tower Animation" />{" "}
-        <div className="bg-[#56687A] rounded-2xl lg:w-[60%] w-[90%] mb-5 p-2">
-          <div className="bg-[#1a2c38] w-[100%] h-full p-1 rounded grid place-items-center">
-            <div className="w-[98%]">
-              <>
-                {mode === "auto" ? (
-                  <>
-                    {startAutoBet ? (
-                      <>
-                        {Array.from({ length: rows }).map((_, rowIndex) => (
-                          <div
-                            key={`row-${rowIndex}`}
-                            className="flex justify-between "
-                          >
-                            {Array.from({ length: cols }).map((_, colIndex) => (
-                              <div
-                                key={`col-${colIndex}`}
-                                className={`w-full h-11 cursor-pointer ${getBoxColor(
-                                  rowIndex,
-                                  colIndex
-                                )} m-1 rounded-lg transition-colors duration-300 flex items-center justify-center relative overflow-hidden before:absolute before:content-[''] before:inset-0 before:opacity-10 before:bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.2)_1px,transparent_0),linear-gradient(45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.1)_75%),linear-gradient(-45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.1)_75%)] before:bg-[size:10px_10px,20px_20px,20px_20px] before:animate-[shimmer_3s_linear_infinite] before:pointer-events-none after:absolute after:content-[''] after:inset-0  ${getbg(
-                                  rowIndex,
-                                  colIndex
-                                )} ${getAutobg(rowIndex, colIndex)} ${
-                                  startAutoBet && getIsTrue(rowIndex, colIndex)
-                                } after:bg-[size:30px_30px]`}
-                              >
-                                {getBoxContent(rowIndex, colIndex)}
-                              </div>
-                            ))}
-                          </div>
-                        ))}
-                      </>
-                    ) : (
-                      <>
-                        {autoArray.map((colArray, rowIndex) => (
-                          <div
-                            key={`row-${rowIndex}`}
-                            className="flex justify-between"
-                          >
-                            {colArray.map((_, colIndex) => (
-                              <div
-                                key={`col-${colIndex}`}
-                                onClick={() =>
-                                  handleAutoClick(rowIndex, colIndex)
-                                }
-                                className={`w-full h-11 cursor-pointer ${getAutoBoxColor(
-                                  rowIndex,
-                                  colIndex
-                                )} m-1 rounded-lg transition-colors duration-300 flex items-center justify-center relative overflow-hidden before:absolute before:content-[''] before:inset-0 before:opacity-10 before:bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.2)_1px,transparent_0),linear-gradient(45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.1)_75%),linear-gradient(-45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.1)_75%)] before:bg-[size:10px_10px,20px_20px,20px_20px] before:animate-[shimmer_3s_linear_infinite] before:pointer-events-none after:absolute after:content-[''] after:inset-0  ${getAutobg(
-                                  rowIndex,
-                                  colIndex
-                                )} after:bg-[size:30px_30px]`}
-                              ></div>
-                            ))}
-                          </div>
-                        ))}
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    {Array.from({ length: rows }).map((_, rowIndex) => (
-                      <div
-                        key={`row-${rowIndex}`}
-                        className="flex justify-between "
-                      >
-                        {Array.from({ length: cols }).map((_, colIndex) => (
-                          <div
-                            key={`col-${colIndex}`}
-                            onClick={() => handleBoxClick(rowIndex, colIndex)}
-                            className={`w-full h-11 cursor-pointer ${getBoxColor(
-                              rowIndex,
-                              colIndex
-                            )} m-1 rounded-lg transition-colors duration-300 flex items-center justify-center relative overflow-hidden before:absolute before:content-[''] before:inset-0 before:opacity-10 before:bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.2)_1px,transparent_0),linear-gradient(45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.1)_75%),linear-gradient(-45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.1)_75%)] before:bg-[size:10px_10px,20px_20px,20px_20px] before:animate-[shimmer_3s_linear_infinite] before:pointer-events-none after:absolute after:content-[''] after:inset-0  ${getbg(
-                              rowIndex,
-                              colIndex
-                            )} after:bg-[size:30px_30px]`}
-                          >
-                            {getBoxContent(rowIndex, colIndex)}
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                  </>
-                )}
-              </>
-            </div>
+    <div className="w-full h-full flex flex-col items-center justify-center">
+      <img src="/tower.gif" className="-mb-14" alt="Tower Animation" />{" "}
+      <div className="bg-[#56687A] rounded-2xl lg:w-[60%] w-[90%] mb-5 p-2">
+        <div className="bg-[#1a2c38] w-[100%] h-full p-1 rounded grid place-items-center">
+          <div className="w-[98%]">
+            <>
+              {mode === "auto" ? (
+                <>
+                  {startAutoBet ? (
+                    <>
+                      {Array.from({ length: rows }).map((_, rowIndex) => (
+                        <div
+                          key={`row-${rowIndex}`}
+                          className="flex justify-between "
+                        >
+                          {Array.from({ length: cols }).map((_, colIndex) => (
+                            <div
+                              key={`col-${colIndex}`}
+                              className={`w-full h-11 cursor-pointer ${getBoxColor(
+                                rowIndex,
+                                colIndex
+                              )} m-1 rounded-lg transition-colors duration-300 flex items-center justify-center relative overflow-hidden before:absolute before:content-[''] before:inset-0 before:opacity-10 before:bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.2)_1px,transparent_0),linear-gradient(45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.1)_75%),linear-gradient(-45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.1)_75%)] before:bg-[size:10px_10px,20px_20px,20px_20px] before:animate-[shimmer_3s_linear_infinite] before:pointer-events-none after:absolute after:content-[''] after:inset-0  ${getbg(
+                                rowIndex,
+                                colIndex
+                              )} ${getAutobg(rowIndex, colIndex)} ${
+                                startAutoBet && getIsTrue(rowIndex, colIndex)
+                              } after:bg-[size:30px_30px]`}
+                            >
+                              {getBoxContent(rowIndex, colIndex)}
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      {autoArray.map((colArray, rowIndex) => (
+                        <div
+                          key={`row-${rowIndex}`}
+                          className="flex justify-between"
+                        >
+                          {colArray.map((_, colIndex) => (
+                            <div
+                              key={`col-${colIndex}`}
+                              onClick={() =>
+                                handleAutoClick(rowIndex, colIndex)
+                              }
+                              className={`w-full h-11 cursor-pointer ${getAutoBoxColor(
+                                rowIndex,
+                                colIndex
+                              )} m-1 rounded-lg transition-colors duration-300 flex items-center justify-center relative overflow-hidden before:absolute before:content-[''] before:inset-0 before:opacity-10 before:bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.2)_1px,transparent_0),linear-gradient(45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.1)_75%),linear-gradient(-45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.1)_75%)] before:bg-[size:10px_10px,20px_20px,20px_20px] before:animate-[shimmer_3s_linear_infinite] before:pointer-events-none after:absolute after:content-[''] after:inset-0  ${getAutobg(
+                                rowIndex,
+                                colIndex
+                              )} after:bg-[size:30px_30px]`}
+                            ></div>
+                          ))}
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  {Array.from({ length: rows }).map((_, rowIndex) => (
+                    <div
+                      key={`row-${rowIndex}`}
+                      className="flex justify-between "
+                    >
+                      {Array.from({ length: cols }).map((_, colIndex) => (
+                        <div
+                          key={`col-${colIndex}`}
+                          onClick={() =>
+                            handleBoxClick(rowIndex * cols + colIndex)
+                          }
+                          className={`w-full h-11 cursor-pointer ${getBoxColor(
+                            rowIndex,
+                            colIndex
+                          )} m-1 rounded-lg transition-colors duration-300 flex items-center justify-center relative overflow-hidden before:absolute before:content-[''] before:inset-0 before:opacity-10 before:bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.2)_1px,transparent_0),linear-gradient(45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.1)_75%),linear-gradient(-45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.1)_75%)] before:bg-[size:10px_10px,20px_20px,20px_20px] before:animate-[shimmer_3s_linear_infinite] before:pointer-events-none after:absolute after:content-[''] after:inset-0  ${getbg(
+                            rowIndex,
+                            colIndex
+                          )} after:bg-[size:30px_30px]`}
+                        >
+                          {getBoxContent(rowIndex, colIndex)}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </>
+              )}
+            </>
           </div>
         </div>
       </div>
-    </>
+      {showDisconnectModal && (
+        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="p-6 bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <h2 className="text-2xl font-bold text-white mb-4">
+              {isDisconnected ? "Disconnected from Game" : "Session Expired"}
+            </h2>
+            <p className="text-gray-300 text-lg mb-6">
+              {isDisconnected
+                ? "You have been disconnected from the game server. Would you like to reconnect?"
+                : "Your session has expired. Please login again to continue playing."}
+            </p>
+            <div className="flex gap-4 justify-center">
+              {isDisconnected ? (
+                <button
+                  className="px-6 py-3 text-lg bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold"
+                  onClick={() => {
+                    const token = localStorage.getItem("token");
+                    if (token) {
+                      initializeTowerSocket(token);
+                      socketRef.current = getTowerSocket();
+                    }
+                  }}
+                >
+                  Reconnect
+                </button>
+              ) : (
+                <button
+                  className="px-6 py-3 text-lg bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold"
+                  onClick={() => navigate("?tab=login", { replace: true })}
+                >
+                  Login
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      {showGameOverModal && (
+        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="p-6 bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <h2 className="text-2xl font-bold text-white mb-4">Game Over</h2>
+            <div className="text-gray-300 text-lg mb-6">
+              <p className="mb-2">Your loss:</p>
+              <p className="text-2xl font-bold text-red-500">
+                {loss.toFixed(8)} BTC
+              </p>
+            </div>
+            <div className="flex gap-4 justify-center">
+              <button
+                className="px-6 py-3 text-lg bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold"
+                onClick={() => {
+                  setShowGameOverModal(false);
+                  setBettingStarted(false);
+                }}
+              >
+                Play Again
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showCheckoutModal && (
+        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="p-6 bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <h2 className="text-2xl font-bold text-white mb-4">
+              {gameWon ? "Congratulations!" : "Checkout Complete"}
+            </h2>
+            <div className="text-gray-300 text-lg mb-6">
+              <p className="mb-2">Your {gameWon ? "profit" : "result"}:</p>
+              <p
+                className={`text-2xl font-bold ${
+                  gameWon
+                    ? "text-green-500"
+                    : profit > 0
+                    ? "text-green-500"
+                    : "text-red-500"
+                }`}
+              >
+                {profit.toFixed(8)} BTC
+              </p>
+            </div>
+            <div className="flex gap-4 justify-center">
+              <button
+                className="px-6 py-3 text-lg bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold"
+                onClick={() => {
+                  setShowCheckoutModal(false);
+                  setBettingStarted(false);
+                }}
+              >
+                Play Again
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showExistingGameModal && (
+        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="p-6 bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <h2 className="text-2xl font-bold text-white mb-4">
+              Active Game Found
+            </h2>
+            <p className="text-gray-300 text-lg mb-6">
+              You have an active game. Would you like to continue or checkout?
+            </p>
+            <div className="flex gap-4 justify-center">
+              <button
+                className="px-6 py-3 text-lg bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold"
+                onClick={handleContinueGame}
+              >
+                Continue Game
+              </button>
+              <button
+                className="px-6 py-3 text-lg bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold"
+                onClick={handleCheckout}
+              >
+                Checkout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

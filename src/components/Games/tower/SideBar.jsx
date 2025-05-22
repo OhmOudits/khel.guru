@@ -23,6 +23,7 @@ const SideBar = ({
   setSelectedBoxes,
   setSelectBoxes,
   clearAutoSelectBoxes,
+  disabled,
 }) => {
   const options = [
     { value: "Easy", label: "Easy", extra: ["❌", "✅", "✅", "✅"] },
@@ -42,12 +43,23 @@ const SideBar = ({
   };
 
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleBetChange = (e) => {
+    const value = e.target.value;
+    // Only allow numbers and decimal point
+    if (/^\d*\.?\d*$/.test(value)) {
+      setBet(value);
+    }
+  };
+
   return (
     <>
       <div
         className={`col-span-12 ${
           theatreMode ? "md:col-span-4 md:order-1" : "lg:col-span-4 lg:order-1"
-        } xl:col-span-3 bg-inactive order-2 max-lg:h-[fit-content] lg:h-[600px] overflow-auto`}
+        } xl:col-span-3 bg-inactive order-2 max-lg:h-[fit-content] lg:h-[630px] overflow-auto ${
+          disabled ? "opacity-50 pointer-events-none" : ""
+        }`}
       >
         <div className="my-4 px-3 flex flex-col">
           {/* Manual and auto  */}
@@ -55,7 +67,7 @@ const SideBar = ({
             <div className="order-[100] max-lg:mt-2 lg:order-1 switch mb-4 w-full bg-primary rounded-full p-1.5 grid grid-cols-2 gap-1">
               <div
                 onClick={() => {
-                  if (!startAutoBet) {
+                  if (!startAutoBet && !disabled) {
                     setBetMode("manual");
                     setSelectBoxes(false);
                     setSelectedBoxes([]);
@@ -69,7 +81,7 @@ const SideBar = ({
               </div>
               <div
                 onClick={() => {
-                  if (!bettingStarted) {
+                  if (!bettingStarted && !disabled) {
                     setBetMode("auto");
                   }
                 }}
@@ -95,7 +107,8 @@ const SideBar = ({
                       type="text"
                       value={bet}
                       id="betAmount"
-                      onChange={(e) => setBet(e.target.value)}
+                      onChange={handleBetChange}
+                      disabled={disabled}
                       className="w-full h-full rounded bg-secondry outline-none text-white px-2 pr-6 border border-inactive hover:border-primary-4"
                     />
                     <div className="absolute top-1.5 right-2">
@@ -139,7 +152,7 @@ const SideBar = ({
                     <button
                       className="w-full mt-2 h-full flex justify-between  rounded-md bg-black p-3 text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
                       onClick={() => setIsOpen(!isOpen)}
-                      disabled={bettingStarted}
+                      disabled={bettingStarted || disabled}
                     >
                       {options.find((opt) => opt.value === Difficulty)?.label ||
                         "Select Difficulty"}
@@ -154,9 +167,6 @@ const SideBar = ({
                             onClick={() => handleSelect(opt.value)}
                           >
                             <span>{opt.label}</span>
-                            {/* {opt.extra && (
-                              <span className=" text-sm  flex gap-x-3 ">{opt.extra.map((x)=><div className="bg-gray-700 rounded-md p-[3px]">{x}</div>)}</span>
-                            )} */}
                           </div>
                         ))}
                       </div>
@@ -199,8 +209,8 @@ const SideBar = ({
                       type="text"
                       value={bet}
                       id="betAmount"
-                      disabled={startAutoBet}
-                      onChange={(e) => setBet(e.target.value)}
+                      onChange={handleBetChange}
+                      disabled={startAutoBet || disabled}
                       className="w-full h-full rounded bg-secondry outline-none text-white px-2 pr-6 border border-inactive hover:border-primary-4"
                     />
                     <div className="absolute top-1.5 right-2">
@@ -242,7 +252,7 @@ const SideBar = ({
                     type="number"
                     value={nbets}
                     onChange={(e) => setNBets(e.target.value)}
-                    disabled={startAutoBet}
+                    disabled={startAutoBet || disabled}
                     className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-2 pr-6 py-2 border border-input hover:border-primary-4"
                   />
                 </div>
@@ -260,7 +270,7 @@ const SideBar = ({
                     <button
                       className="w-full mt-2 h-full flex justify-between  rounded-md bg-black p-3 text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
                       onClick={() => setIsOpen(!isOpen)}
-                      disabled={startAutoBet}
+                      disabled={startAutoBet || disabled}
                     >
                       {options.find((opt) => opt.value === Difficulty)?.label ||
                         "Select Difficulty"}
@@ -288,7 +298,7 @@ const SideBar = ({
                   <button
                     onClick={setback}
                     className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
-                      startAutoBet
+                      startAutoBet || disabled
                         ? "bg-primary text-white cursor-text"
                         : "bg-button-primary active:scale-90"
                     }`}
@@ -297,9 +307,9 @@ const SideBar = ({
                   </button>
                   <button
                     onClick={handleAutoBet}
-                    disabled={startAutoBet}
+                    disabled={startAutoBet || disabled}
                     className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
-                      startAutoBet
+                      startAutoBet || disabled
                         ? "bg-primary text-white cursor-text"
                         : "bg-button-primary active:scale-90"
                     }`}
@@ -312,7 +322,7 @@ const SideBar = ({
                   <button
                     onClick={handleSelectBoxes}
                     className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
-                      !selectedBoxes.length > 0
+                      !selectedBoxes.length > 0 || disabled
                         ? "bg-primary text-white cursor-text"
                         : "bg-button-primary active:scale-90"
                     }`}
@@ -322,7 +332,7 @@ const SideBar = ({
                   <button
                     onClick={clearAutoSelectBoxes}
                     className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
-                      !selectedBoxes.length > 0
+                      !selectedBoxes.length > 0 || disabled
                         ? "bg-primary text-white cursor-text"
                         : "bg-button-primary active:scale-90"
                     }`}

@@ -8,16 +8,15 @@ import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
 import { useSelector } from "react-redux";
-
-import checkLoggedIn from "../../../utils/isloggedIn";
 import { useNavigate } from "react-router-dom";
 import {
   getTowerSocket,
   initializeTowerSocket,
 } from "../../../socket/games/tower";
+import checkLoggedIn from "../../../utils/isloggedIn";
+import { toast } from "react-toastify";
 
 const Frame = () => {
-  const user = useSelector((state) => state?.auth?.user?.user);
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [bet, setBet] = useState("0.000000");
@@ -26,6 +25,7 @@ const Frame = () => {
   const [betStarted, setBettingStarted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [totalProfit, setTotalProfit] = useState("0.000000");
+  const [sidebarDisabled, setSidebarDisabled] = useState(true);
 
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
@@ -50,18 +50,31 @@ const Frame = () => {
     Array.from({ length: rows }, () => Array(cols).fill(0))
   );
 
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [profit, setProfit] = useState(0);
+
   const navigate = useNavigate();
   const token = useSelector((state) => state.auth?.token);
+
   const initSocket = () => {
+    setLoading(true);
     const towerSocket = getTowerSocket();
     if (!towerSocket) {
       initializeTowerSocket(token);
     }
+    setLoading(false);
   };
 
   const handleBetstarted = () => {
     if (!checkLoggedIn()) {
       navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    // Validate bet amount
+    const betAmount = parseFloat(bet);
+    if (isNaN(betAmount) || betAmount <= 0) {
+      toast.error("Please enter a valid bet amount");
       return;
     }
 
@@ -73,13 +86,26 @@ const Frame = () => {
   };
 
   const handleCheckout = () => {
-    setGameCheckout(true);
-    setBettingStarted(false);
+    const towerSocket = getTowerSocket();
+    if (towerSocket?.connected) {
+      console.log("Emitting checkout event...");
+      towerSocket.emit("checkout");
+      setBettingStarted(false);
+      setShowGameOptions(false);
+      setShowExistingGameModal(false);
+    }
   };
 
   const handleAutoBet = () => {
     if (!checkLoggedIn()) {
       navigate(`?tab=${"login"}`, { replace: true });
+      return;
+    }
+
+    // Validate bet amount
+    const betAmount = parseFloat(bet);
+    if (isNaN(betAmount) || betAmount <= 0) {
+      toast.error("Please enter a valid bet amount");
       return;
     }
 
@@ -111,6 +137,35 @@ const Frame = () => {
     setAutoArray(Array.from({ length: rows }, () => Array(cols).fill(0)));
   }, [rows, cols]);
 
+  useEffect(() => {
+    const towerSocket = getTowerSocket();
+    if (towerSocket) {
+      towerSocket.on("game_state", (gameState) => {
+        if (gameState) {
+          if (gameState.checkedOut) {
+            setProfit(gameState.profit);
+            setShowCheckoutModal(true);
+            setBettingStarted(false);
+            setShowGameOptions(false);
+            setShowExistingGameModal(false);
+          }
+        }
+      });
+
+      towerSocket.on("error", ({ message }) => {
+        console.error("Game error:", message);
+        toast.error(`Error: ${message}`);
+      });
+    }
+
+    return () => {
+      if (towerSocket) {
+        towerSocket.off("game_state");
+        towerSocket.off("error");
+      }
+    };
+  }, []);
+
   return (
     <>
       <div
@@ -141,8 +196,6 @@ const Frame = () => {
                 setDifficulty={setDifficulty}
                 bettingStarted={betStarted}
                 handleBetstarted={handleBetstarted}
-                // gems={gems}
-                // setGems={setGems}
                 totalprofit={totalProfit}
                 handleCheckout={handleCheckout}
                 startAutoBet={startAutoBet}
@@ -154,6 +207,7 @@ const Frame = () => {
                 selectedBoxes={selectedBoxes}
                 setSelectedBoxes={setSelectedBoxes}
                 setSelectBoxes={setSelectBoxes}
+                disabled={loading}
               />
 
               {/* Right Section */}
@@ -166,9 +220,10 @@ const Frame = () => {
               >
                 <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
                   {loading ? (
-                    <>
-                      <h1 className="text-xl font-semibold">Loading...</h1>
-                    </>
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+                      <h1 className="text-xl font-semibold">Connecting...</h1>
+                    </div>
                   ) : (
                     <center className="w-full h-full">
                       <Game
@@ -187,6 +242,9 @@ const Frame = () => {
                         cols={cols}
                         setRows={setRows}
                         setCols={setCols}
+                        setSidebarDisabled={setSidebarDisabled}
+                        bet={bet}
+                        setBet={setBet}
                       />
                     </center>
                   )}
@@ -296,6 +354,38 @@ const Frame = () => {
                       setMaxBet={setMaxBet}
                       setMaxBetEnable={setMaxBetEnable}
                     />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Add Checkout Modal */}
+            {showCheckoutModal && (
+              <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center z-50">
+                <div className="p-6 bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+                  <h2 className="text-2xl font-bold text-white mb-4">
+                    Checkout Complete
+                  </h2>
+                  <div className="text-gray-300 text-lg mb-6">
+                    <p className="mb-2">Your result:</p>
+                    <p
+                      className={`text-2xl font-bold ${
+                        profit > 0 ? "text-green-500" : "text-red-500"
+                      }`}
+                    >
+                      {profit.toFixed(8)} BTC
+                    </p>
+                  </div>
+                  <div className="flex gap-4 justify-center">
+                    <button
+                      className="px-6 py-3 text-lg bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold"
+                      onClick={() => {
+                        setShowCheckoutModal(false);
+                        setBettingStarted(false);
+                      }}
+                    >
+                      Play Again
+                    </button>
                   </div>
                 </div>
               </div>

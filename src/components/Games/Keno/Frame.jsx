@@ -16,12 +16,13 @@ import {
 } from "../../../socket/games/keno";
 import checkLoggedIn from "../../../utils/isloggedIn";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [nbets, setNBets] = useState(0);
-  const [bet, setBet] = useState("0.000000");
+  const [bet, setBet] = useState("0.01");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
   const [Risk, setRisk] = useState("Low");
@@ -30,16 +31,13 @@ const Frame = () => {
   const [betStarted, setBettingStarted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [totalProfit, setTotalProfit] = useState("0.000000");
-
   const [AutoPick, setAutoPick] = useState(false);
   const [clearTable, setClearTable] = useState(false);
   const [winnedGifts, setWinnedGifts] = useState(-1);
-
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
   const [maxBetEnable, setMaxBetEnable] = useState(false);
   const [theatreMode, setTheatreMode] = useState(false);
-
   const [volume, setVolume] = useState(50);
   const [instantBet, setInstantBet] = useState(false);
   const [animations, setAnimations] = useState(true);
@@ -50,36 +48,81 @@ const Frame = () => {
   const [randomSelect, setRandomSelect] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [startAutoBet, setStartAutoBet] = useState(false);
-
   const [valid, setValid] = useState(false);
   const [things, setThings] = useState([]);
+  const [socketConnected, setSocketConnected] = useState(false);
 
   const navigate = useNavigate();
   const token = useSelector((state) => state.auth?.token);
-  const initSocket = () => {
-    const kenoSocket = getKenoSocket();
-    if (!kenoSocket) {
-      initializeKenoSocket(token);
+
+  useEffect(() => {
+    if (token) {
+      const socket = initializeKenoSocket(token);
+      if (socket) {
+        console.log("Socket initialized in Frame, status:", socket.connected);
+        setSocketConnected(socket.connected);
+        socket.on("connect", () => {
+          console.log("Socket connected in Frame, ID:", socket.id);
+          setSocketConnected(true);
+        });
+        socket.on("disconnect", () => {
+          console.log("Socket disconnected in Frame");
+          setSocketConnected(false);
+        });
+      }
     }
-  };
+    return () => {
+      const kenoSocket = getKenoSocket();
+      if (kenoSocket) {
+        kenoSocket.off("connect");
+        kenoSocket.off("disconnect");
+        console.log("Cleaned up socket listeners in Frame");
+      }
+    };
+  }, [token]);
 
   useEffect(() => {
     setThings(chances(Risk));
   }, [Risk]);
 
   const handleMineBet = () => {
+    if (gameOver) {
+      console.log("Game over, resetting states for new bet");
+      setGameOver(false);
+      setBettingStarted(false);
+      setGifts([]);
+      if (!randomSelect) {
+        setCheckecdBoxes([]);
+      }
+    }
+
     if (!betStarted && valid) {
       if (!checkLoggedIn()) {
         navigate(`?tab=${"login"}`, { replace: true });
         return;
       }
 
-      initSocket();
+      const parsedBet = parseFloat(bet);
+      if (isNaN(parsedBet) || parsedBet < 0.000001) {
+        toast.error("Bet amount must be at least 0.000001");
+        return;
+      }
 
+      const kenoSocket = getKenoSocket();
+      if (!kenoSocket || !kenoSocket.connected) {
+        console.error("Socket not connected");
+        toast.error("Socket disconnected, please try again");
+        return;
+      }
       setBettingStarted(true);
       setWinnedGifts(-1);
       setGameOver(false);
       setGifts([]);
+
+      console.log("Emitting add_game:", { checkedBoxes, bet, risk: Risk });
+      kenoSocket.emit("add_game", { checkedBoxes, bet, risk: Risk });
+    } else if (!valid) {
+      toast.error("Please select at least one number to bet.");
     }
   };
 
@@ -93,7 +136,18 @@ const Frame = () => {
       return;
     }
 
-    initSocket();
+    const parsedBet = parseFloat(bet);
+    if (isNaN(parsedBet) || parsedBet < 0.000001) {
+      toast.error("Bet amount must be at least 0.000001");
+      return;
+    }
+
+    const kenoSocket = getKenoSocket();
+    if (!kenoSocket || !kenoSocket.connected) {
+      console.error("Socket not connected");
+      toast.error("Socket disconnected, please try again");
+      return;
+    }
 
     if (!startAutoBet && nbets != 0 && valid) {
       setStartAutoBet(true);
@@ -110,77 +164,31 @@ const Frame = () => {
   }, [clearTable]);
 
   useEffect(() => {
-    if (betStarted) {
-      function generateRandomNumbers(count, min, max) {
-        const numbers = [];
-        while (numbers.length < count) {
-          const randomNumber =
-            Math.floor(Math.random() * (max - min + 1)) + min;
-          if (!numbers.includes(randomNumber)) {
-            numbers.push(randomNumber);
-          }
-        }
-        return numbers;
-      }
-
-      const randomNumbers = generateRandomNumbers(10, 0, 39);
-      if (betStarted && checkedBoxes.length > 0) {
-        setGifts(randomNumbers);
-
-        const commonNumbers = randomNumbers.filter((num) =>
-          checkedBoxes.includes(num)
-        );
-
-        setWinnedGifts(commonNumbers.length);
-        console.log(winnedGifts);
-      }
-
-      setGameOver(true);
-
-      setTimeout(() => {
-        setBettingStarted(false);
-        setGameOver(false);
-        setGifts([]);
-        if (!startAutoBet) {
-          setCheckecdBoxes([]);
-        }
-      }, 2500);
-    }
-  }, [betStarted, checkedBoxes]);
-
-  useEffect(() => {
     if (startAutoBet && nbets > 0) {
       let currentBet = 0;
 
       const autoBet = () => {
         if (currentBet < nbets) {
+          if (gameOver) {
+            console.log("Game over during autobet, resetting states");
+            setGameOver(false);
+            setBettingStarted(false);
+            setGifts([]);
+            if (!randomSelect) {
+              setCheckecdBoxes([]);
+            }
+          }
+
           setGifts([]);
           setGameOver(false);
           setBettingStarted(true);
 
-          function generateRandomNumbers(count, min, max) {
-            const numbers = [];
-            while (numbers.length < count) {
-              const randomNumber =
-                Math.floor(Math.random() * (max - min + 1)) + min;
-              if (!numbers.includes(randomNumber)) {
-                numbers.push(randomNumber);
-              }
-            }
-            return numbers;
-          }
-
-          const randomNumbers = generateRandomNumbers(10, 0, 39);
-          setGifts(randomNumbers);
-
-          const commonNumbers = randomNumbers.filter((num) =>
-            checkedBoxes.includes(num)
-          );
-          setWinnedGifts(commonNumbers.length);
+          const kenoSocket = getKenoSocket();
+          console.log("Emitting add_game (auto):", { checkedBoxes, bet });
+          kenoSocket.emit("add_game", { checkedBoxes, bet });
 
           setTimeout(() => {
             setBettingStarted(false);
-            setGifts([]);
             currentBet += 1;
             autoBet();
           }, 3000);
@@ -192,25 +200,15 @@ const Frame = () => {
 
       autoBet();
     }
-  }, [startAutoBet, nbets, checkedBoxes]);
+  }, [startAutoBet, nbets, checkedBoxes, bet, randomSelect]);
 
   useEffect(() => {
     if (AutoPick) {
-      setCheckecdBoxes([]);
-      function generateRandomNumbers(count, min, max) {
-        const numbers = [];
-        while (numbers.length < count) {
-          const randomNumber =
-            Math.floor(Math.random() * (max - min + 1)) + min;
-          if (!numbers.includes(randomNumber)) {
-            numbers.push(randomNumber);
-          }
-        }
-        return numbers;
-      }
-
-      const randomNumbers = generateRandomNumbers(10, 0, 39);
+      const randomNumbers = Array.from({ length: 10 }, () =>
+        Math.floor(Math.random() * 40)
+      );
       setCheckecdBoxes(randomNumbers);
+      setAutoPick(false); // Reset AutoPick after setting numbers
     }
   }, [AutoPick]);
 
@@ -237,7 +235,6 @@ const Frame = () => {
         >
           <div className="flex flex-col gap-[0.15rem] relative">
             <div className="grid grid-cols-12 lg:min-h-[600px]">
-              {/* Left Section */}
               <SideBar
                 theatreMode={theatreMode}
                 setTheatreMode={setTheatreMode}
@@ -266,7 +263,6 @@ const Frame = () => {
                 checkedBoxes={checkedBoxes}
               />
 
-              {/* Right Section */}
               <div
                 className={`col-span-12 rounded-tr ${
                   theatreMode
@@ -276,9 +272,11 @@ const Frame = () => {
               >
                 <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
                   {loading ? (
-                    <>
-                      <h1 className="text-xl font-semibold">Loading...</h1>
-                    </>
+                    <h1 className="text-xl font-semibold">Loading...</h1>
+                  ) : !socketConnected ? (
+                    <h1 className="text-xl font-semibold">
+                      Connecting to Server...
+                    </h1>
                   ) : (
                     <div className="mb-20">
                       <Game
@@ -290,8 +288,11 @@ const Frame = () => {
                         checkedBoxes={checkedBoxes}
                         setCheckecdBoxes={setCheckecdBoxes}
                         gifts={gifts}
+                        setGifts={setGifts}
                         gameOver={gameOver}
+                        setGameOver={setGameOver}
                         winnedGifts={winnedGifts}
+                        setWinnedGifts={setWinnedGifts}
                         things={things}
                         arrayLength={checkedBoxes.length || 0}
                       />
@@ -338,45 +339,40 @@ const Frame = () => {
               ></div>
             )}
 
-            {/* Fairness Modal */}
             {isFairness && (
-              <>
-                <div
-                  className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
-                  onClick={() => setIsFairness(false)}
-                >
-                  <div className="text-white w-full flex items-center justify-center h-full ">
-                    <div
-                      className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <FairnessModal setIsFairness={setIsFairness} />
-                    </div>
+              <div
+                className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
+                onClick={() => setIsFairness(false)}
+              >
+                <div className="text-white w-full flex items-center justify-center h-full ">
+                  <div
+                    className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <FairnessModal setIsFairness={setIsFairness} />
                   </div>
                 </div>
-              </>
+              </div>
             )}
 
             {hotkeys && (
-              <>
-                <div
-                  className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
-                  onClick={() => setHotkeys(false)}
-                >
-                  <div className="text-white w-full flex items-center justify-center h-full ">
-                    <div
-                      className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <HotKeysModal
-                        setHotkeys={setHotkeys}
-                        hotkeysEnabled={hotkeysEnabled}
-                        setHotkeysEnabled={setHotkeysEnabled}
-                      />
-                    </div>
+              <div
+                className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
+                onClick={() => setHotkeys(false)}
+              >
+                <div className="text-white w-full flex items-center justify-center h-full ">
+                  <div
+                    className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <HotKeysModal
+                      setHotkeys={setHotkeys}
+                      hotkeysEnabled={hotkeysEnabled}
+                      setHotkeysEnabled={setHotkeysEnabled}
+                    />
                   </div>
                 </div>
-              </>
+              </div>
             )}
 
             {gameInfo && (

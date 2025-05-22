@@ -20,6 +20,13 @@ const SideBar = ({
   handleAutoBet,
   checkedBoxes,
 }) => {
+  const handleBetChange = (value) => {
+    const parsed = parseFloat(value);
+    if (value === "" || (!isNaN(parsed) && parsed >= 0.000001)) {
+      setBet(value);
+    }
+  };
+
   return (
     <>
       <div
@@ -28,7 +35,6 @@ const SideBar = ({
         } xl:col-span-3 bg-inactive order-2 max-lg:h-[fit-content] lg:h-[600px] overflow-auto`}
       >
         <div className="my-4 px-3 flex flex-col">
-          {/* Manual and auto  */}
           <div className="sticky top-0 z-[1] bg-inactive py-0 rounded-md">
             <div className="order-[100] max-lg:mt-2 lg:order-1 switch mb-4 w-full bg-primary rounded-full p-1.5 grid grid-cols-2 gap-1">
               <div
@@ -71,13 +77,12 @@ const SideBar = ({
                       type="text"
                       value={bet}
                       id="betAmount"
-                      onChange={(e) => setBet(e.target.value)}
+                      onChange={(e) => handleBetChange(e.target.value)}
                       className="w-full h-full rounded bg-secondry outline-none text-white px-2 pr-6 border border-inactive hover:border-primary-4"
                     />
                     <div className="absolute top-1.5 right-2">
                       <svg fill="none" viewBox="0 0 96 96" className="svg-icon">
-                        {" "}
-                        <title></title>{" "}
+                        <title></title>
                         <path
                           d="M95.895 48.105C95.895 74.557 74.451 96 48 96 21.548 96 .105 74.556.105 48.105.105 21.653 21.548.21 48 .21c26.451 0 47.895 21.443 47.895 47.895Z"
                           fill="#F7931A"
@@ -103,7 +108,6 @@ const SideBar = ({
                 </div>
               </div>
 
-              {/* Risk */}
               <div className="order-10 md:order-2 mb-2 mt-1 w-full flex items-center gap-3">
                 <div className="w-full">
                   <label
@@ -120,8 +124,8 @@ const SideBar = ({
                     onChange={(e) => setRisk(e.target.value)}
                   >
                     <option value="Classic">Classic</option>
-                    <option value="Low">Low</option>{" "}
-                    <option value="Medium">Medium</option>{" "}
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
                     <option value="High">High</option>
                   </select>
                 </div>
@@ -130,11 +134,8 @@ const SideBar = ({
               <div
                 className={`order-2 bg-button-primary text-black md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold cursor-pointer`}
                 onClick={() => {
-                  if (!AutoPick && !bettingStarted) {
+                  if (!bettingStarted) {
                     setAutoPick(true);
-                    setTimeout(() => {
-                      setAutoPick(false);
-                    }, 2000);
                   }
                 }}
               >
@@ -151,19 +152,16 @@ const SideBar = ({
                   setClearTable(true);
                   setTimeout(() => {
                     setClearTable(false);
-                  }, 2000);
+                  }, 100);
                 }}
               >
-                Clear Table{" "}
+                Clear Table
               </div>
 
-              {/* Bet button */}
               <div
                 className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold ${
-                  valid
-                    ? bettingStarted
-                      ? "bg-gray-900 text-white"
-                      : "bg-button-primary text-black cursor-pointer"
+                  valid && !bettingStarted
+                    ? "bg-button-primary text-black cursor-pointer"
                     : "bg-gray-900 text-white"
                 }`}
                 onClick={handleMineBet}
@@ -186,13 +184,12 @@ const SideBar = ({
                       type="text"
                       value={bet}
                       id="betAmount"
-                      onChange={(e) => setBet(e.target.value)}
+                      onChange={(e) => handleBetChange(e.target.value)}
                       className="w-full h-full rounded bg-secondry outline-none text-white px-2 pr-6 border border-inactive hover:border-primary-4"
                     />
                     <div className="absolute top-1.5 right-2">
                       <svg fill="none" viewBox="0 0 96 96" className="svg-icon">
-                        {" "}
-                        <title></title>{" "}
+                        <title></title>
                         <path
                           d="M95.895 48.105C95.895 74.557 74.451 96 48 96 21.548 96 .105 74.556.105 48.105.105 21.653 21.548.21 48 .21c26.451 0 47.895 21.443 47.895 47.895Z"
                           fill="#F7931A"
@@ -218,7 +215,6 @@ const SideBar = ({
                 </div>
               </div>
 
-              {/* Risk */}
               <div className="order-10 md:order-2 mb-2 mt-1 w-full flex items-center gap-3">
                 <div className="w-full">
                   <label
@@ -235,14 +231,13 @@ const SideBar = ({
                     onChange={(e) => setRisk(e.target.value)}
                   >
                     <option value="Classic">Classic</option>
-                    <option value="Low">Low</option>{" "}
-                    <option value="Medium">Medium</option>{" "}
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
                     <option value="High">High</option>
                   </select>
                 </div>
               </div>
 
-              {/* Number of bets */}
               <div className="w-full mb-1 order-10 md:order-2">
                 <h1 className="font-semibold mt-1 text-label">
                   Number of Bets
@@ -259,11 +254,8 @@ const SideBar = ({
               <div
                 className={`order-2 bg-button-primary text-black md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold cursor-pointer`}
                 onClick={() => {
-                  if (!AutoPick && !startAutoBet) {
+                  if (!bettingStarted) {
                     setAutoPick(true);
-                    setTimeout(() => {
-                      setAutoPick(false);
-                    }, 2000);
                   }
                 }}
               >
@@ -272,29 +264,24 @@ const SideBar = ({
 
               <div
                 className={`order-2 ${
-                  checkedBoxes.length === 0 || startAutoBet
+                  checkedBoxes.length === 0
                     ? "bg-gray-900 text-white"
                     : "bg-button-primary text-black cursor-pointer"
                 } md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold cursor-pointer`}
                 onClick={() => {
-                  if (!startAutoBet) {
-                    setClearTable(true);
-                    setTimeout(() => {
-                      setClearTable(false);
-                    }, 2000);
-                  }
+                  setClearTable(true);
+                  setTimeout(() => {
+                    setClearTable(false);
+                  }, 100);
                 }}
               >
-                Clear Table{" "}
+                Clear Table
               </div>
 
-              {/* Bet button */}
               <div
                 className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold ${
-                  valid
-                    ? startAutoBet
-                      ? "bg-gray-900 text-white"
-                      : "bg-button-primary text-black cursor-pointer"
+                  valid && !bettingStarted
+                    ? "bg-button-primary text-black cursor-pointer"
                     : "bg-gray-900 text-white"
                 }`}
                 onClick={handleAutoBet}

@@ -29,6 +29,7 @@ const Login = () => {
   const [forgotPassword, setForgotPassword] = useState(false);
   const [restore, setRestore] = useState(false);
   const [sendingRestore, setSendingRestore] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const { loading, error, isAuthenticated } = useSelector(
     (state) => state.auth
   );
@@ -134,7 +135,7 @@ const Login = () => {
       return;
     }
     try {
-      await dispatch(login({ email, password })).unwrap();
+      await dispatch(login({ email, password, rememberMe })).unwrap();
       dispatch(fetchContinueGames());
       toast.success("User Logged In Successfully");
     } catch (err) {
@@ -280,7 +281,12 @@ const Login = () => {
 
                   <div className="mt-6 flex items-center justify-between">
                     <div className="flex items-center gap-1">
-                      <input type="checkbox" className="h-5 w-5" />
+                      <input
+                        type="checkbox"
+                        className="h-5 w-5"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                      />
                       <label className="text-textColor font-semibold max-md:text-base">
                         Remember me
                       </label>

@@ -21,14 +21,19 @@ const SideBar = ({
   selectBoxes,
   setSelectBoxes,
   handleSelectBoxes,
-  setback
+  setback,
+  disabled,
+  loading,
+  setGrid,
 }) => {
   return (
     <>
       <div
         className={`col-span-12 ${
           theatreMode ? "md:col-span-4 md:order-1" : "lg:col-span-4 lg:order-1"
-        } xl:col-span-3 bg-inactive order-2 max-lg:h-[fit-content] lg:h-[600px] overflow-auto`}
+        } xl:col-span-3 bg-inactive order-2 max-lg:h-[fit-content] lg:h-[600px] overflow-auto ${
+          disabled ? "opacity-50 pointer-events-none" : ""
+        }`}
       >
         <div className="my-4 px-3 flex flex-col">
           {/* Manual and auto  */}
@@ -36,26 +41,40 @@ const SideBar = ({
             <div className="order-[100] max-lg:mt-2 lg:order-1 switch mb-4 w-full bg-primary rounded-full p-1.5 grid grid-cols-2 gap-1">
               <div
                 onClick={() => {
-                  if (!startAutoBet) {
+                  if (!startAutoBet && !disabled) {
                     setSelectBoxes(false);
                     setBetMode("manual");
+                    setGrid(
+                      Array(25)
+                        .fill()
+                        .map(() => ({ type: "diamond", revealed: false }))
+                    );
                   }
                 }}
                 className={`${
                   betMode === "manual" ? "bg-inactive scale-95" : ""
-                } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
+                } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90 ${
+                  disabled ? "cursor-not-allowed" : ""
+                }`}
               >
                 Manual
               </div>
               <div
                 onClick={() => {
-                  if (!bettingStarted) {
+                  if (!bettingStarted && !disabled) {
                     setBetMode("auto");
+                    setGrid(
+                      Array(25)
+                        .fill()
+                        .map(() => ({ type: "diamond", revealed: false }))
+                    );
                   }
                 }}
                 className={`${
                   betMode === "auto" ? "bg-inactive scale-95" : ""
-                } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
+                } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90 ${
+                  disabled ? "cursor-not-allowed" : ""
+                }`}
               >
                 Auto
               </div>
@@ -74,6 +93,7 @@ const SideBar = ({
                     <input
                       type="text"
                       value={bet}
+                      disabled={bettingStarted}
                       id="betAmount"
                       onChange={(e) => setBet(e.target.value)}
                       className="w-full h-full rounded bg-secondry outline-none text-white px-2 pr-6 border border-inactive hover:border-primary-4"
@@ -141,7 +161,7 @@ const SideBar = ({
                     </label>
                     <input
                       type="text"
-                      value={gems}
+                      value={gems || 25 - mines}
                       id="gems"
                       disabled
                       className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-3 pr-6 py-2 border border-input hover:border-primary-4"
@@ -172,8 +192,8 @@ const SideBar = ({
                 <div
                   className={`order-2 text-white md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold bg-inactive hover:bg-activeHover cursor-pointer`}
                   onClick={() => {
-                    if(!gameCheckout){
-                      handleRandomSelect()
+                    if (!gameCheckout) {
+                      handleRandomSelect();
                     }
                   }}
                 >
@@ -183,8 +203,11 @@ const SideBar = ({
 
               {bettingStarted && (
                 <div
-                  className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${gameCheckout ? "bg-primary text-white cursor-text"
-                    : "bg-button-primary active:scale-90"}`}
+                  className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
+                    gameCheckout
+                      ? "bg-primary text-white cursor-text"
+                      : "bg-button-primary active:scale-90"
+                  }`}
                   onClick={handleCheckout}
                 >
                   Checkout
@@ -194,10 +217,12 @@ const SideBar = ({
               {/* Bet button */}
               {!bettingStarted && (
                 <div
-                  className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold bg-button-primary text-black cursor-pointer`}
-                  onClick={handleMineBet}
+                  className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold bg-button-primary text-black cursor-pointer ${
+                    disabled ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  onClick={disabled ? undefined : handleMineBet}
                 >
-                  Bet
+                  {loading ? "Connecting..." : "Bet"}
                 </div>
               )}
             </>
@@ -216,6 +241,7 @@ const SideBar = ({
                       type="text"
                       value={bet}
                       id="betAmount"
+                      disabled={bettingStarted}
                       onChange={(e) => setBet(e.target.value)}
                       className="w-full h-full rounded bg-secondry outline-none text-white px-2 pr-6 border border-inactive hover:border-primary-4"
                     />
@@ -249,18 +275,20 @@ const SideBar = ({
               </div>
 
               {/* Number of bets */}
-              {selectBoxes && <div className="w-full mb-1 order-10 md:order-2">
-                <h1 className="font-semibold mt-1 text-label">
-                  Number of Bets
-                </h1>
-                <input
-                  type="number"
-                  value={nbets}
-                  disabled={startAutoBet}
-                  onChange={(e) => setNBets(e.target.value)}
-                  className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-2 pr-6 py-2 border border-input hover:border-primary-4"
-                />
-              </div>}
+              {selectBoxes && (
+                <div className="w-full mb-1 order-10 md:order-2">
+                  <h1 className="font-semibold mt-1 text-label">
+                    Number of Bets
+                  </h1>
+                  <input
+                    type="number"
+                    value={nbets}
+                    disabled={startAutoBet}
+                    onChange={(e) => setNBets(e.target.value)}
+                    className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-2 pr-6 py-2 border border-input hover:border-primary-4"
+                  />
+                </div>
+              )}
 
               {/* Mines and diamonds */}
               <div className="order-10 md:order-2 mb-2 mt-1 w-full flex items-center gap-3">
@@ -287,44 +315,42 @@ const SideBar = ({
                 </div>
               </div>
 
-              {
-                selectBoxes ? (
-                  <>
-                    <button
-                        onClick={setback}
-                        className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
-                          startAutoBet
-                            ? "bg-primary text-white cursor-text"
-                            : "bg-button-primary active:scale-90"
-                        }`}
-                    >
-                      Change The Boxes
-                    </button>
-                    <button
-                      onClick={handleAutoBet}
-                      disabled={startAutoBet}
-                      className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
-                        startAutoBet
-                          ? "bg-primary text-white cursor-text"
-                          : "bg-button-primary active:scale-90"
-                      }`}
-                    >
-                      Start Autobet
-                  </button>
-                  </>
-                ) : (
+              {selectBoxes ? (
+                <>
                   <button
-                      onClick={handleSelectBoxes}
-                      className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
-                        startAutoBet
-                          ? "bg-primary text-white cursor-text"
-                          : "bg-button-primary active:scale-90"
-                      }`}
+                    onClick={disabled ? undefined : setback}
+                    className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
+                      startAutoBet
+                        ? "bg-primary text-white cursor-text"
+                        : "bg-button-primary active:scale-90"
+                    } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
-                    Select These Boxes
+                    Change The Boxes
                   </button>
-                )
-              }              
+                  <button
+                    onClick={disabled ? undefined : handleAutoBet}
+                    disabled={startAutoBet || disabled}
+                    className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
+                      startAutoBet
+                        ? "bg-primary text-white cursor-text"
+                        : "bg-button-primary active:scale-90"
+                    } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    Start Autobet
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={disabled ? undefined : handleSelectBoxes}
+                  className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
+                    startAutoBet
+                      ? "bg-primary text-white cursor-text"
+                      : "bg-button-primary active:scale-90"
+                  } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  Select These Boxes
+                </button>
+              )}
             </>
           )}
         </div>

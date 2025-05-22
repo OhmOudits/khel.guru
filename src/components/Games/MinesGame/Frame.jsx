@@ -29,6 +29,11 @@ const Frame = () => {
   const [loading, setLoading] = useState(false);
   // eslint-disable-next-line
   const [totalProfit, setTotalProfit] = useState("0.000000");
+  const [grid, setGrid] = useState(
+    Array(25)
+      .fill()
+      .map(() => ({ type: "diamond", revealed: false }))
+  );
 
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
@@ -47,6 +52,7 @@ const Frame = () => {
   const [startAutoBet, setStartAutoBet] = useState(false);
   const [selectBoxes, setSelectBoxes] = useState(false);
   const [selectedBoxes, setSelectedBoxes] = useState([]);
+  const [sidebarDisabled, setSidebarDisabled] = useState(false);
 
   const token = useSelector((state) => state.auth?.token);
 
@@ -101,6 +107,11 @@ const Frame = () => {
     }
 
     initSocket();
+
+    const minesSocket = getMinesSocket();
+    if (!minesSocket) {
+      return;
+    }
 
     if (!startAutoBet && nbets != 0) {
       setStartAutoBet(true);
@@ -165,6 +176,9 @@ const Frame = () => {
                 setSelectBoxes={setSelectBoxes}
                 handleSelectBoxes={handleSelectBoxes}
                 setback={setback}
+                disabled={sidebarDisabled || loading}
+                loading={loading}
+                setGrid={setGrid}
               />
 
               {/* Right Section */}
@@ -198,6 +212,11 @@ const Frame = () => {
                       setSelectedBoxes={setSelectedBoxes}
                       mode={betMode}
                       nbets={nbets}
+                      bet={bet}
+                      setBet={setBet}
+                      setSidebarDisabled={setSidebarDisabled}
+                      grid={grid}
+                      setGrid={setGrid}
                     />
                   )}
                 </div>

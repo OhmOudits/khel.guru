@@ -1,12 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import bomb from "../../../assets/boom.png";
 import diamond from "../../../assets/diamond.png";
 import {
   disconnectMinesSocket,
   getMinesSocket,
+  initializeMinesSocket,
 } from "../../../socket/games/mines";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import checkLoggedIn from "../../../utils/isloggedIn";
 
 const Game = ({
   mines,
@@ -25,45 +28,144 @@ const Game = ({
   mode,
   nbets,
   setSelectBoxes,
+  bet,
+  setBet,
+  setSidebarDisabled,
+  grid,
+  setGrid,
 }) => {
-  const [grid, setGrid] = useState([]);
   const [gameOver, setGameOver] = useState(false);
   const [gameWon, setGameWon] = useState(false);
+  const [gameProfit, setGameProfit] = useState(0);
+  const [gameLoss, setGameLoss] = useState(0);
+  const [isConnected, setIsConnected] = useState(false);
+  const [hasActiveGame, setHasActiveGame] = useState(false);
+  const [showGameOptions, setShowGameOptions] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const navigate = useNavigate();
+  const isLoggedIn = checkLoggedIn();
+  const socketRef = useRef(null);
 
   const autoGrid = Array.from({ length: 25 });
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const minesSocket = getMinesSocket();
+    if (isLoggedIn) {
+      if (!socketRef.current) {
+        const token = localStorage.getItem("token");
+        initializeMinesSocket(token);
+        socketRef.current = getMinesSocket();
+      }
+
+      const minesSocket = socketRef.current;
 
       if (minesSocket) {
-        minesSocket.on("error", ({ message }) => {
-          console.error("Join game error:", message);
-          toast.error(`Error joining game: ${message}`);
+        minesSocket.on("connect", () => {
+          setIsConnected(true);
+          setIsDisconnected(false);
+          setShowDisconnectModal(false);
         });
+
+        minesSocket.on("disconnect", () => {
+          setIsConnected(false);
+          setIsDisconnected(true);
+          setShowDisconnectModal(true);
+        });
+
+        minesSocket.on("game_state", (gameState) => {
+          if (gameState) {
+            if (gameState.checkedOut) {
+              setGameCheckout(true);
+              setBetStarted(false);
+              setSidebarDisabled(false);
+              setShowGameOptions(false);
+              setGrid(
+                Array(25)
+                  .fill()
+                  .map(() => ({ type: "diamond", revealed: false }))
+              );
+              return;
+            }
+
+            if (gameState.grid) {
+              setGrid(gameState.grid);
+            }
+
+            if (gameState.betAmount) {
+              setBet(gameState.betAmount);
+            }
+
+            setGems(gameState.gems);
+            setGameOver(gameState.gameOver);
+            setGameWon(gameState.gameWon);
+            setGameProfit(gameState.profit || 0);
+            setGameLoss(gameState.loss || 0);
+
+            if (gameState.hasActiveGame) {
+              setHasActiveGame(true);
+              setShowGameOptions(true);
+              setSidebarDisabled(true);
+            } else {
+              setHasActiveGame(false);
+              setShowGameOptions(false);
+              setSidebarDisabled(false);
+            }
+
+            if (gameState.gameOver || gameState.gameWon) {
+              setBetStarted(false);
+              setSidebarDisabled(false);
+            }
+          }
+        });
+
+        minesSocket.on("game_over", ({ game }) => {
+          setGameOver(true);
+          setBetStarted(false);
+          setSidebarDisabled(false);
+        });
+
+        minesSocket.on("game_won", ({ game }) => {
+          setGameWon(true);
+          setBetStarted(false);
+          setSidebarDisabled(false);
+        });
+
+        minesSocket.on("error", () => {
+          // Silently handle errors
+        });
+
+        if (minesSocket.connected) {
+          setIsConnected(true);
+        }
       }
     }
 
     return () => {
-      const minesSocket = getMinesSocket();
+      const minesSocket = socketRef.current;
       if (minesSocket) {
+        minesSocket.off("connect");
+        minesSocket.off("disconnect");
+        minesSocket.off("game_state");
+        minesSocket.off("game_over");
+        minesSocket.off("game_won");
         minesSocket.off("error");
       }
       disconnectMinesSocket();
     };
-  }, []);
+  }, [isLoggedIn]);
 
   useEffect(() => {
-    if (betStarted) {
-      const minesSocket = getMinesSocket();
-      if (minesSocket) {
-        minesSocket.emit("add_game", {});
-        console.log("Emitted add_game event");
-      } else {
-        console.error("Parachute socket not initialized");
-        alert("Failed to join game: Socket not connected");
-      }
+    if (betStarted && socketRef.current?.connected) {
+      setGrid(
+        Array(25)
+          .fill()
+          .map(() => ({ type: "diamond", revealed: false }))
+      );
+      setGameOver(false);
+      setGameWon(false);
+      setGameProfit(0);
+      setGameLoss(0);
+      socketRef.current.emit("add_game", { betAmount: bet, mines });
     }
   }, [betStarted]);
 
@@ -76,66 +178,13 @@ const Game = ({
     }
   };
 
-  // Helper function to create the grid
-  const createGrid = () => {
-    const initialGrid = Array.from({ length: 25 }, () => ({
-      type: "diamond",
-      revealed: false,
-    }));
-
-    let bombCount = 0;
-    while (bombCount < mines) {
-      const bombIndex = Math.floor(Math.random() * 25);
-      if (initialGrid[bombIndex].type !== "bomb") {
-        initialGrid[bombIndex] = { type: "bomb", revealed: false };
-        bombCount++;
-      }
-    }
-    return initialGrid;
-  };
-
-  // Initialize the grid whenever mines change
-  useEffect(() => {
-    setGrid(createGrid());
-    setSelectedBoxes([]);
-  }, [mines]);
-
-  const resetGame = () => {
-    setGrid(createGrid());
-    setGameOver(false);
-    setGameWon(false);
-    setBetStarted(false);
-    setGems(25 - mines);
-    setRandomSelect(false);
-    setGameCheckout(false);
-  };
-
   const handleBoxClick = (index) => {
     if (gameOver || gameWon || grid[index]?.revealed) return;
     if (!betStarted && !startAutoBet) return;
 
-    console.log(index);
-
-    setGrid((prevGrid) =>
-      prevGrid.map((box, idx) => {
-        if (idx === index) {
-          if (box.type === "bomb") {
-            if (!startAutoBet) {
-              setGameOver(true);
-            }
-            return { ...box, revealed: true };
-          } else if (box.type === "diamond") {
-            setGems((prev) => prev - 1);
-            const diamondsLeft = prevGrid.filter(
-              (b) => b.type === "diamond" && !b.revealed
-            ).length;
-            if (diamondsLeft === 1) setGameWon(true);
-            return { ...box, revealed: true };
-          }
-        }
-        return box;
-      })
-    );
+    if (socketRef.current?.connected) {
+      socketRef.current.emit("reveal", { index });
+    }
   };
 
   useEffect(() => {
@@ -151,7 +200,7 @@ const Game = ({
       }
       setRandomSelect(false);
     }
-  }, [randomSelect, gameOver, gameWon, grid, setRandomSelect]);
+  }, [randomSelect, gameOver, gameWon, grid]);
 
   useEffect(() => {
     if (
@@ -168,40 +217,117 @@ const Game = ({
     if (count <= 0) {
       setSelectBoxes(false);
       setStartAutoBet(false);
-      resetGame();
       return;
     }
 
-    const minesSocket = getMinesSocket();
-    if (minesSocket) {
-      minesSocket.emit("add_game", {});
-      console.log("Emitted add_game event");
+    if (socketRef.current?.connected) {
+      socketRef.current.emit("add_game", { betAmount: bet, mines });
+      // Wait for game state to update after adding game
+      await new Promise((resolve) => setTimeout(resolve, 500));
     } else {
-      console.error("Mines socket not initialized");
       toast.error("Failed to join game: Socket not connected");
       return;
     }
 
-    // run game here
-    setGrid(createGrid());
+    let allBoxesOpened = true;
     for (let i = 0; i < selectedBoxes.length; i++) {
       await new Promise((resolve) => setTimeout(resolve, 300));
       handleBoxClick(selectedBoxes[i]);
+
+      // Wait for game state to update after each box click
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Check if the clicked box was a bomb
+      const clickedBox = grid[selectedBoxes[i]];
+      if (clickedBox?.type === "bomb") {
+        allBoxesOpened = false;
+        break;
+      }
     }
 
-    setTimeout(() => autoBet(count - 1), 2000);
+    // Only checkout if all boxes were opened successfully and game is not over
+    if (allBoxesOpened && !gameOver) {
+      if (socketRef.current?.connected) {
+        socketRef.current.emit("checkout");
+        // Wait for checkout to complete and game state to update
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+
+    // Wait for game state to fully update before starting next game
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    setTimeout(() => {
+      autoBet(count - 1);
+      setGrid(
+        Array(25)
+          .fill()
+          .map(() => ({ type: "diamond", revealed: false }))
+      );
+    }, 2000);
   };
 
   useEffect(() => {
     if (gameOver || gameWon || gameCheckout) {
-      setGameCheckout(true);
-      const timeoutId = setTimeout(resetGame, 2000);
-      return () => clearTimeout(timeoutId);
+      if (socketRef.current?.connected) {
+        socketRef.current.emit("checkout");
+      }
     }
   }, [gameWon, gameOver, gameCheckout]);
 
-  // Reusable Modal Component
-  const Modal = ({ title, image, children }) => (
+  const handleContinueGame = () => {
+    if (socketRef.current?.connected) {
+      socketRef.current.emit("continue_game");
+      setBetStarted(true);
+      setShowGameOptions(false);
+      setSidebarDisabled(false);
+    }
+  };
+
+  const handleCheckoutGame = async () => {
+    if (socketRef.current?.connected) {
+      socketRef.current.emit("checkout");
+      setShowGameOptions(false);
+      setSidebarDisabled(false);
+      setBetStarted(false);
+      setGameCheckout(true);
+      setGrid(
+        Array(25)
+          .fill()
+          .map(() => ({ type: "diamond", revealed: false }))
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (gameOver || gameWon) {
+      setShowModal(true);
+      const timer = setTimeout(() => {
+        setShowModal(false);
+        setGameOver(false);
+        setGameWon(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [gameOver, gameWon]);
+
+  useEffect(() => {
+    if (gameCheckout) {
+      setShowCheckoutModal(true);
+      const timer = setTimeout(() => {
+        setShowCheckoutModal(false);
+        setGameCheckout(false);
+        setGrid(
+          Array(25)
+            .fill()
+            .map(() => ({ type: "diamond", revealed: false }))
+        );
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [gameCheckout]);
+
+  const Modal = ({ title, image, game }) => (
     <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center">
       <motion.div
         className="p-6 w-full max-w-md flex items-center flex-col rounded-lg"
@@ -209,15 +335,187 @@ const Game = ({
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <img src={image} alt={title} className="w-32 sm:w-40 md:w-48" />
-        <h2 className="text-xl md:text-2xl font-bold text-white mb-4">
+        <img src={image} alt={title} className="w-32 sm:w-40 md:w-48 mb-4" />
+        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
           {title}
         </h2>
-        {children}
+        {game && (
+          <div className="text-center">
+            <p
+              className={`text-xl font-semibold mb-2 ${
+                game.gameOver ? "text-red-500" : "text-green-500"
+              }`}
+            >
+              {game.gameOver
+                ? `Loss: ${game.loss || gameLoss}`
+                : game.gameWon
+                ? `Profit: ${game.profit || gameProfit}`
+                : ""}
+            </p>
+            <p className="text-base text-gray-300">
+              {game.gameOver
+                ? "Better luck next time!"
+                : game.gameWon
+                ? "Congratulations!"
+                : ""}
+            </p>
+          </div>
+        )}
       </motion.div>
     </div>
   );
 
+  const CheckoutModal = ({ profit }) => (
+    <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center">
+      <motion.div
+        className="p-6 w-full max-w-md flex items-center flex-col rounded-lg"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <img
+          src={diamond}
+          alt="Checkout"
+          className="w-32 sm:w-40 md:w-48 mb-4"
+        />
+        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+          Checkout
+        </h2>
+        <div className="text-center">
+          <p className="text-xl font-semibold mb-2 text-green-500">
+            Profit: {profit}
+          </p>
+          <p className="text-base text-gray-300">Great job!</p>
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  // Login Button Component
+  const LoginButton = () => (
+    <motion.button
+      className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold text-base"
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={() => navigate("?tab=login", { replace: true })}
+    >
+      Login to Play
+    </motion.button>
+  );
+
+  // Game Options Modal Component
+  const GameOptionsModal = () => (
+    <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center z-50">
+      <motion.div
+        className="p-6 bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h2 className="text-2xl font-bold text-white mb-4">
+          Active Game Found
+        </h2>
+        <p className="text-gray-300 text-lg mb-6">
+          You have an active game in progress. Would you like to continue or
+          checkout?
+        </p>
+        <div className="flex gap-4 justify-center">
+          <motion.button
+            className="px-6 py-3 text-lg bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleContinueGame}
+          >
+            Continue Game
+          </motion.button>
+          <motion.button
+            className="px-6 py-3 text-lg bg-red-600 hover:bg-red-700 text-white rounded-md font-semibold"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleCheckoutGame}
+          >
+            Checkout
+          </motion.button>
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  // Add disconnect handling
+  const [showDisconnectModal, setShowDisconnectModal] = useState(false);
+  const [isDisconnected, setIsDisconnected] = useState(false);
+
+  // Add DisconnectModal component
+  const DisconnectModal = () => (
+    <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center z-50">
+      <motion.div
+        className="p-6 bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h2 className="text-2xl font-bold text-white mb-4">
+          {isDisconnected ? "Disconnected from Game" : "Session Expired"}
+        </h2>
+        <p className="text-gray-300 text-lg mb-6">
+          {isDisconnected
+            ? "You have been disconnected from the game server. Would you like to reconnect?"
+            : "Your session has expired. Please login again to continue playing."}
+        </p>
+        <div className="flex gap-4 justify-center">
+          {isDisconnected ? (
+            <motion.button
+              className="px-6 py-3 text-lg bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                const token = localStorage.getItem("token");
+                if (token) {
+                  initializeMinesSocket(token);
+                  socketRef.current = getMinesSocket();
+                }
+              }}
+            >
+              Reconnect
+            </motion.button>
+          ) : (
+            <motion.button
+              className="px-6 py-3 text-lg bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate("?tab=login", { replace: true })}
+            >
+              Login
+            </motion.button>
+          )}
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  // Not Logged In View
+  if (!isLoggedIn) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-6 py-10 w-full relative">
+        <h1 className="text-xl font-semibold text-white">User Not Logged In</h1>
+        <p className="text-gray-400 text-lg text-center max-w-md">
+          Please login to play the Mines game and start winning!
+        </p>
+        <LoginButton />
+      </div>
+    );
+  }
+
+  // Loading View
+  if (isLoggedIn && !isConnected) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <h1 className="text-xl font-semibold">Connecting to game server...</h1>
+      </div>
+    );
+  }
+
+  // Game Grid View
   return (
     <div className="flex flex-col items-center justify-center py-10 w-full relative">
       <div className="grid grid-cols-5 gap-2">
@@ -294,8 +592,28 @@ const Game = ({
         )}
       </div>
 
-      {gameOver && <Modal title="Game Over" image={bomb} />}
-      {gameWon && <Modal title="You Won!" image={diamond} />}
+      {showModal && (
+        <>
+          {gameOver && (
+            <Modal
+              title="Game Over"
+              image={bomb}
+              game={{ gameOver: true, loss: gameLoss }}
+            />
+          )}
+          {gameWon && (
+            <Modal
+              title="You Won!"
+              image={diamond}
+              game={{ gameWon: true, profit: gameProfit }}
+            />
+          )}
+        </>
+      )}
+
+      {showCheckoutModal && <CheckoutModal profit={gameProfit} />}
+      {showGameOptions && <GameOptionsModal />}
+      {showDisconnectModal && <DisconnectModal />}
     </div>
   );
 };

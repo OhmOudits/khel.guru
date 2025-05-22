@@ -1,78 +1,88 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { io } from "socket.io-client";
 import gift from "../../../assets/gift.svg";
-import {
-  disconnectKenoSocket,
-  getKenoSocket,
-} from "../../../socket/games/keno";
+import { getKenoSocket } from "../../../socket/games/keno";
 import { toast } from "react-toastify";
 
 const Game = ({
   mines,
   betStarted,
   gameOver,
-  userEmail,
+  setGameOver,
   checkedBoxes,
   setCheckecdBoxes,
   gifts,
+  setGifts,
   winnedGifts,
+  setWinnedGifts,
   things,
   arrayLength,
+  randomSelect,
+  setRandomSelect,
+  setBetStarted, // Added to reset betStarted
 }) => {
-  const [grid, setGrid] = useState([]);
+  const [grid, setGrid] = useState(
+    Array.from({ length: 40 }, () => ({
+      type: "diamond",
+      revealed: false,
+    }))
+  );
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const kenoSocket = getKenoSocket();
+    const kenoSocket = getKenoSocket();
 
-      if (kenoSocket) {
-        kenoSocket.on("error", ({ message }) => {
-          console.error("Join game error:", message);
-          toast.error(`Error joining game: ${message}`);
-        });
-      }
+    if (!kenoSocket) {
+      console.error("Keno socket not initialized in Game component");
+      return;
     }
 
+    console.log(
+      "Setting up socket listeners in Game component, socket ID:",
+      kenoSocket.id
+    );
+
+    const handleError = ({ message }) => {
+      console.error("Received error from server:", message);
+      toast.error(`Error: ${message}`);
+    };
+
+    const handleGameResult = ({ grid, gifts, matches, payout }) => {
+      console.log("Received game_result in Game:", {
+        grid,
+        gifts,
+        matches,
+        payout,
+      });
+      setGrid(grid);
+      setGifts(gifts);
+      setWinnedGifts(matches);
+      setGameOver(true);
+    };
+
+    const handleConnect = () => {
+      console.log("Keno socket connected in Game, ID:", kenoSocket.id);
+    };
+
+    const handleDisconnect = () => {
+      console.log("Keno socket disconnected in Game");
+    };
+
+    kenoSocket.on("error", handleError);
+    kenoSocket.on("game_result", handleGameResult);
+    kenoSocket.on("connect", handleConnect);
+    kenoSocket.on("disconnect", handleDisconnect);
+
     return () => {
-      const kenoSocket = getKenoSocket();
-      if (kenoSocket) {
-        kenoSocket.off("error");
-      }
-      disconnectKenoSocket();
+      console.log("Cleaning up socket listeners in Game component");
+      kenoSocket.off("error", handleError);
+      kenoSocket.off("game_result", handleGameResult);
+      kenoSocket.off("connect", handleConnect);
+      kenoSocket.off("disconnect", handleDisconnect);
     };
   }, []);
 
-  useEffect(() => {
-    if (betStarted) {
-      const kenoSocket = getKenoSocket();
-      if (kenoSocket) {
-        kenoSocket.emit("add_game", {});
-        console.log("Emitted add_game event");
-      } else {
-        console.error("Keno socket not initialized");
-        alert("Failed to join game: Socket not connected");
-      }
-    }
-  }, [betStarted]);
-
-  // Helper function to create grid
-  useEffect(() => {
-    const createGrid = () => {
-      const initialGrid = Array.from({ length: 40 }, () => ({
-        type: "diamond",
-        revealed: false,
-      }));
-      return initialGrid;
-    };
-    setGrid(createGrid());
-  }, [mines]);
-
   const handleBoxClick = (index) => {
     if (betStarted) return;
-
-    // Prevent clicking new boxes when 10 are checked
     if (checkedBoxes.length >= 10 && !checkedBoxes.includes(index)) return;
 
     setCheckecdBoxes((prev) => {
@@ -84,30 +94,45 @@ const Game = ({
     });
   };
 
+  const handleModalClose = () => {
+    console.log("Closing modal and resetting game state");
+    setGameOver(false);
+    setBetStarted(false); // Reset betStarted to allow new bets
+    setGifts([]);
+    if (!randomSelect) {
+      setCheckecdBoxes([]);
+    }
+    setGrid(
+      Array.from({ length: 40 }, () => ({
+        type: "diamond",
+        revealed: false,
+      }))
+    );
+  };
+
   const isLimitReached = checkedBoxes.length >= 10;
 
   return (
     <div className="flex flex-col items-center justify-center py-10 w-full relative">
-      {/* Render the grid */}
       <div className="grid grid-cols-8 gap-2 sm:gap-2">
         {grid.map((box, index) => (
           <motion.div
             key={index}
-            className={`w-[2.6rem] h-[2.6rem] lg:w-[4.25rem] lg:h-[4.25rem] xl:
-              ${
-                checkedBoxes.includes(index)
-                  ? "bg-violet-600 cursor-pointer"
-                  : gifts.includes(index)
-                  ? "bg-red-500"
-                  : isLimitReached
-                  ? "bg-[rgba(255,255,255,0.1)]"
-                  : "bg-gray-700 hover:bg-gray-600"
-              }
-              duration-${isLimitReached ? "0" : "150"}
-              rounded-lg flex items-center justify-center font-medium text-opacity-80 
-              ${
-                isLimitReached ? "cursor-default" : "cursor-pointer"
-              } text-white shadow-lg hover:shadow-2xl`}
+            className={`w-[2.6rem] h-[2.6rem] lg:w-[4.25rem] lg:h-[4.25rem] ${
+              checkedBoxes.includes(index)
+                ? gifts.includes(index)
+                  ? "bg-green-500"
+                  : "bg-violet-600 cursor-pointer"
+                : gifts.includes(index)
+                ? "bg-red-500"
+                : isLimitReached
+                ? "bg-[rgba(255,255,255,0.1)]"
+                : "bg-gray-700 hover:bg-gray-600"
+            } duration-${
+              isLimitReached ? "0" : "150"
+            } rounded-lg flex items-center justify-center font-medium text-opacity-80 ${
+              isLimitReached ? "cursor-default" : "cursor-pointer"
+            } text-white shadow-lg hover:shadow-2xl`}
             whileHover={!isLimitReached && !box.revealed ? { y: "-2px" } : {}}
             whileTap={!isLimitReached ? { scale: 0.9 } : {}}
             style={{
@@ -126,24 +151,38 @@ const Game = ({
         ))}
       </div>
 
-      {/* Game over, win, and checkout modals */}
       {gameOver && (
-        <div className="absolute top-0 left-0 w-full h-full inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div
+          className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.2)] flex items-center justify-center"
+          onClick={handleModalClose}
+        >
           <motion.div
-            className="text-black p-4 sm:p-6 w-full max-w-xs sm:max-w-md md:max-w-lg flex items-center flex-col rounded-lg"
+            className="text-white w-[95%] max-w-[400px] bg-primary-2 rounded-lg p-6 flex flex-col items-center"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <p className="font-bold text-gray-200 text-xl">
-              {winnedGifts} Matches
+            <h2 className="text-2xl font-bold mb-4">Game Result</h2>
+            <p className="text-lg mb-2">
+              Matches: <span className="font-semibold">{winnedGifts}</span>
             </p>
-            <h2 className="font-bold text-2xl text-gray-300 mt-2">
-              <span className="text-3xl">
-                {things[arrayLength - 1]?.values[0]?.[winnedGifts] || 0}
+            <p className="text-lg mb-4">
+              Payout Multiplier:{" "}
+              <span className="font-semibold">
+                {arrayLength > 0 &&
+                things[arrayLength - 1]?.values?.[0]?.[winnedGifts]
+                  ? things[arrayLength - 1].values[0][winnedGifts]
+                  : 0}
+                x
               </span>
-              x
-            </h2>
+            </p>
+            <button
+              className="bg-button-primary text-base text-black px-4 py-2 rounded font-semibold"
+              onClick={handleModalClose}
+            >
+              Close
+            </button>
           </motion.div>
         </div>
       )}
