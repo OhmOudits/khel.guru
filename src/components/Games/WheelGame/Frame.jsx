@@ -18,6 +18,7 @@ import {
 } from "../../../socket/games/wheel";
 import checkLoggedIn from "../../../utils/isloggedIn";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
@@ -91,6 +92,14 @@ const Frame = () => {
     }
   };
 
+  const handleModeSwitch = (mode) => {
+    if (autoStart) {
+      toast.error("Cannot switch modes while autobetting is in progress");
+      return;
+    }
+    setBetMode(mode);
+  };
+
   return (
     <>
       <div
@@ -113,7 +122,7 @@ const Frame = () => {
                 theatreMode={theatreMode}
                 setTheatreMode={setTheatreMode}
                 setBet={setBet}
-                setBetMode={setBetMode}
+                setBetMode={handleModeSwitch}
                 profit={profit}
                 setProfit={setProfit}
                 setLoss={setLoss}
@@ -154,12 +163,12 @@ const Frame = () => {
                   <Game
                     risk={risk}
                     segment={segment}
-                    targetIndex={1}
                     betStarted={betStarted}
                     setBetStarted={setBettingStarted}
                     nbets={nbets}
                     autoStart={autoStart}
                     setAutoStart={setAutoStart}
+                    bet={bet}
                   />
                   <Chances risk={risk} segment={segment} />
                 </div>

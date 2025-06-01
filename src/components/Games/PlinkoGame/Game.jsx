@@ -9,11 +9,21 @@ import {
 import { toast } from "react-toastify";
 
 const Game = ({ bet, rows, risk, engine, width, height, canvasRef }) => {
-  const [binColors, setBinColors] = useState(binColorsByRowCount(rows)); // State for bin colors based on rows
+  const [binColors, setBinColors] = useState(binColorsByRowCount(rows));
+  const [isValidBet, setIsValidBet] = useState(true);
 
   useEffect(() => {
     setBinColors(binColorsByRowCount(rows));
   }, [rows]);
+
+  useEffect(() => {
+    const isValid = bet && !isNaN(bet) && parseFloat(bet) > 0;
+    setIsValidBet(isValid);
+
+    if (!isValid && bet !== "0.000000") {
+      toast.error("Please enter a valid bet amount");
+    }
+  }, [bet]);
 
   useEffect(() => {
     const plinkoSocket = getPlinkoSocket();
@@ -25,12 +35,29 @@ const Game = ({ bet, rows, risk, engine, width, height, canvasRef }) => {
       });
     }
 
+    const handleGameResult = (event) => {
+      const { balance, payout, multiplier } = event.detail;
+
+      toast.success(`Win! ${payout.toFixed(8)} (${multiplier}x)`);
+    };
+
+    const handleGameError = (event) => {
+      const { message } = event.detail;
+      toast.error(message);
+    };
+
+    window.addEventListener("plinko:result", handleGameResult);
+    window.addEventListener("plinko:error", handleGameError);
+
     return () => {
       const plinkoSocket = getPlinkoSocket();
       if (plinkoSocket) {
         plinkoSocket.off("error");
       }
       disconnectPlinkoSocket();
+
+      window.removeEventListener("plinko:result", handleGameResult);
+      window.removeEventListener("plinko:error", handleGameError);
     };
   }, []);
 

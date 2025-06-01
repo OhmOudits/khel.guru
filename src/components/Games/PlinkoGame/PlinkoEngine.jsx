@@ -1,5 +1,5 @@
 import Matter from "matter-js";
-// eslint-disable-next-line no-unused-vars
+
 import { v4 as uuidv4 } from "uuid";
 import { getRandomBetween } from "../../../utils/plinko";
 import { binPayouts } from "./constant";
@@ -36,7 +36,7 @@ class PlinkoEngine {
     this.betAmount = bet;
     this.rowCount = rows;
     this.riskLevel = risk;
-
+    this.isBallInMotion = false;
     this.updateBinIndex = setCurrentBinIndex;
 
     this.updateRowCount(rows);
@@ -56,7 +56,7 @@ class PlinkoEngine {
 
     this.pins = [];
     this.walls = [];
-    this.balls = []; // Track active balls
+    this.balls = [];
     this.sensor = null;
     this.pinsLastRowXCoords = [];
     this.winsIndex = [];
@@ -89,7 +89,6 @@ class PlinkoEngine {
     Matter.Render.stop(this.render);
     Matter.Runner.stop(this.runner);
 
-    // Cleanup all objects in the engine
     Matter.Composite.clear(this.engine.world);
     this.balls = [];
   }
@@ -120,6 +119,14 @@ class PlinkoEngine {
 
     this.balls.push(ball);
     Matter.Composite.add(this.engine.world, ball);
+
+    if (this.balls.length === 1) {
+      this.isBallInMotion = true;
+      const event = new CustomEvent("plinko:ball_state", {
+        detail: { isInMotion: true },
+      });
+      window.dispatchEvent(event);
+    }
   }
 
   get pinDistanceX() {
@@ -162,6 +169,17 @@ class PlinkoEngine {
     );
 
     if (binIndex !== -1 && binIndex < this.pinsLastRowXCoords.length - 1) {
+      if (!this.betAmount || this.betAmount <= 0) {
+        const event = new CustomEvent("plinko:error", {
+          detail: { message: "Invalid bet amount" },
+        });
+        window.dispatchEvent(event);
+
+        Matter.Composite.remove(this.engine.world, ball);
+        this.balls = this.balls.filter((b) => b !== ball);
+        return;
+      }
+
       const multiplier = binPayouts[this.rowCount][this.riskLevel][binIndex];
       const payoutValue = this.betAmount * multiplier;
 
@@ -172,21 +190,54 @@ class PlinkoEngine {
           payout: payoutValue,
           betAmount: this.betAmount,
         });
-      }
 
-      console.log(`Ball entered bin ${binIndex}, payout: ${payoutValue}`);
-      this.updateBinIndex(binIndex);
+        socket.once("result_success", (data) => {
+          this.updateBinIndex(binIndex);
+          this.balls = this.balls.filter((b) => b !== ball);
+          if (this.balls.length === 0) {
+            this.isBallInMotion = false;
+            const event = new CustomEvent("plinko:ball_state", {
+              detail: { isInMotion: false },
+            });
+            window.dispatchEvent(event);
+          }
+
+          const resultEvent = new CustomEvent("plinko:result", {
+            detail: {
+              balance: data.balance,
+              payout: data.payout,
+              bin: data.bin,
+              multiplier: data.multiplier,
+            },
+          });
+          window.dispatchEvent(resultEvent);
+        });
+
+        socket.once("error", ({ message }) => {
+          console.error("Game result error:", message);
+          this.balls = this.balls.filter((b) => b !== ball);
+          if (this.balls.length === 0) {
+            this.isBallInMotion = false;
+            const event = new CustomEvent("plinko:ball_state", {
+              detail: { isInMotion: false },
+            });
+            window.dispatchEvent(event);
+          }
+
+          const errorEvent = new CustomEvent("plinko:error", {
+            detail: { message },
+          });
+          window.dispatchEvent(errorEvent);
+        });
+      }
     }
 
-    // Remove ball from the engine
     Matter.Composite.remove(this.engine.world, ball);
-    this.balls = this.balls.filter((b) => b !== ball);
   }
 
   placePinsAndWalls() {
     const pinRadius = (24 - this.rowCount - 1) / 2;
 
-    // Calculate the vertical spacing between rows based on the available height
     const availableHeight =
       PlinkoEngine.HEIGHT -
       PlinkoEngine.PADDING_TOP -
@@ -206,14 +257,13 @@ class PlinkoEngine {
     }
 
     for (let row = 0; row < this.rowCount; row++) {
-      const pinCount = row + 3; // Number of pins in this row
-      const rowY = PlinkoEngine.PADDING_TOP + row * verticalSpacing; // Y-coordinate for this row
+      const pinCount = row + 3;
+      const rowY = PlinkoEngine.PADDING_TOP + row * verticalSpacing;
 
-      // Calculate the total width occupied by the pins in this row
       const rowPaddingX =
         PlinkoEngine.PADDING_X +
         ((this.rowCount - 1 - row) * this.pinDistanceX) / 2;
-      // Calculate the starting x position to center the row
+
       for (let col = 0; col < pinCount; col++) {
         const colX =
           rowPaddingX +

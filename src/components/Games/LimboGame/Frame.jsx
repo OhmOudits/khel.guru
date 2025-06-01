@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "../../../styles/Frame.css";
 import "../../../styles/Wheel.css";
 import FairnessModal from "../../Frame/FairnessModal";
@@ -15,15 +15,25 @@ import BetCalculator from "./Chances";
 import checkLoggedIn from "../../../utils/isloggedIn";
 import { useNavigate } from "react-router-dom";
 import {
-  disconnectLimboSocket,
-  getLimboSocket,
   initializeLimboSocket,
+  getLimboSocket,
+  disconnectLimboSocket,
+  joinGame,
+  placeBet,
+  onBetResult,
+  onError,
+  removeBetResultListener,
+  removeErrorListener,
 } from "../../../socket/games/limbo";
+import { getGameHistory, addToGameHistory } from "../../../utils/gameHistory";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
 
 const Frame = () => {
-  // main states
+  const navigate = useNavigate();
+  const token = useSelector((state) => state.auth?.token);
+
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
   const [nbets, setNBets] = useState(0);
@@ -35,12 +45,12 @@ const Frame = () => {
 
   const [Multipler, setMultipler] = useState(2.0);
   const [EstProfit, setEstProfit] = useState("0.000000");
-  // options
+
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
   const [maxBetEnable, setMaxBetEnable] = useState(false);
   const [theatreMode, setTheatreMode] = useState(false);
-  // left back side
+
   const [volume, setVolume] = useState(50);
   const [instantBet, setInstantBet] = useState(false);
   const [animations, setAnimations] = useState(true);
@@ -54,37 +64,145 @@ const Frame = () => {
   const [betCompleted, setBetCompleted] = useState(false);
   const [currentHistory, setCurrentHistory] = useState([]);
   const [startAutoBet, setStartAutoBet] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [displayNumber, setDisplayNumber] = useState(null);
+  const animationTimeoutRef = useRef(null);
+  const minAnimationDuration = 3500;
+
+  const [number, setNumber] = useState(null);
+  const [finalNumber, setFinalNumber] = useState(null);
+  const [targetMultiplier, setTargetMultiplier] = useState(50);
+  const [isAutoBetting, setIsAutoBetting] = useState(false);
+
+  const [isDisconnected, setIsDisconnected] = useState(false);
+  const socketRef = useRef(null);
+
+  const validateBet = (betAmount) => {
+    const bet = parseFloat(betAmount);
+    if (isNaN(bet) || bet <= 0) {
+      toast.error("Please enter a valid bet amount");
+      return false;
+    }
+    if (bet < 0.000001) {
+      toast.error("Minimum bet amount is 0.000001");
+      return false;
+    }
+    if (bet > 1000000) {
+      toast.error("Maximum bet amount is 1,000,000");
+      return false;
+    }
+    return true;
+  };
+
+  const handleBetError = () => {
+    setBettingStarted(false);
+    setStartAutoBet(false);
+  };
+
+  const startNumberAnimation = () => {
+    setIsAnimating(true);
+    setDisplayNumber(null);
+    setDefaultColor(true);
+
+    const animate = () => {
+      if (!isAnimating) return;
+
+      const randomNum = (Math.random() * 100).toFixed(2);
+      setDisplayNumber(randomNum);
+
+      if (isAnimating) {
+        setTimeout(() => {
+          animationTimeoutRef.current = requestAnimationFrame(animate);
+        }, 100);
+      }
+    };
+
+    animationTimeoutRef.current = requestAnimationFrame(animate);
+  };
+
+  const stopNumberAnimation = () => {
+    if (animationTimeoutRef.current) {
+      cancelAnimationFrame(animationTimeoutRef.current);
+    }
+    setIsAnimating(false);
+  };
+
+  useEffect(() => {
+    return () => {
+      stopNumberAnimation();
+    };
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      const limboSocket = getLimboSocket();
-
-      if (limboSocket) {
-        limboSocket.on("error", ({ message }) => {
-          console.error("Join game error:", message);
-          toast.error(`Error joining game: ${message}`);
-        });
-      }
-    }
-
-    return () => {
-      const limboSocket = getLimboSocket();
-      if (limboSocket) {
-        limboSocket.off("error");
-      }
-      disconnectLimboSocket();
-    };
-  }, []);
-
-  const navigate = useNavigate();
-  const token = useSelector((state) => state.auth?.token);
-  const initSocket = () => {
-    const limboSocket = getLimboSocket();
-    if (!limboSocket) {
       initializeLimboSocket(token);
+      const socket = getLimboSocket();
+
+      socket.on("connect_error", (error) => {
+        console.error("Socket connection error:", error);
+        if (error.message === "Authentication failed") {
+          navigate("?tab=login", { replace: true });
+        } else {
+          setIsDisconnected(true);
+        }
+      });
+
+      socket.on("disconnect", () => {
+        setIsDisconnected(true);
+      });
+
+      socket.on("connect", () => {
+        setIsDisconnected(false);
+        if (!socketRef.current) {
+          joinGame(() => {
+            console.log("Joined Limbo game");
+          });
+        }
+      });
+
+      socketRef.current = socket;
+
+      setCurrentHistory(getGameHistory("limbo_game_history"));
+
+      onError(({ message }) => {
+        console.error("Game error:", message);
+        toast.error(message);
+        handleBetError();
+        stopNumberAnimation();
+        setIsAutoBetting(false);
+      });
+
+      onBetResult((result) => {
+        console.log("Bet result received:", result);
+        stopNumberAnimation();
+        setFinalNumber(result.number);
+        setNumber(result.number);
+        setDisplayNumber(result.number);
+        setDefaultColor(false);
+        setBettingStarted(false);
+
+        if (result.error) {
+          setStartAutoBet(false);
+          setIsAutoBetting(false);
+        }
+
+        setBetCompleted(true);
+
+        const updatedHistory = addToGameHistory("limbo_game_history", result);
+        setCurrentHistory(updatedHistory);
+      });
+
+      return () => {
+        removeErrorListener();
+        removeBetResultListener();
+        socket.off("connect_error");
+        socket.off("disconnect");
+        socket.off("connect");
+        disconnectLimboSocket();
+      };
     }
-  };
+  }, [navigate]);
 
   const startGame = () => {
     setDefaultColor(true);
@@ -99,98 +217,233 @@ const Frame = () => {
       return;
     }
 
-    initSocket();
+    if (!validateBet(bet)) {
+      return;
+    }
+
     if (!bettingStarted) {
       setBettingStarted(true);
-
-      const limboSocket = getLimboSocket();
-      if (limboSocket) {
-        limboSocket.emit("add_game", {});
-        console.log("Emitted add_game event");
-      } else {
-        console.error("Limbo socket not initialized");
-        toast.error("Failed to join game: Socket not connected");
-        return;
-      }
-
-      startGame();
+      startNumberAnimation();
+      placeBet(parseFloat(bet), parseFloat(targetMultiplier), (result) => {
+        console.log("Bet placed successfully");
+      });
     }
   };
 
   const handleAutoBet = () => {
+    console.log("Handle auto bet clicked");
+
     if (!checkLoggedIn()) {
       navigate(`?tab=${"login"}`, { replace: true });
       return;
     }
 
-    initSocket();
-    if (!startAutoBet && nbets > 0) {
-      setStartAutoBet(true);
-      autoBet(nbets);
+    if (!validateBet(bet)) {
+      console.log("Invalid bet amount");
+      return;
     }
+
+    const numBets = parseInt(nbets);
+    if (isNaN(numBets) || numBets <= 0) {
+      toast.error("Please enter a valid number of bets");
+      console.log("Invalid number of bets");
+      return;
+    }
+    if (numBets > 100) {
+      toast.error("Maximum number of auto bets is 100");
+      console.log("Too many bets");
+      return;
+    }
+
+    console.log("Starting auto bet with", numBets, "bets");
+
+    setStartAutoBet(false);
+    setIsAutoBetting(false);
+
+    setTimeout(() => {
+      setIsAutoBetting(true);
+      setStartAutoBet(true);
+      autoBet(numBets);
+    }, 100);
   };
 
   const autoBet = (remainingBets) => {
-    if (remainingBets > 0) {
-      const limboSocket = getLimboSocket();
-      if (limboSocket) {
-        limboSocket.emit("add_game", {});
-        console.log("Emitted add_game event");
-      } else {
-        console.error("Limbo socket not initialized");
-        toast.error("Failed to join game: Socket not connected");
+    console.log(
+      "Auto bet called with remaining bets:",
+      remainingBets,
+      "startAutoBet:",
+      startAutoBet
+    );
+
+    if (remainingBets <= 0) {
+      console.log("No more bets remaining");
+      setStartAutoBet(false);
+      setIsAutoBetting(false);
+      return;
+    }
+
+    console.log("Placing bet...");
+    startNumberAnimation();
+    placeBet(parseFloat(bet), parseFloat(targetMultiplier), (result) => {
+      console.log("Bet placed, remaining bets:", remainingBets - 1);
+
+      setTimeout(() => {
+        if (remainingBets > 1) {
+          console.log("Scheduling next bet...");
+          autoBet(remainingBets - 1);
+        } else {
+          console.log("All bets completed");
+          setStartAutoBet(false);
+          setIsAutoBetting(false);
+        }
+      }, 1500);
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      setStartAutoBet(false);
+      setIsAutoBetting(false);
+    };
+  }, []);
+
+  const handleReconnect = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("?tab=login", { replace: true });
         return;
       }
 
-      startGame();
-      const gameDuration = 1500 + 500;
-      setTimeout(() => {
-        autoBet(remainingBets - 1);
-      }, gameDuration);
-    } else {
+      // First set disconnected to false to remove modal
+      setIsDisconnected(false);
+
+      // Disconnect and clean up existing socket
+      const existingSocket = getLimboSocket();
+      if (existingSocket) {
+        removeErrorListener();
+        removeBetResultListener();
+        existingSocket.off("connect_error");
+        existingSocket.off("disconnect");
+        existingSocket.off("connect");
+        existingSocket.disconnect();
+      }
+
+      // Clear socket reference and reset game state
+      socketRef.current = null;
+      setBettingStarted(false);
+      setStart(false);
+      setFinalNumber(null);
+      setNumber(null);
+      setDisplayNumber(null);
+      setDefaultColor(true);
       setStartAutoBet(false);
+      setIsAutoBetting(false);
+      setBetCompleted(false);
+
+      // Reinitialize socket
+      await initializeLimboSocket(token);
+      const socket = getLimboSocket();
+
+      // Set up socket event handlers
+      socket.on("connect_error", (error) => {
+        console.error("Socket connection error:", error);
+        if (error.message === "Authentication failed") {
+          localStorage.removeItem("token");
+          navigate("?tab=login", { replace: true });
+        } else {
+          setIsDisconnected(true);
+        }
+      });
+
+      socket.on("disconnect", () => {
+        setIsDisconnected(true);
+      });
+
+      socket.on("connect", () => {
+        console.log("Socket reconnected successfully");
+        setIsDisconnected(false);
+        joinGame(() => {
+          console.log("Rejoined Limbo game");
+          socketRef.current = socket;
+        });
+      });
+
+      // Set up game event handlers
+      onError(({ message }) => {
+        console.error("Game error:", message);
+        toast.error(message);
+        handleBetError();
+        stopNumberAnimation();
+        setIsAutoBetting(false);
+      });
+
+      onBetResult((result) => {
+        console.log("Bet result received:", result);
+        stopNumberAnimation();
+        setFinalNumber(result.number);
+        setNumber(result.number);
+        setDisplayNumber(result.number);
+        setDefaultColor(false);
+        setBettingStarted(false);
+
+        if (result.error) {
+          setStartAutoBet(false);
+          setIsAutoBetting(false);
+        }
+
+        setBetCompleted(true);
+
+        const updatedHistory = addToGameHistory("limbo_game_history", result);
+        setCurrentHistory(updatedHistory);
+      });
+    } catch (error) {
+      console.error("Error during reconnection:", error);
+      setIsDisconnected(true);
+      toast.error("Failed to reconnect. Please try again.");
     }
   };
 
-  const [number, setNumber] = useState(null);
-  const [finalNumber, setFinalNumber] = useState(null);
-  const [targetMultiplier, setTargetMultiplier] = useState(1.01);
-
-  useEffect(() => {
-    let interval;
-    if (start) {
-      interval = setInterval(() => {
-        const placeholder = (Math.random() * 100).toFixed(2);
-        setNumber(placeholder);
-      }, 50);
-
-      setTimeout(() => {
-        clearInterval(interval);
-        const result = (Math.random() * 100).toFixed(2);
-        setDefaultColor(false);
-        setBettingStarted(false);
-        setFinalNumber(result);
-        setNumber(result);
-        setStart(false);
-        setBetCompleted(true);
-      }, 1500);
-    }
-
-    return () => clearInterval(interval);
-  }, [start]);
-
-  useEffect(() => {
-    if (betCompleted) {
-      const newHistoryItem = {
-        id: currentHistory.length + 1,
-        value: finalNumber,
-        color: finalNumber > targetMultiplier ? "#15803D" : "#B91C1C",
-      };
-
-      setCurrentHistory([...currentHistory, newHistoryItem]);
-      setBetCompleted(false);
-    }
-  }, [betCompleted]);
+  const DisconnectModal = () => (
+    <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 rounded-tr">
+      <motion.div
+        className="p-6 bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h2 className="text-2xl font-bold text-white mb-4">
+          {isDisconnected ? "Disconnected from Game" : "Session Expired"}
+        </h2>
+        <p className="text-gray-300 text-lg mb-6">
+          {isDisconnected
+            ? "You have been disconnected from the game server. Would you like to reconnect?"
+            : "Your session has expired. Please login again to continue playing."}
+        </p>
+        <div className="flex gap-4 justify-center">
+          {isDisconnected ? (
+            <motion.button
+              className="px-6 py-3 text-lg bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleReconnect}
+            >
+              Reconnect
+            </motion.button>
+          ) : (
+            <motion.button
+              className="px-6 py-3 text-lg bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate("?tab=login", { replace: true })}
+            >
+              Login
+            </motion.button>
+          )}
+        </div>
+      </motion.div>
+    </div>
+  );
 
   return (
     <>
@@ -208,24 +461,35 @@ const Frame = () => {
           <div className="flex flex-col gap-[0.15rem] relative">
             <div className="grid grid-cols-12 lg:min-h-[600px]">
               {/* Left Section */}
-              <Sidebar
-                theatreMode={theatreMode}
-                setTheatreMode={setTheatreMode}
-                setBet={setBet}
-                setBetMode={setBetMode}
-                profit={profit}
-                setProfit={setProfit}
-                setLoss={setLoss}
-                nbets={nbets}
-                setNBets={setNBets}
-                betMode={betMode}
-                bet={bet}
-                maxBetEnable={maxBetEnable}
-                bettingStarted={bettingStarted}
-                handleBetClick={handleBetClick}
-                startAutoBet={startAutoBet}
-                handleAutoBet={handleAutoBet}
-              />
+              <div
+                className={`col-span-12 ${
+                  theatreMode
+                    ? "md:col-span-4 md:order-1"
+                    : "lg:col-span-4 lg:order-1"
+                } xl:col-span-3 order-2 ${
+                  isDisconnected ? "opacity-50 pointer-events-none" : ""
+                }`}
+              >
+                <Sidebar
+                  theatreMode={theatreMode}
+                  setTheatreMode={setTheatreMode}
+                  setBet={setBet}
+                  setBetMode={setBetMode}
+                  profit={profit}
+                  setProfit={setProfit}
+                  setLoss={setLoss}
+                  nbets={nbets}
+                  setNBets={setNBets}
+                  betMode={betMode}
+                  bet={bet}
+                  maxBetEnable={maxBetEnable}
+                  bettingStarted={bettingStarted}
+                  handleBetClick={handleBetClick}
+                  startAutoBet={startAutoBet}
+                  handleAutoBet={handleAutoBet}
+                  isAutoBetting={isAutoBetting}
+                />
+              </div>
 
               {/* Right Section */}
               <div
@@ -233,15 +497,17 @@ const Frame = () => {
                   theatreMode
                     ? "md:col-span-8 md:order-2"
                     : "lg:col-span-8 lg:order-2"
-                } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[470px]`}
+                } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[470px] relative`}
               >
-                <div className="w-full px-4 relative text-white h-full  items-center justify-center text-3xl">
+                {isDisconnected && <DisconnectModal />}
+                <div className="w-full px-4 relative text-white h-full items-center justify-center text-3xl">
                   <History list={currentHistory} />
                   <GameComponent
-                    Multipler={Multipler}
-                    number={number}
+                    targetMultiplier={targetMultiplier}
+                    number={displayNumber || number}
                     finalNumber={finalNumber}
                     defaultColor={defaultColor}
+                    isAnimating={isAnimating}
                   />
                   <div className="mb-5">
                     <BetCalculator

@@ -31,7 +31,6 @@ const Frame = () => {
   const [bet, setBet] = useState("0.000000");
   const [nbets, setNBets] = useState(0);
   const [betStarted, setBettingStarted] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [slotindex, setslotindex] = useState(null);
 
   // for game
@@ -147,31 +146,26 @@ const Frame = () => {
                   theatreMode
                     ? "md:col-span-8 md:order-2"
                     : "lg:col-span-8 lg:order-2"
-                } xl:col-span-9 bg-gray-900 order-1`}
+                } xl:col-span-9 bg-gray-900 order-1 relative`}
               >
-                <div className="w-full  text-white h-full justify-center text-3xl">
-                  {loading ? (
-                    <>
-                      <h1 className="text-xl font-semibold">Loading...</h1>
-                    </>
-                  ) : (
-                    <div className="mb-20 py-6 md:py-0 md:h-auto">
-                      <Game
-                        betStarted={betStarted}
-                        setBettingStarted={setBettingStarted}
-                        diamondCounts={diamondCounts}
-                        setDiamondCounts={setDiamondCounts}
-                        reset={reset}
-                        AutoClick={AutoPick}
-                        setAutoPick={setAutoPick}
-                        setslotindex={setslotindex}
-                        slotindex={slotindex}
-                        startAutoBet={startAutoBet}
-                        setStartAutoBet={setStartAutoBet}
-                        nbets={nbets}
-                      />
-                    </div>
-                  )}
+                <div className="w-full text-white h-full justify-center text-3xl">
+                  <div className="mb-20 py-6 md:py-0 md:h-auto">
+                    <Game
+                      betStarted={betStarted}
+                      setBettingStarted={setBettingStarted}
+                      diamondCounts={diamondCounts}
+                      setDiamondCounts={setDiamondCounts}
+                      reset={reset}
+                      AutoClick={AutoPick}
+                      setAutoPick={setAutoPick}
+                      setslotindex={setslotindex}
+                      slotindex={slotindex}
+                      startAutoBet={startAutoBet}
+                      setStartAutoBet={setStartAutoBet}
+                      nbets={nbets}
+                      betAmount={bet}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

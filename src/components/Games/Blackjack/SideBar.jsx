@@ -15,7 +15,30 @@ const SideBar = ({
   isSmt,
   split,
   double,
+  activeHand,
+  splitHands,
+  splitValues,
+  splitResults,
+  splitBets,
+  handleSplitHit,
+  handleSplitStand,
+  userCards,
 }) => {
+  const canSplit = bettingStarted && !split && userCards?.length === 2;
+  const isPair =
+    userCards?.length === 2 && userCards[0]?.value === userCards[1]?.value;
+  const canBet = !bettingStarted && parseFloat(bet) > 0;
+
+  // Helper function to determine button state
+  const getButtonClass = (isActive, isDisabled) => {
+    if (isDisabled) {
+      return "bg-[#2f4553] text-white";
+    }
+    return isActive
+      ? "bg-button text-black cursor-pointer hover:bg-button/90 transition-all duration-300 ease-in-out transform active:scale-90"
+      : "bg-[#2f4553] text-white";
+  };
+
   return (
     <>
       <div
@@ -24,7 +47,7 @@ const SideBar = ({
         } xl:col-span-3 bg-inactive order-2 max-lg:h-[fit-content] lg:h-[600px] overflow-auto`}
       >
         <div className="my-4 px-3 flex flex-col">
-          {/* Manual and auto  */}
+          {/* Manual and auto */}
           <div className="sticky top-0 z-[1] bg-inactive py-0 rounded-md">
             <div className="order-[100] max-lg:mt-2 lg:order-1 switch mb-4 w-full bg-primary rounded-full p-1.5 grid grid-cols-1 gap-1">
               <div
@@ -39,25 +62,51 @@ const SideBar = ({
           </div>
 
           <>
+            {/* Split Hand Indicator */}
+            {split && (
+              <div className="order-1 mb-4 text-center">
+                <h2 className="text-white font-semibold">
+                  Playing Hand {activeHand + 1}
+                </h2>
+                <div className="text-sm text-gray-400">
+                  {activeHand === 0 ? "Complete this hand first" : "Final hand"}
+                </div>
+              </div>
+            )}
+
             <div className="order-1 md:order-2 my-2 w-full">
               <div className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label">
                 <label htmlFor="betAmount">Bet Amount</label>
-                <h1 className="text-sm">$0.00</h1>
+                {split ? (
+                  <h1 className="text-sm">
+                    Hand {activeHand + 1}: ${splitBets[activeHand]}
+                  </h1>
+                ) : (
+                  <h1 className="text-sm">${bet}</h1>
+                )}
               </div>
               <div className="w-full mt-1 bg-inactive shadow-md flex rounded">
                 <div className="w-full relative">
                   <input
                     type="text"
-                    value={bet}
+                    value={split ? splitBets[activeHand] : bet}
                     id="betAmount"
                     disabled={bettingStarted}
-                    onChange={(e) => setBet(e.target.value)}
+                    onChange={(e) => {
+                      if (!bettingStarted) {
+                        if (split) {
+                          const newBets = [...splitBets];
+                          newBets[activeHand] = e.target.value;
+                          setSplitBets(newBets);
+                        } else {
+                          setBet(e.target.value);
+                        }
+                      }
+                    }}
                     className="w-full h-full rounded bg-secondry outline-none text-white px-2 pr-6 border border-inactive hover:border-primary-4"
                   />
                   <div className="absolute top-1.5 right-2">
                     <svg fill="none" viewBox="0 0 96 96" className="svg-icon">
-                      {" "}
-                      <title></title>{" "}
                       <path
                         d="M95.895 48.105C95.895 74.557 74.451 96 48 96 21.548 96 .105 74.556.105 48.105.105 21.653 21.548.21 48 .21c26.451 0 47.895 21.443 47.895 47.895Z"
                         fill="#F7931A"
@@ -69,14 +118,29 @@ const SideBar = ({
                     </svg>
                   </div>
                 </div>
-                <div className="cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
+                <div
+                  onClick={() =>
+                    !bettingStarted &&
+                    setBet((prev) => (parseFloat(prev) / 2).toFixed(6))
+                  }
+                  className="cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none"
+                >
                   1/2
                 </div>
-                <div className="cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
+                <div
+                  onClick={() =>
+                    !bettingStarted &&
+                    setBet((prev) => (parseFloat(prev) * 2).toFixed(6))
+                  }
+                  className="cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none"
+                >
                   2x
                 </div>
                 {maxBetEnable && (
-                  <div className="cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
+                  <div
+                    onClick={() => !bettingStarted && setBet("100.000000")}
+                    className="cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none"
+                  >
                     Max
                   </div>
                 )}
@@ -85,45 +149,41 @@ const SideBar = ({
 
             <div className="grid grid-cols-2 gap-3 order-2 md:order-20">
               <div
-                className={`order-2 md:order-20 flex items-center justify-center w-full mx-auto py-2.5 mt-3 max-lg:mt-4 rounded font-semibold ${
+                className={`order-2 md:order-20 flex items-center justify-center w-full mx-auto py-2.5 mt-3 max-lg:mt-4 rounded font-semibold ${getButtonClass(
+                  !isSmt && bettingStarted,
                   isSmt || !bettingStarted
-                    ? "bg-[#2f4553] text-white"
-                    : "bg-button text-black transition-all duration-300 ease-in-out transform active:scale-90"
-                } text-[0.9rem] cursor-pointer`}
-                onClick={handleHit}
+                )} text-[0.9rem]`}
+                onClick={split ? handleSplitHit : handleHit}
                 disabled={isSmt || !bettingStarted}
               >
                 Hit
               </div>
               <div
-                className={`order-2 md:order-20 flex items-center justify-center w-full mx-auto py-2.5 mt-3 max-lg:mt-4 rounded font-semibold ${
+                className={`order-2 md:order-20 flex items-center justify-center w-full mx-auto py-2.5 mt-3 max-lg:mt-4 rounded font-semibold ${getButtonClass(
+                  !isSmt && bettingStarted,
                   isSmt || !bettingStarted
-                    ? "bg-[#2f4553] text-white"
-                    : "bg-button text-black transition-all duration-300 ease-in-out transform active:scale-90"
-                } text-[0.9rem] cursor-pointer`}
-                onClick={handleStand}
+                )} text-[0.9rem]`}
+                onClick={split ? handleSplitStand : handleStand}
                 disabled={isSmt || !bettingStarted}
               >
                 Stand
               </div>
 
               <div
-                className={`order-2 mb-2 md:order-20 flex items-center justify-center w-full mx-auto py-2.5 rounded font-semibold ${
-                  isSmt || !split || !bettingStarted
-                    ? "bg-[#2f4553] text-white"
-                    : "bg-button text-black transition-all duration-300 ease-in-out transform active:scale-90"
-                } text-[0.9rem] cursor-pointer`}
+                className={`order-2 mb-2 md:order-20 flex items-center justify-center w-full mx-auto py-2.5 rounded font-semibold ${getButtonClass(
+                  canSplit && isPair,
+                  !canSplit || !isPair
+                )} text-[0.9rem]`}
                 onClick={handleSplit}
-                disabled={isSmt || !split || !bettingStarted}
+                disabled={!canSplit || !isPair}
               >
                 Split
               </div>
               <div
-                className={`order-2 mb-2 md:order-20 flex items-center justify-center w-full mx-auto py-2.5 rounded font-semibold ${
+                className={`order-2 mb-2 md:order-20 flex items-center justify-center w-full mx-auto py-2.5 rounded font-semibold ${getButtonClass(
+                  !isSmt && double && bettingStarted,
                   isSmt || !double || !bettingStarted
-                    ? "bg-[#2f4553] text-white"
-                    : "bg-button text-black transition-all duration-300 ease-in-out transform active:scale-90"
-                } text-[0.9rem] cursor-pointer`}
+                )} text-[0.9rem]`}
                 onClick={handleDouble}
                 disabled={isSmt || !double || !bettingStarted}
               >
@@ -134,13 +194,14 @@ const SideBar = ({
             {/* Bet button */}
             <button
               onClick={handleMineBet}
-              className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
-                bettingStarted
-                  ? "bg-primary text-white cursor-text"
-                  : "bg-button-primary active:scale-90"
+              className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black ${
+                !canBet
+                  ? "bg-primary text-white"
+                  : "bg-button-primary cursor-pointer hover:bg-button-primary/90 active:scale-90"
               }`}
+              disabled={!canBet}
             >
-              Bet
+              Place Bet
             </button>
           </>
         </div>

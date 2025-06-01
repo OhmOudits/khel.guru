@@ -42,37 +42,181 @@ const Frame = () => {
   const [split, setSplit] = useState(false);
   const [double, setDouble] = useState(false);
 
+  const [splitHands, setSplitHands] = useState([]);
+  const [activeHand, setActiveHand] = useState(0);
+  const [splitValues, setSplitValues] = useState([0, 0]);
+  const [splitResults, setSplitResults] = useState([null, null]);
+  const [splitBets, setSplitBets] = useState(["0.000000", "0.000000"]);
+
   const [cards, setCards] = useState([]);
   const [isSmt, setIsSmt] = useState(true);
 
   const navigate = useNavigate();
   const token = useSelector((state) => state.auth?.token);
 
-  const initSocket = () => {
+  // Separate useEffect for socket initialization
+  useEffect(() => {
+    console.log("Frame component mounted");
+
+    if (!token) {
+      console.log("No token available, skipping socket initialization");
+      return;
+    }
+
+    console.log("Initializing socket with token");
+    const socket = initializeBlackjackSocket(token);
+
+    if (socket) {
+      console.log("Socket initialized, will request game state on connect");
+    } else {
+      console.error("Failed to initialize socket");
+    }
+
+    // Cleanup
+    return () => {
+      console.log("Cleaning up socket initialization");
+      const socket = getBlackjackSocket();
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+  }, [token]);
+
+  // Separate useEffect for socket event listeners
+  useEffect(() => {
+    console.log("Setting up socket event listeners");
     const blackjackSocket = getBlackjackSocket();
+
     if (!blackjackSocket) {
-      initializeBlackjackSocket(token);
+      console.log("No socket available for event listeners");
+      return;
+    }
+
+    // Log all incoming socket events for debugging
+    blackjackSocket.onAny((eventName, ...args) => {
+      console.log("Socket event received:", eventName, args);
+    });
+
+    // Handle initial game state load
+    blackjackSocket.on("initial_game_state", (data) => {
+      console.log("Raw initial game state data received:", data);
+      const { success, gameState } = data;
+
+      if (!success) {
+        console.error("Initial game state request failed:", data);
+        return;
+      }
+
+      if (!gameState) {
+        console.error("No game state in response:", data);
+        return;
+      }
+
+      console.log("Processing initial game state:", {
+        gameState: gameState.gameState,
+        userCards: gameState.userCards?.length || 0,
+        dealerCards: gameState.dealerCards?.length || 0,
+        userValue: gameState.userValue,
+        dealerValue: gameState.dealerValue,
+        isSplit: gameState.isSplit,
+        activeHand: gameState.activeHand,
+        bet: gameState.bet,
+      });
+
+      updateGameState(gameState);
+    });
+
+    // Handle ongoing game state updates
+    blackjackSocket.on("game_state_update", (data) => {
+      console.log("Raw game state update data received:", data);
+      const { success, gameState } = data;
+
+      if (!success) {
+        console.error("Game state update failed:", data);
+        return;
+      }
+
+      if (!gameState) {
+        console.error("No game state in update:", data);
+        return;
+      }
+
+      console.log("Processing game state update:", {
+        gameState: gameState.gameState,
+        userCards: gameState.userCards?.length || 0,
+        dealerCards: gameState.dealerCards?.length || 0,
+        userValue: gameState.userValue,
+        dealerValue: gameState.dealerValue,
+        isSplit: gameState.isSplit,
+        activeHand: gameState.activeHand,
+        bet: gameState.bet,
+      });
+
+      updateGameState(gameState);
+    });
+
+    blackjackSocket.on("error", (error) => {
+      console.error("Socket error received:", error);
+      if (error.message) {
+        toast.error(error.message);
+      }
+    });
+
+    blackjackSocket.on("connect", () => {
+      console.log("Socket connected, requesting initial game state");
+      blackjackSocket.emit("get_game_state");
+    });
+
+    blackjackSocket.on("disconnect", (reason) => {
+      console.log("Socket disconnected:", reason);
+    });
+
+    // Cleanup
+    return () => {
+      console.log("Cleaning up socket event listeners");
+      if (blackjackSocket) {
+        blackjackSocket.offAny();
+        blackjackSocket.off("initial_game_state");
+        blackjackSocket.off("game_state_update");
+        blackjackSocket.off("error");
+        blackjackSocket.off("connect");
+        blackjackSocket.off("disconnect");
+      }
+    };
+  }, []); // Empty dependency array since we want this to run once on mount
+
+  // Function to update game state
+  const updateGameState = (gameState) => {
+    if (!gameState) return;
+
+    // Update basic game state
+    setUserCards(gameState.userCards || []);
+    setDealerCards(gameState.dealerCards || []);
+    setUserValue(gameState.userValue || 0);
+    setDealerValue(gameState.dealerValue || 0);
+    setUserResult(gameState.result || null);
+    setBettingStarted(
+      gameState.gameState === "playing" || gameState.gameState === "dealer"
+    );
+    setIsSmt(gameState.gameState === "playing");
+
+    // Handle split state
+    if (gameState.isSplit) {
+      setSplit(true);
+      setSplitHands(gameState.splitHands || [[], []]);
+      setSplitValues(gameState.splitValues || [0, 0]);
+      setSplitResults(gameState.splitResults || [null, null]);
+      setSplitBets(gameState.splitBets || ["0.000000", "0.000000"]);
+      setActiveHand(gameState.activeHand || 0);
+    } else {
+      setSplit(false);
+      setSplitHands([]);
+      setSplitValues([0, 0]);
+      setSplitResults([null, null]);
+      setSplitBets(["0.000000", "0.000000"]);
+      setActiveHand(0);
     }
   };
-
-  useEffect(() => {
-    const blackjackSocket = getBlackjackSocket();
-
-    if (blackjackSocket) {
-      blackjackSocket.on("error", ({ message }) => {
-        console.error("Join game error:", message);
-        toast.error(`Error joining game: ${message}`);
-      });
-    }
-
-    return () => {
-      const blackjackSocket = getBlackjackSocket();
-      if (blackjackSocket) {
-        blackjackSocket.off("error");
-      }
-      disconnectBlackjackSocket();
-    };
-  }, []);
 
   const createDeck = () => {
     let deck = [];
@@ -99,66 +243,105 @@ const Frame = () => {
 
   const [deck, setDeck] = useState(createDeck());
 
-  const handleBetStarted = () => {
+  const handlePlaceBet = async () => {
     if (!checkLoggedIn()) {
       navigate(`?tab=${"login"}`, { replace: true });
       return;
     }
 
-    initSocket();
+    const blackjackSocket = getBlackjackSocket();
+    if (!blackjackSocket) {
+      console.error("No socket available for placing bet");
+      toast.error("Failed to join game: Check Your Internet Connection");
+      return;
+    }
 
-    if (!betStarted) {
-      const blackjackSocket = getBlackjackSocket();
-      if (blackjackSocket) {
-        blackjackSocket.emit("add_game", {});
-        console.log("Emitted add_game event");
-      } else {
-        console.error("Blackjack socket not initialized");
-        toast.error("Failed to join game: Check Your Internet Connection");
-        return;
+    try {
+      // First create a game if one doesn't exist
+      if (!betStarted) {
+        await new Promise((resolve, reject) => {
+          blackjackSocket.emit("add_game");
+          blackjackSocket.once(
+            "game_state_update",
+            ({ success, gameState }) => {
+              if (success && gameState) {
+                updateGameState(gameState);
+                resolve(gameState);
+              } else {
+                reject(new Error("Failed to create game"));
+              }
+            }
+          );
+          blackjackSocket.once("error", (error) => {
+            reject(error);
+          });
+        });
       }
 
-      setBettingStarted(true);
-      const deckCards = createDeck();
-      setCards(deckCards);
-      setDeck(deckCards);
-      setUserCards([]);
-      setDealerCards([]);
-      setUserValue(0);
-      setDealerValue(0);
-      setUserResult(null);
-      setDealerResult(null);
-      setSplit(false);
-      setDouble(false);
-
-      const dealSequence = async () => {
-        if (deckCards.length < 4) return;
-
-        for (let i = 0; i < 4; i++) {
-          await new Promise((resolve) => setTimeout(resolve, 800));
-
-          setDeck((prevDeck) => prevDeck.slice(1));
-          const newCard = deckCards[i];
-          const worth = getCardValue(newCard.value);
-
-          if (i === 0 || i === 2) {
-            setUserCards((prev) => [...prev, newCard]);
-            setTimeout(() => {
-              setUserValue((p) => p + worth);
-            }, 600);
-          } else if (i === 1) {
-            setDealerCards((prev) => [...prev, newCard]);
-            setTimeout(() => {
-              setDealerValue((p) => p + worth);
-            }, 600);
-          } else if (i === 3) {
-            setDealerCards((prev) => [...prev, { ...newCard, flipped: false }]);
-            setIsSmt(false);
+      // Then place the bet
+      await new Promise((resolve, reject) => {
+        blackjackSocket.emit("place_bet", { betAmount: parseFloat(bet) });
+        blackjackSocket.once("game_state_update", ({ success, gameState }) => {
+          if (success && gameState) {
+            updateGameState(gameState);
+            resolve(gameState);
+          } else {
+            reject(new Error("Failed to place bet"));
           }
-        }
-      };
+        });
+        blackjackSocket.once("error", (error) => {
+          reject(error);
+        });
+      });
+    } catch (error) {
+      toast.error(error.message || "Failed to place bet");
+    }
+  };
 
-      dealSequence();
+  const handleHit = () => {
+    const blackjackSocket = getBlackjackSocket();
+    if (blackjackSocket && betStarted) {
+      blackjackSocket.emit("hit");
+    }
+  };
+
+  const handleStand = () => {
+    const blackjackSocket = getBlackjackSocket();
+    if (blackjackSocket && betStarted) {
+      blackjackSocket.emit("stand");
+    }
+  };
+
+  const handleSplit = () => {
+    const blackjackSocket = getBlackjackSocket();
+    if (
+      blackjackSocket &&
+      betStarted &&
+      userCards.length === 2 &&
+      userCards[0].value === userCards[1].value
+    ) {
+      blackjackSocket.emit("split");
+    }
+  };
+
+  const handleDouble = () => {
+    const blackjackSocket = getBlackjackSocket();
+    if (blackjackSocket && betStarted && userCards.length === 2) {
+      blackjackSocket.emit("double");
+    }
+  };
+
+  const handleSplitHit = () => {
+    const blackjackSocket = getBlackjackSocket();
+    if (blackjackSocket && split) {
+      blackjackSocket.emit("hit");
+    }
+  };
+
+  const handleSplitStand = () => {
+    const blackjackSocket = getBlackjackSocket();
+    if (blackjackSocket && split) {
+      blackjackSocket.emit("stand");
     }
   };
 
@@ -189,67 +372,6 @@ const Frame = () => {
     }
   }, [userValue, dealerValue]);
 
-  const handleHit = () => {
-    if (deck.length === 0 || betStarted === false) return;
-
-    const newCard = deck[0];
-    const worth = getCardValue(newCard.value);
-
-    setDeck((prevDeck) => prevDeck.slice(1));
-    setUserCards((prev) => [...prev, newCard]);
-    setTimeout(() => {
-      setUserValue((prev) => prev + worth);
-    }, 600);
-  };
-
-  const handleStand = async () => {
-    setIsSmt(false);
-    let dealerHand = [...dealerCards];
-    let dealerTotal = dealerValue;
-
-    dealerHand[1].flipped = true;
-    dealerTotal += getCardValue(dealerHand[1].value);
-    setDealerCards([...dealerHand]);
-    setDealerValue(dealerTotal);
-
-    while (dealerTotal < 17 && deck.length > 0) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const newCard = deck[0];
-      dealerHand.push(newCard);
-      dealerTotal += getCardValue(newCard.value);
-      setDeck(deck.slice(1));
-      setDealerCards([...dealerHand]);
-      setDealerValue(dealerTotal);
-    }
-
-    setTimeout(() => {
-      if (userValue > dealerTotal) {
-        if (!userValue > 21) {
-          setUserResult("win");
-          setDealerResult("lose");
-        }
-
-        if (dealerTotal > 21) {
-          setDealerResult("lose");
-        }
-      } else if (userValue < dealerTotal) {
-        if (!dealerValue > 21) {
-          setUserResult("lose");
-          setDealerResult("win");
-        }
-      } else {
-        setUserResult("draw");
-        setDealerResult("draw");
-      }
-      setBettingStarted(false);
-      setIsSmt(false);
-    }, 1000);
-  };
-
-  useEffect(() => {
-    console.log(userResult);
-  }, []);
-
   const isGameEnd = () => {
     return (
       userResult ||
@@ -258,18 +380,6 @@ const Frame = () => {
       (userValue <= 21 && dealerValue > 21)
     );
   };
-
-  const handleDouble = () => {
-    if (!betStarted || userCards.length !== 2) return;
-    setBet((prevBet) => (parseFloat(prevBet) * 2).toFixed(6));
-    handleHit();
-
-    if (isGameEnd) {
-      setTimeout(() => handleStand(), 1000);
-    }
-  };
-
-  const handleSplit = () => {};
 
   useEffect(() => {
     if (userCards.length !== 2) {
@@ -301,7 +411,7 @@ const Frame = () => {
                 bet={bet}
                 setBet={setBet}
                 maxBetEnable={maxBetEnable}
-                handleMineBet={handleBetStarted}
+                handleMineBet={handlePlaceBet}
                 bettingStarted={betStarted}
                 isSmt={isSmt}
                 handleCheckout={handleCheckout}
@@ -311,6 +421,14 @@ const Frame = () => {
                 handleHit={handleHit}
                 handleSplit={handleSplit}
                 handleStand={handleStand}
+                activeHand={activeHand}
+                splitHands={splitHands}
+                splitValues={splitValues}
+                splitResults={splitResults}
+                splitBets={splitBets}
+                handleSplitHit={handleSplitHit}
+                handleSplitStand={handleSplitStand}
+                userCards={userCards}
               />
 
               <div
@@ -323,13 +441,18 @@ const Frame = () => {
                 <div className="w-full  text-white rounded-tr h-full justify-center text-3xl">
                   <>
                     <Game
-                      userCards={userCards}
+                      userCards={split ? splitHands[activeHand] : userCards}
                       dealerCards={dealerCards}
-                      userValue={userValue}
+                      userValue={split ? splitValues[activeHand] : userValue}
                       dealerValue={dealerValue}
-                      userResult={userResult}
+                      userResult={split ? splitResults[activeHand] : userResult}
                       dealerResult={dealerResult}
                       deck={deck}
+                      isSplit={split}
+                      activeHand={activeHand}
+                      splitHands={splitHands}
+                      splitValues={splitValues}
+                      splitResults={splitResults}
                     />
                   </>
                 </div>

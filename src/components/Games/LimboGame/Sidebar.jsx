@@ -14,13 +14,14 @@ const LeftSection = ({
   handleBetClick,
   handleAutoBet,
   startAutoBet,
+  isAutoBetting,
 }) => {
   return (
     <>
       <div
         className={`col-span-12 ${
           theatreMode ? "md:col-span-4 md:order-1" : "lg:col-span-4 lg:order-1"
-        } xl:col-span-3 bg-inactive order-2 max-lg:h-[fit-content] lg:h-[600px] overflow-auto`}
+        } xl:col-span-3 bg-inactive order-2 max-lg:h-[fit-content] lg:h-[650px] overflow-auto`}
       >
         <div className="my-4 px-3 flex flex-col">
           {/* Manual and auto  */}
@@ -91,7 +92,7 @@ const LeftSection = ({
                 <input
                   type="number"
                   value={nbets}
-                  disabled={startAutoBet}
+                  disabled={startAutoBet || isAutoBetting}
                   onChange={(e) => setNBets(e.target.value)}
                   className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-2 pr-6 py-2 border border-input hover:border-primary-4"
                 />
@@ -100,14 +101,14 @@ const LeftSection = ({
               {/* Bet button */}
               <button
                 onClick={handleAutoBet}
-                disabled={startAutoBet}
-                className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
-                  startAutoBet
-                    ? "bg-primary text-white cursor-text"
-                    : "bg-button-primary active:scale-90"
+                disabled={startAutoBet || isAutoBetting}
+                className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black ${
+                  startAutoBet || isAutoBetting
+                    ? "bg-primary text-white cursor-not-allowed opacity-50"
+                    : "bg-button-primary active:scale-90 cursor-pointer"
                 }`}
               >
-                Start Autobet
+                {isAutoBetting ? "Auto Betting..." : "Start Autobet"}
               </button>
             </>
           )}

@@ -5,6 +5,7 @@ import FrameFooter from "../../Frame/FrameFooter";
 import HotKeysModal from "../../Frame/HotKeysModal";
 import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
+import { GameResultModal, ActiveGameModal } from "./GameResultModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
 import { CARD_SUITS, CARD_VALUES } from "./constant";
@@ -14,6 +15,15 @@ import {
   disconnectHiloSocket,
   getHiloSocket,
   initializeHiloSocket,
+  getActiveGame,
+  addGame,
+  predict,
+  skip,
+  checkout,
+  onGameOver,
+  onError,
+  removeGameOverListener,
+  removeErrorListener,
 } from "../../../socket/games/hilo";
 import checkLoggedIn from "../../../utils/isloggedIn";
 import { useNavigate } from "react-router-dom";
@@ -39,57 +49,68 @@ const Frame = () => {
   const [maxBet, setMaxBet] = useState(false);
   const [gameInfo, setGameInfo] = useState(false);
   const [hotkeys, setHotkeys] = useState(false);
-  const [hotkeysEnableddiamondCounts, setHotkeysEnabled] = useState(false);
+  const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
+
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [showActiveGameModal, setShowActiveGameModal] = useState(false);
+  const [gameResult, setGameResult] = useState({
+    isGameOver: false,
+    profit: 0,
+  });
+  const [isWaitingForCard, setIsWaitingForCard] = useState(false);
+  const [isGameStarting, setIsGameStarting] = useState(false);
 
   const navigate = useNavigate();
   const token = useSelector((state) => state.auth?.token);
 
-  const initSocket = () => {
-    const hiloSocket = getHiloSocket();
-    if (!hiloSocket) {
-      initializeHiloSocket(token);
-    }
-  };
+  const [currentCard, setCurrentCard] = useState(null);
+  const [historyCards, setHistoryCards] = useState([]);
 
   useEffect(() => {
-    const hiloSocket = getHiloSocket();
+    if (token) {
+      initializeHiloSocket(token);
+      getActiveGame((gameState) => {
+        console.log("Active game state received:", gameState); // Debug log
+        if (gameState) {
+          if (gameState.gameOver) {
+            console.log("Game is over, showing result modal"); // Debug log
+            setGameResult({ isGameOver: true, profit: gameState.profit || 0 });
+            setShowResultModal(true);
+          } else {
+            console.log("Active game found, showing active game modal"); // Debug log
+            setShowActiveGameModal(true);
+            // For existing games, we should have valid card data
+            setCurrentCard(gameState.currentCard);
+            setHistoryCards(gameState.historyCards || []);
+            setBettingStarted(true);
+          }
+          setIsWaitingForCard(false);
+        } else {
+          console.log("No active game found"); // Debug log
+        }
+      });
 
-    if (hiloSocket) {
-      hiloSocket.on("error", ({ message }) => {
-        console.error("Join game error:", message);
-        toast.error(`Error joining game: ${message}`);
+      onGameOver(({ game }) => {
+        console.log("Game over event received:", game); // Debug log
+        setBettingStarted(false);
+        setIsWaitingForCard(false);
+        setGameResult({ isGameOver: true, profit: game.profit || 0 });
+        setShowResultModal(true);
+      });
+
+      onError(({ message }) => {
+        console.error("Socket error:", message); // Debug log
+        setIsWaitingForCard(false);
+        toast.error(message);
       });
     }
 
     return () => {
-      const hiloSocket = getHiloSocket();
-      if (hiloSocket) {
-        hiloSocket.off("error");
-      }
+      removeGameOverListener();
+      removeErrorListener();
       disconnectHiloSocket();
     };
-  }, []);
-
-  const [currentCard, setCurrentCard] = useState({
-    value: CARD_VALUES[4],
-    suit: CARD_SUITS[2],
-    color: false,
-  });
-  const [historyCards, setHistoryCards] = useState([
-    { ...currentCard, result: null },
-  ]);
-
-  const getValueIndex = (value) => CARD_VALUES.indexOf(value);
-
-  const getRandomCard = () => {
-    const randomValue =
-      CARD_VALUES[Math.floor(Math.random() * CARD_VALUES.length)];
-    const randomSuit =
-      CARD_SUITS[Math.floor(Math.random() * CARD_SUITS.length)];
-    const color = Math.random() < 0.5;
-
-    return { value: randomValue, suit: randomSuit, color };
-  };
+  }, [token]);
 
   const handleBet = () => {
     if (!checkLoggedIn()) {
@@ -97,76 +118,122 @@ const Frame = () => {
       return;
     }
 
-    initSocket();
+    if (!bet || parseFloat(bet) <= 0) {
+      toast.error("Please enter a valid bet amount");
+      return;
+    }
 
-    if (!betStarted) {
-      const hiloSocket = getHiloSocket();
-      if (hiloSocket) {
-        hiloSocket.emit("add_game", {});
-        console.log("Emitted add_game event");
-      } else {
-        console.error("Hilo socket not initialized");
-        toast.error("Failed to join game: Check Your Internet Connection");
+    // Close any open modals
+    setShowResultModal(false);
+    setShowActiveGameModal(false);
+    setGameResult({ isGameOver: false, profit: 0 });
+
+    // Reset game state
+    setCurrentCard(null);
+    setHistoryCards([]);
+    setIsGameStarting(true);
+    setIsWaitingForCard(true);
+
+    console.log("Starting new game with bet:", bet); // Debug log
+    addGame(bet, (gameState) => {
+      console.log("New game state received:", gameState); // Debug log
+
+      if (!gameState) {
+        console.error("No game state received from server");
+        toast.error("Failed to start game. Please try again.");
+        setIsWaitingForCard(false);
+        setIsGameStarting(false);
         return;
       }
 
-      setBettingStarted(true);
-      const newCard = getRandomCard();
+      // Check if we have an active game
+      if (gameState.error) {
+        console.error("Server error:", gameState.error);
+        toast.error(gameState.error);
+        setIsWaitingForCard(false);
+        setIsGameStarting(false);
+        return;
+      }
 
-      setCurrentCard(newCard);
-      setHistoryCards([{ ...newCard, result: null }]);
-    }
+      // Set the game state
+      setCurrentCard(gameState.currentCard);
+      setHistoryCards([gameState.currentCard]);
+      setBettingStarted(true);
+      setIsWaitingForCard(false);
+      setIsGameStarting(false);
+    });
   };
 
   const handleHigh = () => {
     if (betStarted) {
-      const newCard = getRandomCard();
-      const isHigher =
-        getValueIndex(newCard.value) >= getValueIndex(currentCard.value);
-
-      setCurrentCard(newCard);
-      setHistoryCards((prev) => [
-        ...prev,
-        { ...newCard, result: isHigher ? "high-true" : "high-false" },
-      ]);
-
-      if (!isHigher) {
-        setBettingStarted(false);
-      }
+      setIsWaitingForCard(true);
+      predict("high", (gameState) => {
+        if (gameState) {
+          setCurrentCard(gameState.currentCard);
+          setHistoryCards(gameState.historyCards);
+          setIsWaitingForCard(false);
+        }
+      });
     }
   };
 
   const handleLow = () => {
     if (betStarted) {
-      const newCard = getRandomCard();
-      const isLower =
-        getValueIndex(newCard.value) <= getValueIndex(currentCard.value);
-
-      setCurrentCard(newCard);
-      setHistoryCards((prev) => [
-        ...prev,
-        { ...newCard, result: isLower ? "low-true" : "low-false" },
-      ]);
-
-      if (!isLower) {
-        setBettingStarted(false);
-      }
+      setIsWaitingForCard(true);
+      predict("low", (gameState) => {
+        if (gameState) {
+          setCurrentCard(gameState.currentCard);
+          setHistoryCards(gameState.historyCards);
+          setIsWaitingForCard(false);
+        }
+      });
     }
   };
 
   const handleSkip = () => {
     if (betStarted) {
-      const newCard = getRandomCard();
-
-      setCurrentCard(newCard);
-      setHistoryCards((prev) => [...prev, { ...newCard, result: null }]);
+      setIsWaitingForCard(true);
+      skip((gameState) => {
+        if (gameState) {
+          setCurrentCard(gameState.currentCard);
+          setHistoryCards(gameState.historyCards);
+          setIsWaitingForCard(false);
+        }
+      });
     }
   };
 
   const handleCheckout = () => {
     if (betStarted) {
-      setBettingStarted(false);
+      setIsWaitingForCard(true);
+      checkout((gameState) => {
+        if (gameState.checkedOut) {
+          setBettingStarted(false);
+          setGameResult({ isGameOver: false, profit: gameState.profit });
+          setShowResultModal(true);
+          setIsWaitingForCard(false);
+        }
+      });
     }
+  };
+
+  const handleContinueGame = () => {
+    setShowActiveGameModal(false);
+  };
+
+  const handleCheckoutGame = () => {
+    if (betStarted) {
+      setIsWaitingForCard(true);
+      checkout((gameState) => {
+        if (gameState.checkedOut) {
+          setBettingStarted(false);
+          setGameResult({ isGameOver: false, profit: gameState.profit });
+          setShowResultModal(true);
+          setIsWaitingForCard(false);
+        }
+      });
+    }
+    setShowActiveGameModal(false);
   };
 
   return (
@@ -203,24 +270,34 @@ const Frame = () => {
 
               {/* Right Section */}
               <div
-                className={`col-span-12 rounded-tr ${
+                className={`col-span-12 rounded-tr relative ${
                   theatreMode
                     ? "md:col-span-8 md:order-2"
                     : "lg:col-span-8 lg:order-2"
                 } xl:col-span-9 bg-gray-900 order-1`}
               >
-                <div className="w-full  text-white rounded-tr h-full justify-center text-3xl">
+                <div className="w-full text-white rounded-tr h-full justify-center text-3xl">
                   {loading ? (
-                    <>
-                      <h1 className="text-xl font-semibold">Loading...</h1>
-                    </>
+                    <h1 className="text-xl font-semibold">Loading...</h1>
                   ) : (
                     <>
                       <Game
                         historyCards={historyCards}
-                        setHistoryCards={setHistoryCards}
                         currentCard={currentCard}
-                        setCurrentCard={setCurrentCard}
+                        isGameStarting={isGameStarting}
+                        isWaitingForCard={isWaitingForCard}
+                      />
+                      <GameResultModal
+                        isOpen={showResultModal}
+                        onClose={() => setShowResultModal(false)}
+                        isGameOver={gameResult.isGameOver}
+                        profit={gameResult.profit}
+                      />
+                      <ActiveGameModal
+                        isOpen={showActiveGameModal}
+                        onClose={() => setShowActiveGameModal(false)}
+                        onContinue={handleContinueGame}
+                        onCheckout={handleCheckoutGame}
                       />
                     </>
                   )}
@@ -261,43 +338,39 @@ const Frame = () => {
 
             {/* Fairness Modal */}
             {isFairness && (
-              <>
-                <div
-                  className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
-                  onClick={() => setIsFairness(false)}
-                >
-                  <div className="text-white w-full flex items-center justify-center h-full ">
-                    <div
-                      className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <FairnessModal setIsFairness={setIsFairness} />
-                    </div>
+              <div
+                className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
+                onClick={() => setIsFairness(false)}
+              >
+                <div className="text-white w-full flex items-center justify-center h-full">
+                  <div
+                    className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <FairnessModal setIsFairness={setIsFairness} />
                   </div>
                 </div>
-              </>
+              </div>
             )}
 
             {hotkeys && (
-              <>
-                <div
-                  className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
-                  onClick={() => setHotkeys(false)}
-                >
-                  <div className="text-white w-full flex items-center justify-center h-full ">
-                    <div
-                      className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <HotKeysModal
-                        setHotkeys={setHotkeys}
-                        hotkeysEnabled={hotkeysEnabled}
-                        setHotkeysEnabled={setHotkeysEnabled}
-                      />
-                    </div>
+              <div
+                className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
+                onClick={() => setHotkeys(false)}
+              >
+                <div className="text-white w-full flex items-center justify-center h-full">
+                  <div
+                    className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <HotKeysModal
+                      setHotkeys={setHotkeys}
+                      hotkeysEnabled={hotkeysEnabled}
+                      setHotkeysEnabled={setHotkeysEnabled}
+                    />
                   </div>
                 </div>
-              </>
+              </div>
             )}
 
             {gameInfo && (
@@ -305,7 +378,7 @@ const Frame = () => {
                 className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
                 onClick={() => setGameInfo(false)}
               >
-                <div className="text-white w-full flex items-center justify-center h-full ">
+                <div className="text-white w-full flex items-center justify-center h-full">
                   <div
                     className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
                     onClick={(e) => e.stopPropagation()}
@@ -321,7 +394,7 @@ const Frame = () => {
                 className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
                 onClick={() => setMaxBet(false)}
               >
-                <div className="text-white w-full flex items-center justify-center h-full ">
+                <div className="text-white w-full flex items-center justify-center h-full">
                   <div
                     className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
                     onClick={(e) => e.stopPropagation()}

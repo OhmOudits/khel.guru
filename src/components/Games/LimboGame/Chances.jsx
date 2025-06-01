@@ -20,9 +20,12 @@ const BetCalculator = ({
   }, [targetMultiplier]);
 
   const calculateWinChance = (multiplier) => {
-    const houseEdge = 0.01;
-    const winChance = Math.max(100 / multiplier - houseEdge, 0);
-    return winChance.toFixed(4);
+    const rawChance = ((100 - multiplier) / 100) * 100;
+
+    const houseEdge = 1;
+    const finalChance = Math.max(rawChance - houseEdge, 0);
+
+    return finalChance.toFixed(4);
   };
 
   const handleMultiplierChange = (e) => {
@@ -56,9 +59,13 @@ const BetCalculator = ({
 
   useEffect(() => {
     if (targetMultiplier) {
-      setEstProfit(targetMultiplier * bet - bet);
+      const betAmount = parseFloat(bet) || 0;
+      const multiplier = parseFloat(targetMultiplier) || 0;
+      const potentialWin = betAmount * multiplier;
+      const profit = potentialWin - betAmount;
+      setEstProfit(profit.toFixed(6));
     } else {
-      setEstProfit(0);
+      setEstProfit("0.000000");
     }
   }, [bet, targetMultiplier]);
 

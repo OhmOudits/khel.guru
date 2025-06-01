@@ -1,4 +1,4 @@
-export const CARD_SUITS = ["♦", "♥", "♠", "♣", "↑", "↓"];
+export const CARD_SUITS = ["♦", "♥", "♠", "♣"];
 export const CARD_VALUES = [
   "2",
   "3",

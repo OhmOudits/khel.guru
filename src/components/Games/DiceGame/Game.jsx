@@ -11,15 +11,17 @@ const Game = ({
   setDicePosition,
   Start,
   rollUnder,
-  setMultipler,
+  setMultiplier,
   calculateMultiplier,
   winChance,
+  targetPosition,
 }) => {
   const draggingRef = useRef(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [resultValue, setResultValue] = useState(null);
 
-  // Handle dragging the blue box
   const handleMouseDown = () => {
-    if (!Start) {
+    if (!Start && !isAnimating) {
       draggingRef.current = true;
     }
   };
@@ -29,24 +31,19 @@ const Game = ({
   }, [rollover]);
 
   const handleMouseMove = (e) => {
-    if (draggingRef.current && !Start) {
+    if (draggingRef.current && !Start && !isAnimating) {
       const rect = e.target.parentElement.getBoundingClientRect();
       setGameResult("");
+      setResultValue(null);
 
-      // Calculate new position as percentage
       let newLeft = ((e.clientX - rect.left) / rect.width) * 100;
-
-      // Clamp position between 0 and 100
       newLeft = Math.max(0, Math.min(100, newLeft));
+      const roundedLeft = Math.round(newLeft * 10) / 10;
 
-      // Round to the nearest integer
-      const roundedLeft = Math.round(newLeft);
-
-      // Update state with rounded position
       setFixedPosition(roundedLeft);
       setRollover(roundedLeft);
       const newMultiplier = calculateMultiplier(winChance);
-      setMultipler(parseFloat(newMultiplier).toFixed(4));
+      setMultiplier(parseFloat(newMultiplier).toFixed(2));
       setDicePosition(roundedLeft);
     }
   };
@@ -60,10 +57,19 @@ const Game = ({
     return () => window.removeEventListener("mouseup", handleMouseUp);
   }, []);
 
+  useEffect(() => {
+    if (Start && targetPosition !== null) {
+      setDicePosition(targetPosition);
+      setResultValue({
+        percentage: targetPosition.toFixed(1),
+        multiplier: parseFloat(calculateMultiplier(winChance)).toFixed(2),
+      });
+    }
+  }, [Start, targetPosition, winChance]);
+
   return (
     <>
-      <div className="flex flex-col items-center justify-center h-[48vh] bg-gray-900 text-white">
-        {/* Numbers at the Top */}
+      <div className="flex flex-col items-center justify-center h-[450px] bg-gray-900 text-white">
         <div className="relative w-full max-w-2xl flex justify-between px-2 text-sm mb-1">
           <span>0</span>
           <span>25</span>
@@ -72,12 +78,10 @@ const Game = ({
           <span>100</span>
         </div>
 
-        {/* Scrollable Line */}
         <div
           className="relative w-full max-w-2xl h-16 bg-gray-700 rounded-lg overflow-x-hidden overflow-y-visible"
           onMouseMove={handleMouseMove}
         >
-          {/* Left Red Region */}
           <div
             className={`absolute top-1/2 -translate-y-1/2 h-2 ${
               rollUnder ? "bg-green-500" : "bg-red-500"
@@ -85,7 +89,6 @@ const Game = ({
             style={{ width: `${fixedPosition}%` }}
           ></div>
 
-          {/* Right Green Region */}
           <div
             className={`absolute top-1/2 -translate-y-1/2 h-2 ${
               rollUnder ? "bg-red-500" : "bg-green-500"
@@ -96,39 +99,39 @@ const Game = ({
             }}
           ></div>
 
-          {/* Draggable Blue Box */}
           <div
-            className="absolute top-1/2 w-6 h-6 bg-blue-500 rounded-md -translate-y-1/2 -translate-x-1/2 cursor-pointer"
+            className={`absolute top-1/2 w-6 h-6 bg-blue-500 rounded-md -translate-y-1/2 -translate-x-1/2 ${
+              !Start && !isAnimating ? "cursor-pointer" : "cursor-not-allowed"
+            }`}
             style={{ left: `${fixedPosition}%` }}
             onMouseDown={handleMouseDown}
           ></div>
 
-          {/* Dice */}
           {Start && (
             <div
-              className="absolute top-1/2 w-12 h-12 text-black font-bold flex items-center justify-center rounded-lg -translate-y-1/2 -translate-x-1/2 transition-all duration-1000 ease-in-out"
-              style={{ left: `${dicePosition}%`, zIndex: 10 }}
+              className={`absolute top-1/2 w-12 h-12 text-black font-bold flex items-center justify-center rounded-lg -translate-y-1/2 -translate-x-1/2 transition-all duration-1000 ease-in-out`}
+              style={{
+                left: `${dicePosition}%`,
+                zIndex: 10,
+                transform: `translate(-50%, -50%) scale(1.2)`,
+              }}
             >
               🎲
             </div>
           )}
         </div>
+
+        {resultValue && (
+          <div className="absolute top-[20%] left-1/2 py-2 px-4 text-white font-bold flex items-center justify-center rounded-lg -translate-y-1/2 -translate-x-1/2 transition-all duration-300 bg-gray-800/80 backdrop-blur-sm">
+            <div className="flex flex-col items-center">
+              <span className="text-lg">{resultValue.percentage}</span>
+              <span className="text-sm text-gray-400">
+                {resultValue.multiplier}x
+              </span>
+            </div>
+          </div>
+        )}
       </div>
-      {gameResult && (
-        <div
-          className={`absolute top-[20%] left-1/2 w-12 py-0.5 text-black font-bold flex items-center justify-center rounded-sm -translate-y-1/2 -translate-x-1/2 transition-all duration-1000 ease-in-out px-2 text-2xl ${
-            rollUnder
-              ? dicePosition < rollover
-                ? "text-green-500"
-                : "text-red-500"
-              : dicePosition > rollover
-              ? "text-green-500"
-              : "text-red-500"
-          } `}
-        >
-          {dicePosition}%
-        </div>
-      )}
     </>
   );
 };

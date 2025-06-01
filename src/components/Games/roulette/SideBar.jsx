@@ -16,7 +16,11 @@ const SideBar = ({
   handleBetstarted,
   handleAutoBet,
   startAutoBet,
+  isSocketReady,
+  isGameJoined,
 }) => {
+  const isConnected = isSocketReady && isGameJoined;
+
   return (
     <>
       <div
@@ -30,25 +34,33 @@ const SideBar = ({
             <div className="order-[100] max-lg:mt-2 lg:order-1 switch mb-4 w-full bg-primary rounded-full p-1.5 grid grid-cols-2 gap-1">
               <div
                 onClick={() => {
-                  if (!startAutoBet) {
+                  if (!startAutoBet && isConnected) {
                     setBetMode("manual");
                   }
                 }}
                 className={`${
                   betMode === "manual" ? "bg-inactive scale-95" : ""
-                } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
+                } ${
+                  !isConnected
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-activeHover cursor-pointer"
+                } col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
               >
                 Manual
               </div>
               <div
                 onClick={() => {
-                  if (!bettingStarted) {
+                  if (!bettingStarted && isConnected) {
                     setBetMode("auto");
                   }
                 }}
                 className={`${
                   betMode === "auto" ? "bg-inactive scale-95" : ""
-                } hover:bg-activeHover cursor-pointer col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
+                } ${
+                  !isConnected
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-activeHover cursor-pointer"
+                } col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
               >
                 Auto
               </div>
@@ -68,8 +80,19 @@ const SideBar = ({
                       type="text"
                       value={bet}
                       id="betAmount"
-                      onChange={(e) => setBet(e.target.value)}
-                      className="w-full h-full rounded bg-secondry outline-none text-white px-2 py-2.5 pr-6 border border-inactive hover:border-primary-4"
+                      disabled={!isConnected || bettingStarted}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Only allow numbers and decimal point
+                        if (/^\d*\.?\d*$/.test(value)) {
+                          setBet(value);
+                        }
+                      }}
+                      className={`w-full h-full rounded bg-secondry outline-none text-white px-2 py-2.5 pr-6 border ${
+                        !isConnected
+                          ? "border-gray-600"
+                          : "border-inactive hover:border-primary-4"
+                      }`}
                     />
                     <div className="absolute top-1.5 right-2">
                       <svg fill="none" viewBox="0 0 96 96" className="svg-icon">
@@ -102,15 +125,17 @@ const SideBar = ({
 
               {/* Bet button */}
               <button
-                className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
-                  bettingStarted
+                className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold text-black ${
+                  !isConnected
+                    ? "bg-gray-600 cursor-not-allowed"
+                    : bettingStarted
                     ? "bg-primary text-white cursor-text"
-                    : "bg-button-primary active:scale-90"
+                    : "bg-button-primary active:scale-90 cursor-pointer"
                 }`}
                 onClick={handleBetstarted}
-                disabled={bettingStarted}
+                disabled={!isConnected || bettingStarted}
               >
-                Bet
+                {!isConnected ? "Connecting..." : "Bet"}
               </button>
             </>
           )}
@@ -128,10 +153,20 @@ const SideBar = ({
                     <input
                       type="text"
                       value={bet}
-                      disabled={startAutoBet}
+                      disabled={!isConnected || startAutoBet}
                       id="betAmount"
-                      onChange={(e) => setBet(e.target.value)}
-                      className="w-full h-full rounded bg-secondry outline-none text-white px-2 pr-6 border border-inactive hover:border-primary-4"
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Only allow numbers and decimal point
+                        if (/^\d*\.?\d*$/.test(value)) {
+                          setBet(value);
+                        }
+                      }}
+                      className={`w-full h-full rounded bg-secondry outline-none text-white px-2 pr-6 border ${
+                        !isConnected
+                          ? "border-gray-600"
+                          : "border-inactive hover:border-primary-4"
+                      }`}
                     />
                     <div className="absolute top-1.5 right-2">
                       <svg fill="none" viewBox="0 0 96 96" className="svg-icon">
@@ -170,9 +205,13 @@ const SideBar = ({
                 <input
                   type="number"
                   value={nbets}
-                  disabled={startAutoBet}
+                  disabled={!isConnected || startAutoBet}
                   onChange={(e) => setNBets(e.target.value)}
-                  className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-2 pr-6 py-2 border border-input hover:border-primary-4"
+                  className={`w-full mt-2 h-full rounded bg-secondry outline-none text-white px-2 pr-6 py-2 border ${
+                    !isConnected
+                      ? "border-gray-600"
+                      : "border-input hover:border-primary-4"
+                  }`}
                 />
               </div>
 
@@ -384,14 +423,16 @@ const SideBar = ({
               {/* Bet button */}
               <button
                 onClick={handleAutoBet}
-                disabled={startAutoBet}
-                className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
-                  startAutoBet
+                disabled={!isConnected || startAutoBet}
+                className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black ${
+                  !isConnected
+                    ? "bg-gray-600 cursor-not-allowed"
+                    : startAutoBet
                     ? "bg-primary text-white cursor-text"
-                    : "bg-button-primary active:scale-90"
+                    : "bg-button-primary active:scale-90 cursor-pointer"
                 }`}
               >
-                Start Autobet
+                {!isConnected ? "Connecting..." : "Start Autobet"}
               </button>
             </>
           )}

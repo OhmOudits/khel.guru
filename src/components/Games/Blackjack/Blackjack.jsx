@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 import Frame from "./Frame";
 import { getSocket } from "../../../socket/socket";
 import { useEffect } from "react";
+import "./styles.css";
 import { initializeBlackjackSocket } from "../../../socket/games/blackjack";
 
 const Baccarat = () => {

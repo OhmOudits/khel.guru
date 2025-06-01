@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-const BetAmount = ({ bet, setBet, maxBetEnable }) => {
+const BetAmount = ({ bet, setBet, maxBetEnable, disabled }) => {
   return (
     <div className="order-1 md:order-2 my-2 w-full">
       <div className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label">
@@ -12,8 +12,11 @@ const BetAmount = ({ bet, setBet, maxBetEnable }) => {
             type="text"
             value={bet}
             id="betAmount"
-            onChange={(e) => setBet(e.target.value)}
-            className="w-full h-full rounded bg-secondry outline-none text-white px-2 pr-6 border border-inactive hover:border-primary-4"
+            onChange={(e) => !disabled && setBet(e.target.value)}
+            disabled={disabled}
+            className={`w-full h-full rounded bg-secondry outline-none text-white px-2 pr-6 border border-inactive hover:border-primary-4 ${
+              disabled ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           />
           <div className="absolute top-1.5 right-2">
             <svg fill="none" viewBox="0 0 96 96" className="svg-icon">
@@ -30,14 +33,29 @@ const BetAmount = ({ bet, setBet, maxBetEnable }) => {
             </svg>
           </div>
         </div>
-        <div className="cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
+        <div
+          onClick={() => !disabled && setBet((parseFloat(bet) / 2).toString())}
+          className={`cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none ${
+            disabled ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
           1/2
         </div>
-        <div className="cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
+        <div
+          onClick={() => !disabled && setBet((parseFloat(bet) * 2).toString())}
+          className={`cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none ${
+            disabled ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
           2x
         </div>
         {maxBetEnable && (
-          <div className="cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
+          <div
+            onClick={() => !disabled && setBet("1000")}
+            className={`cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none ${
+              disabled ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+          >
             Max
           </div>
         )}

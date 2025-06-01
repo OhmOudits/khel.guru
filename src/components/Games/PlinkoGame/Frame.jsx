@@ -30,6 +30,7 @@ const Frame = () => {
   const [profit, setProfit] = useState("0.000000");
   const [risk, setRisk] = useState("Medium");
   const [rows, setRows] = useState(12);
+  const [isBallInMotion, setIsBallInMotion] = useState(false);
 
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGamings] = useState(false);
@@ -64,7 +65,6 @@ const Frame = () => {
     (state) => state.setCurrentBinIndex
   );
 
-  // Initialize and manage the PlinkoEngine instance
   useEffect(() => {
     if (canvasRef.current) {
       const plinkoInstance = new PlinkoEngine(
@@ -84,7 +84,29 @@ const Frame = () => {
     }
   }, [bet, rows, risk]);
 
+  useEffect(() => {
+    const handleBallState = (event) => {
+      setIsBallInMotion(event.detail.isInMotion);
+    };
+
+    window.addEventListener("plinko:ball_state", handleBallState);
+
+    return () => {
+      window.removeEventListener("plinko:ball_state", handleBallState);
+    };
+  }, []);
+
   const handleBetClick = () => {
+    if (isBallInMotion) {
+      toast.error("Please wait for the current game to finish");
+      return;
+    }
+
+    if (!bet || isNaN(bet) || parseFloat(bet) <= 0) {
+      toast.error("Please enter a valid bet amount");
+      return;
+    }
+
     initSocket();
     const plinkoSocket = getPlinkoSocket();
     if (plinkoSocket) {
@@ -104,6 +126,21 @@ const Frame = () => {
   };
 
   const handleAutoBet = () => {
+    if (isBallInMotion) {
+      toast.error("Please wait for the current game to finish");
+      return;
+    }
+
+    if (!bet || isNaN(bet) || parseFloat(bet) <= 0) {
+      toast.error("Please enter a valid bet amount");
+      return;
+    }
+
+    if (!nbets || isNaN(nbets) || parseInt(nbets) <= 0) {
+      toast.error("Please enter a valid number of bets");
+      return;
+    }
+
     if (!checkLoggedIn()) {
       navigate(`?tab=${"login"}`, { replace: true });
       return;
@@ -111,29 +148,28 @@ const Frame = () => {
 
     initSocket();
 
-    if (!startAutoBet && nbets > 0) {
+    if (!startAutoBet) {
       setStartAutoBet(true);
-      let count = 0;
+      const plinkoSocket = getPlinkoSocket();
 
-      const interval = setInterval(() => {
-        if (engine && count < nbets) {
-          const plinkoSocket = getPlinkoSocket();
-          if (plinkoSocket) {
-            plinkoSocket.emit("add_game", {});
-            console.log("Emitted add_game event");
-          } else {
-            console.error("Wheel socket not initialized");
-            toast.error("Failed to join game: Socket not connected");
-            return;
-          }
-
-          engine.dropBall();
-          count++;
-        } else {
-          clearInterval(interval);
-          setStartAutoBet(false);
+      if (plinkoSocket) {
+        for (let i = 0; i < nbets; i++) {
+          plinkoSocket.emit("add_game", {});
         }
-      }, 500);
+        console.log(`Emitted ${nbets} add_game events`);
+
+        for (let i = 0; i < nbets; i++) {
+          engine.dropBall();
+        }
+
+        setTimeout(() => {
+          setStartAutoBet(false);
+        }, 10000);
+      } else {
+        console.error("Plinko socket not initialized");
+        toast.error("Failed to join game: Socket not connected");
+        setStartAutoBet(false);
+      }
     }
   };
 
@@ -170,6 +206,8 @@ const Frame = () => {
                 handleBetClick={handleBetClick}
                 handleAutoBet={handleAutoBet}
                 startAutoBet={startAutoBet}
+                isBallInMotion={isBallInMotion}
+                remainingBets={startAutoBet ? nbets : 0}
               />
 
               {/* Right Section */}
