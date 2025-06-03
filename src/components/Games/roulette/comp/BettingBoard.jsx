@@ -1,12 +1,10 @@
 import { useState } from "react";
 
-// Array representing numbers on the betting board (0 to 36)
 const numbers = [
   0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 2, 5, 8, 11, 14, 17, 20, 23,
   26, 29, 32, 35, 1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34,
 ];
 
-// Function to get color classes for a number
 const getNumberColor = (num, redNumbers) => {
   if (num === 0) return "bg-green-600 hover:bg-green-700";
   return redNumbers.includes(num)
@@ -14,17 +12,19 @@ const getNumberColor = (num, redNumbers) => {
     : "bg-black hover:bg-gray-800";
 };
 
-// The BettingBoard component
-// eslint-disable-next-line
-export function BettingBoard({ onPlaceBet, currentBets, red }) {
+export function BettingBoard({
+  onPlaceBet,
+  currentBets,
+  red,
+  isProcessing,
+  isAutoBetting,
+}) {
   const [hoverRange, setHoverRange] = useState(null);
 
-  // Function to handle hovering over a range
   const handleHover = (range) => {
     setHoverRange(range);
   };
 
-  // Function to reset hover state
   const handleMouseLeave = () => {
     setHoverRange(null);
   };
@@ -62,24 +62,29 @@ export function BettingBoard({ onPlaceBet, currentBets, red }) {
 
   return (
     <div className="w-[98%] lg:w-[90%] max-w-4xl mx-auto mt-4">
-      {/* Clear button */}
-      {Object.values(currentBets).some((bet) => bet > 0) && (
-        <div
-          className="absolute top-2.5 cursor-pointer right-6 text-medium text-[1.05rem] font-medium px-5 rounded-sm bg-gray-800 hover:bg-gray-700"
-          onClick={() => onPlaceBet("clear")}
-        >
-          Clear
-        </div>
-      )}
+      {/* Clear button only */}
+      <div className="absolute top-2.5 right-6 flex gap-2">
+        {Object.values(currentBets).some((bet) => bet > 0) && (
+          <div
+            className={`cursor-pointer text-medium text-[1.05rem] font-medium px-5 rounded-sm ${
+              isProcessing
+                ? "bg-gray-700 cursor-not-allowed"
+                : "bg-gray-800 hover:bg-gray-700"
+            }`}
+            onClick={() => !isProcessing && onPlaceBet("clear")}
+          >
+            Clear
+          </div>
+        )}
+      </div>
 
       {/* Top row for 0 */}
       <div className="grid grid-cols-12 gap-1">
         <button
-          onClick={() => onPlaceBet(0)}
-          className={`${getNumberColor(
-            0,
-            red
-          )} col-span-1 text-white font-bold py-8 rounded transition-colors relative`}
+          onClick={() => !isProcessing && onPlaceBet(0)}
+          className={`${getNumberColor(0, red)} ${
+            isProcessing ? "opacity-50 cursor-not-allowed" : ""
+          } col-span-1 text-white font-bold py-8 rounded transition-colors relative`}
         >
           0
           {currentBets[0] > 0 && (
@@ -94,7 +99,7 @@ export function BettingBoard({ onPlaceBet, currentBets, red }) {
           {numbers.slice(1).map((number) => (
             <button
               key={number}
-              onClick={() => onPlaceBet(number)}
+              onClick={() => !isProcessing && onPlaceBet(number)}
               onMouseEnter={() => handleHover(number)}
               onMouseLeave={handleMouseLeave}
               className={`${getNumberColor(number, red)} ${
@@ -103,6 +108,8 @@ export function BettingBoard({ onPlaceBet, currentBets, red }) {
                 getNumberColor(number, red) === "bg-red-600 hover:bg-red-700" &&
                 isHighlighted(number) &&
                 "bg-red-800"
+              } ${
+                isProcessing ? "opacity-50 cursor-not-allowed" : ""
               } text-white font-bold rounded transition-colors relative`}
             >
               <div className="text-[0.8rem]">{number}</div>
@@ -117,10 +124,12 @@ export function BettingBoard({ onPlaceBet, currentBets, red }) {
 
         <div className="col-span-1 grid grid-cols-1 gap-1">
           <button
-            className="bg-zinc-800 hover:bg-zinc-700 relative text-base p-2.5 text-white rounded transition-colors"
+            className={`bg-zinc-800 hover:bg-zinc-700 relative text-base p-2.5 text-white rounded transition-colors ${
+              isProcessing ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             onMouseEnter={() => handleHover(`row1`)}
             onMouseLeave={handleMouseLeave}
-            onClick={() => onPlaceBet(`row1`)}
+            onClick={() => !isProcessing && onPlaceBet(`row1`)}
           >
             2:1
             {currentBets["row1"] > 0 && (
@@ -130,10 +139,12 @@ export function BettingBoard({ onPlaceBet, currentBets, red }) {
             )}
           </button>
           <button
-            className="bg-zinc-800 hover:bg-zinc-700 relative text-base p-2.5 text-white rounded transition-colors"
+            className={`bg-zinc-800 hover:bg-zinc-700 relative text-base p-2.5 text-white rounded transition-colors ${
+              isProcessing ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             onMouseEnter={() => handleHover(`row2`)}
             onMouseLeave={handleMouseLeave}
-            onClick={() => onPlaceBet(`row2`)}
+            onClick={() => !isProcessing && onPlaceBet(`row2`)}
           >
             2:1
             {currentBets["row2"] > 0 && (
@@ -143,10 +154,12 @@ export function BettingBoard({ onPlaceBet, currentBets, red }) {
             )}
           </button>
           <button
-            className="bg-zinc-800 hover:bg-zinc-700 relative text-base p-2.5 text-white rounded transition-colors"
+            className={`bg-zinc-800 hover:bg-zinc-700 relative text-base p-2.5 text-white rounded transition-colors ${
+              isProcessing ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             onMouseEnter={() => handleHover(`row3`)}
             onMouseLeave={handleMouseLeave}
-            onClick={() => onPlaceBet(`row3`)}
+            onClick={() => !isProcessing && onPlaceBet(`row3`)}
           >
             2:1
             {currentBets["row3"] > 0 && (
@@ -164,10 +177,12 @@ export function BettingBoard({ onPlaceBet, currentBets, red }) {
         {["1-12", "13-24", "25-36"].map((group) => (
           <button
             key={group}
-            className="bg-zinc-800 col-span-2 hover:bg-zinc-700 text-white py-0 rounded transition-colors relative"
+            className={`bg-zinc-800 col-span-2 hover:bg-zinc-700 text-white py-0 rounded transition-colors relative ${
+              isProcessing ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             onMouseEnter={() => handleHover(group)}
             onMouseLeave={handleMouseLeave}
-            onClick={() => onPlaceBet(group)}
+            onClick={() => !isProcessing && onPlaceBet(group)}
           >
             {group === "red" || group === "black" ? group.toUpperCase() : group}
             {currentBets[group] > 0 && (
@@ -185,10 +200,12 @@ export function BettingBoard({ onPlaceBet, currentBets, red }) {
         {["1-18", "even", "odd", "19-36"].map((group) => (
           <button
             key={group}
-            className="bg-zinc-800 hover:bg-zinc-700 relative text-white py-0 rounded transition-colors"
+            className={`bg-zinc-800 hover:bg-zinc-700 relative text-white py-0 rounded transition-colors ${
+              isProcessing ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             onMouseEnter={() => handleHover(group)}
             onMouseLeave={handleMouseLeave}
-            onClick={() => onPlaceBet(group)}
+            onClick={() => !isProcessing && onPlaceBet(group)}
           >
             {group === "even" || group === "odd"
               ? group.charAt(0).toUpperCase() + group.slice(1)

@@ -51,10 +51,11 @@ const Frame = () => {
   const [cards, setCards] = useState([]);
   const [isSmt, setIsSmt] = useState(true);
 
+  const [gameState, setGameState] = useState(null);
+
   const navigate = useNavigate();
   const token = useSelector((state) => state.auth?.token);
 
-  // Separate useEffect for socket initialization
   useEffect(() => {
     console.log("Frame component mounted");
 
@@ -72,7 +73,6 @@ const Frame = () => {
       console.error("Failed to initialize socket");
     }
 
-    // Cleanup
     return () => {
       console.log("Cleaning up socket initialization");
       const socket = getBlackjackSocket();
@@ -82,7 +82,6 @@ const Frame = () => {
     };
   }, [token]);
 
-  // Separate useEffect for socket event listeners
   useEffect(() => {
     console.log("Setting up socket event listeners");
     const blackjackSocket = getBlackjackSocket();
@@ -92,68 +91,34 @@ const Frame = () => {
       return;
     }
 
-    // Log all incoming socket events for debugging
     blackjackSocket.onAny((eventName, ...args) => {
       console.log("Socket event received:", eventName, args);
     });
 
-    // Handle initial game state load
-    blackjackSocket.on("initial_game_state", (data) => {
-      console.log("Raw initial game state data received:", data);
-      const { success, gameState } = data;
+    // Handle game state events (both initial and updates)
+    const handleGameState = (data) => {
+      console.log("Processing game state data:", data);
+      const gameData = Array.isArray(data) ? data[0] : data;
+      const { success, gameState: newGameState } = gameData;
 
       if (!success) {
-        console.error("Initial game state request failed:", data);
+        console.error("Game state request failed:", gameData);
         return;
       }
 
-      if (!gameState) {
-        console.error("No game state in response:", data);
+      if (!newGameState) {
+        console.error("No game state in response:", gameData);
         return;
       }
 
-      console.log("Processing initial game state:", {
-        gameState: gameState.gameState,
-        userCards: gameState.userCards?.length || 0,
-        dealerCards: gameState.dealerCards?.length || 0,
-        userValue: gameState.userValue,
-        dealerValue: gameState.dealerValue,
-        isSplit: gameState.isSplit,
-        activeHand: gameState.activeHand,
-        bet: gameState.bet,
-      });
+      // Update the game state
+      setGameState(newGameState);
+      updateGameState(newGameState);
+    };
 
-      updateGameState(gameState);
-    });
-
-    // Handle ongoing game state updates
-    blackjackSocket.on("game_state_update", (data) => {
-      console.log("Raw game state update data received:", data);
-      const { success, gameState } = data;
-
-      if (!success) {
-        console.error("Game state update failed:", data);
-        return;
-      }
-
-      if (!gameState) {
-        console.error("No game state in update:", data);
-        return;
-      }
-
-      console.log("Processing game state update:", {
-        gameState: gameState.gameState,
-        userCards: gameState.userCards?.length || 0,
-        dealerCards: gameState.dealerCards?.length || 0,
-        userValue: gameState.userValue,
-        dealerValue: gameState.dealerValue,
-        isSplit: gameState.isSplit,
-        activeHand: gameState.activeHand,
-        bet: gameState.bet,
-      });
-
-      updateGameState(gameState);
-    });
+    // Listen for both game_state and game_state_update events
+    blackjackSocket.on("game_state", handleGameState);
+    blackjackSocket.on("game_state_update", handleGameState);
 
     blackjackSocket.on("error", (error) => {
       console.error("Socket error received:", error);
@@ -171,23 +136,23 @@ const Frame = () => {
       console.log("Socket disconnected:", reason);
     });
 
-    // Cleanup
     return () => {
       console.log("Cleaning up socket event listeners");
       if (blackjackSocket) {
         blackjackSocket.offAny();
-        blackjackSocket.off("initial_game_state");
+        blackjackSocket.off("game_state");
         blackjackSocket.off("game_state_update");
         blackjackSocket.off("error");
         blackjackSocket.off("connect");
         blackjackSocket.off("disconnect");
       }
     };
-  }, []); // Empty dependency array since we want this to run once on mount
+  }, []);
 
-  // Function to update game state
   const updateGameState = (gameState) => {
     if (!gameState) return;
+
+    console.log("Updating game state with:", gameState);
 
     // Update basic game state
     setUserCards(gameState.userCards || []);
@@ -195,10 +160,19 @@ const Frame = () => {
     setUserValue(gameState.userValue || 0);
     setDealerValue(gameState.dealerValue || 0);
     setUserResult(gameState.result || null);
-    setBettingStarted(
-      gameState.gameState === "playing" || gameState.gameState === "dealer"
-    );
+
+    // Update betting state based on game state
+    const isPlaying =
+      gameState.gameState === "playing" || gameState.gameState === "dealer";
+    setBettingStarted(isPlaying);
     setIsSmt(gameState.gameState === "playing");
+
+    // Update bet amount if it exists
+    if (gameState.bet !== undefined) {
+      const betAmount = gameState.bet.toString();
+      console.log("Setting bet amount to:", betAmount);
+      setBet(betAmount);
+    }
 
     // Handle split state
     if (gameState.isSplit) {
@@ -206,7 +180,9 @@ const Frame = () => {
       setSplitHands(gameState.splitHands || [[], []]);
       setSplitValues(gameState.splitValues || [0, 0]);
       setSplitResults(gameState.splitResults || [null, null]);
-      setSplitBets(gameState.splitBets || ["0.000000", "0.000000"]);
+      setSplitBets(
+        (gameState.splitBets || [0, 0]).map((bet) => bet.toString())
+      );
       setActiveHand(gameState.activeHand || 0);
     } else {
       setSplit(false);
@@ -216,6 +192,16 @@ const Frame = () => {
       setSplitBets(["0.000000", "0.000000"]);
       setActiveHand(0);
     }
+
+    // Log the updated state
+    console.log("Game state updated:", {
+      gameState: gameState.gameState,
+      bettingStarted: isPlaying,
+      bet: gameState.bet,
+      userCards: gameState.userCards?.length || 0,
+      dealerCards: gameState.dealerCards?.length || 0,
+      isSplit: gameState.isSplit,
+    });
   };
 
   const createDeck = () => {
@@ -257,31 +243,30 @@ const Frame = () => {
     }
 
     try {
-      // First create a game if one doesn't exist
-      if (!betStarted) {
+      // Only create a new game if we're not already in one
+      if (!betStarted && gameState?.gameState !== "betting") {
+        console.log("Creating new game");
         await new Promise((resolve, reject) => {
           blackjackSocket.emit("add_game");
-          blackjackSocket.once(
-            "game_state_update",
-            ({ success, gameState }) => {
-              if (success && gameState) {
-                updateGameState(gameState);
-                resolve(gameState);
-              } else {
-                reject(new Error("Failed to create game"));
-              }
+          blackjackSocket.once("game_state", ({ success, gameState }) => {
+            if (success && gameState) {
+              updateGameState(gameState);
+              resolve(gameState);
+            } else {
+              reject(new Error("Failed to create game"));
             }
-          );
+          });
           blackjackSocket.once("error", (error) => {
             reject(error);
           });
         });
       }
 
-      // Then place the bet
+      // Place the bet
+      console.log("Placing bet:", bet);
       await new Promise((resolve, reject) => {
         blackjackSocket.emit("place_bet", { betAmount: parseFloat(bet) });
-        blackjackSocket.once("game_state_update", ({ success, gameState }) => {
+        blackjackSocket.once("game_state", ({ success, gameState }) => {
           if (success && gameState) {
             updateGameState(gameState);
             resolve(gameState);
@@ -294,6 +279,7 @@ const Frame = () => {
         });
       });
     } catch (error) {
+      console.error("Bet placement error:", error);
       toast.error(error.message || "Failed to place bet");
     }
   };

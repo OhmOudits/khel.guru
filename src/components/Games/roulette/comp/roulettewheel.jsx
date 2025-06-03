@@ -1,32 +1,68 @@
 import { useState, useEffect } from "react";
 import "../../../../styles/Roulette.css";
-import { getRouletteSocket } from "../../../../socket/games/roulette";
+import {
+  getRouletteSocket,
+  onGameResult,
+} from "../../../../socket/games/roulette";
 import { toast } from "react-toastify";
 
 const Roulette = ({
-  // eslint-disable-next-line
   redNumbers,
-  // eslint-disable-next-line
-  startAutoBet,
-  // eslint-disable-next-line
-  setStartAutoBet,
-  // eslint-disable-next-line
-  nbets,
-  // eslint-disable-next-line
   betStarted,
-  // eslint-disable-next-line
   setBettingStarted,
+  gameResult,
+  onAnimationComplete,
 }) => {
   const [isSpinning, setIsSpinning] = useState(false);
   const [result, setResult] = useState(null);
   const [spinNumber, setSpinNumber] = useState(-1);
+  const [isAnimationComplete, setIsAnimationComplete] = useState(false);
 
   const numbers = [
     32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24,
     16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26, 0,
   ];
 
-  // eslint-disable-next-line
+  useEffect(() => {
+    const socket = getRouletteSocket();
+    if (!socket) return;
+
+    onGameResult((data) => {
+      console.log("[Roulette Wheel] Received game result:", data);
+      const resultNumber = parseInt(data.result);
+      if (!isNaN(resultNumber)) {
+        setIsAnimationComplete(false);
+        setSpinNumber(resultNumber);
+
+        // After 9 seconds, show the result
+        setTimeout(() => {
+          setResult({
+            number: resultNumber,
+            color:
+              resultNumber === 0
+                ? "green"
+                : redNumbers.includes(resultNumber)
+                ? "red"
+                : "black",
+          });
+          setIsSpinning(false);
+        }, 9000);
+
+        // After 10 seconds (when result is fully shown), notify animation is complete
+        setTimeout(() => {
+          setSpinNumber(-1);
+          setResult(null);
+          setIsAnimationComplete(true);
+          if (onAnimationComplete) {
+            onAnimationComplete();
+          }
+        }, 10000);
+      }
+    });
+
+    return () => {};
+  }, [redNumbers, onAnimationComplete]);
+
   const spinRoulette = () => {
     if (isSpinning) return;
 
@@ -34,66 +70,23 @@ const Roulette = ({
     if (rouletteSocket) {
       rouletteSocket.emit("add_game", {});
       console.log("Emitted add_game event");
+      setIsSpinning(true);
     } else {
       console.error("Roulette socket not initialized");
       toast.error("Failed to join game: Socket not connected");
       return;
     }
-
-    setIsSpinning(true);
-    const randomIndex = Math.floor(Math.random() * numbers.length);
-    const targetNumber = numbers[randomIndex];
-    setSpinNumber(targetNumber);
-
-    setTimeout(() => {
-      setResult({
-        number: targetNumber,
-        color:
-          targetNumber === 0
-            ? "green"
-            : redNumbers.includes(targetNumber)
-            ? "red"
-            : "black",
-      });
-      setIsSpinning(false);
-    }, 9000);
-
-    setTimeout(() => {
-      setSpinNumber(-1);
-      setResult(null);
-    }, 9900);
   };
 
   useEffect(() => {
-    let spinCount = 0;
-
-    if (startAutoBet && nbets > 0) {
-      const executeSpin = () => {
-        if (spinCount < nbets) {
-          spinRoulette();
-          spinCount++;
-          const nextDelay = spinCount === 0 ? 0 : 10000;
-          setTimeout(executeSpin, nextDelay);
-        } else {
-          setStartAutoBet(false);
-          spinCount = 0;
-        }
-      };
-
-      executeSpin();
-    }
-
-    if (!startAutoBet && betStarted) {
+    if (betStarted) {
+      setIsAnimationComplete(false);
       spinRoulette();
-
       setTimeout(() => {
         setBettingStarted(false);
-        setSpinNumber(-1);
       }, 10000);
     }
-
-    // eslint-disable-next-line
-  }, [startAutoBet, nbets, setStartAutoBet, betStarted]);
+  }, [betStarted, setBettingStarted]);
 
   return (
     <div className="roulette-container">
@@ -123,7 +116,7 @@ const Roulette = ({
                 {result.number}
               </span>
             </div>
-          ) : betStarted || startAutoBet ? (
+          ) : betStarted ? (
             <span className="text-gray-500">Spinning...</span>
           ) : (
             <span className="text-gray-500">Place Your Bet</span>

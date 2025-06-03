@@ -7,7 +7,7 @@ const SideBar = ({
   setBet,
   maxBetEnable,
   nbets,
-  setNBets,
+  setNbets,
   profit,
   setProfit,
   loss,
@@ -18,8 +18,18 @@ const SideBar = ({
   startAutoBet,
   isSocketReady,
   isGameJoined,
+  isDisabled,
+  isProcessing,
+  totalBetAmount,
+  currentBets,
 }) => {
   const isConnected = isSocketReady && isGameJoined;
+
+  // Calculate total current bet amount
+  const currentTotalBet = Object.values(currentBets).reduce(
+    (sum, amount) => sum + parseFloat(amount),
+    0
+  );
 
   return (
     <>
@@ -34,14 +44,14 @@ const SideBar = ({
             <div className="order-[100] max-lg:mt-2 lg:order-1 switch mb-4 w-full bg-primary rounded-full p-1.5 grid grid-cols-2 gap-1">
               <div
                 onClick={() => {
-                  if (!startAutoBet && isConnected) {
+                  if (!startAutoBet && isConnected && !isDisabled) {
                     setBetMode("manual");
                   }
                 }}
                 className={`${
                   betMode === "manual" ? "bg-inactive scale-95" : ""
                 } ${
-                  !isConnected
+                  !isConnected || isDisabled
                     ? "opacity-50 cursor-not-allowed"
                     : "hover:bg-activeHover cursor-pointer"
                 } col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
@@ -50,14 +60,14 @@ const SideBar = ({
               </div>
               <div
                 onClick={() => {
-                  if (!bettingStarted && isConnected) {
+                  if (!bettingStarted && isConnected && !isDisabled) {
                     setBetMode("auto");
                   }
                 }}
                 className={`${
                   betMode === "auto" ? "bg-inactive scale-95" : ""
                 } ${
-                  !isConnected
+                  !isConnected || isDisabled
                     ? "opacity-50 cursor-not-allowed"
                     : "hover:bg-activeHover cursor-pointer"
                 } col-span-1 flex items-center justify-center py-2 text-white font-semibold rounded-full transition-all duration-300 ease-in-out transform active:scale-90`}
@@ -72,7 +82,7 @@ const SideBar = ({
               <div className="order-1 md:order-2 my-2 w-full">
                 <div className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label">
                   <label htmlFor="betAmount">Bet Amount</label>
-                  <h1 className="text-sm">$0.00</h1>
+                  <h1 className="text-sm">${currentTotalBet.toFixed(6)}</h1>
                 </div>
                 <div className="w-full mt-1 bg-inactive shadow-md flex rounded">
                   <div className="w-full relative">
@@ -80,7 +90,7 @@ const SideBar = ({
                       type="text"
                       value={bet}
                       id="betAmount"
-                      disabled={!isConnected || bettingStarted}
+                      disabled={!isConnected || bettingStarted || isDisabled}
                       onChange={(e) => {
                         const value = e.target.value;
                         // Only allow numbers and decimal point
@@ -89,8 +99,8 @@ const SideBar = ({
                         }
                       }}
                       className={`w-full h-full rounded bg-secondry outline-none text-white px-2 py-2.5 pr-6 border ${
-                        !isConnected
-                          ? "border-gray-600"
+                        !isConnected || isDisabled
+                          ? "border-gray-600 opacity-50"
                           : "border-inactive hover:border-primary-4"
                       }`}
                     />
@@ -109,14 +119,26 @@ const SideBar = ({
                       </svg>
                     </div>
                   </div>
-                  <div className="cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
+                  <div
+                    className={`cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none ${
+                      isDisabled ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                  >
                     1/2
                   </div>
-                  <div className="cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
+                  <div
+                    className={`cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none ${
+                      isDisabled ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                  >
                     2x
                   </div>
                   {maxBetEnable && (
-                    <div className="cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
+                    <div
+                      className={`cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none ${
+                        isDisabled ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
+                    >
                       Max
                     </div>
                   )}
@@ -126,16 +148,20 @@ const SideBar = ({
               {/* Bet button */}
               <button
                 className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold text-black ${
-                  !isConnected
+                  !isConnected || isDisabled
                     ? "bg-gray-600 cursor-not-allowed"
                     : bettingStarted
                     ? "bg-primary text-white cursor-text"
                     : "bg-button-primary active:scale-90 cursor-pointer"
                 }`}
                 onClick={handleBetstarted}
-                disabled={!isConnected || bettingStarted}
+                disabled={!isConnected || bettingStarted || isDisabled}
               >
-                {!isConnected ? "Connecting..." : "Bet"}
+                {!isConnected
+                  ? "Connecting..."
+                  : isDisabled
+                  ? "Spinning..."
+                  : "Bet"}
               </button>
             </>
           )}
@@ -145,7 +171,7 @@ const SideBar = ({
               <div className="order-1 md:order-2 my-2 w-full">
                 <div className="flex items-center mb-[-4px] pl-[2px] justify-between w-full font-semibold text-label">
                   <label htmlFor="betAmount">Bet Amount</label>
-                  <h1 className="text-sm">$0.00</h1>
+                  <h1 className="text-sm">${currentTotalBet.toFixed(6)}</h1>
                 </div>
 
                 <div className="w-full mt-1 bg-inactive shadow-md flex rounded">
@@ -153,7 +179,7 @@ const SideBar = ({
                     <input
                       type="text"
                       value={bet}
-                      disabled={!isConnected || startAutoBet}
+                      disabled={!isConnected || startAutoBet || isDisabled}
                       id="betAmount"
                       onChange={(e) => {
                         const value = e.target.value;
@@ -163,8 +189,8 @@ const SideBar = ({
                         }
                       }}
                       className={`w-full h-full rounded bg-secondry outline-none text-white px-2 pr-6 border ${
-                        !isConnected
-                          ? "border-gray-600"
+                        !isConnected || isDisabled
+                          ? "border-gray-600 opacity-50"
                           : "border-inactive hover:border-primary-4"
                       }`}
                     />
@@ -183,14 +209,26 @@ const SideBar = ({
                       </svg>
                     </div>
                   </div>
-                  <div className="cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
+                  <div
+                    className={`cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none ${
+                      isDisabled ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                  >
                     1/2
                   </div>
-                  <div className="cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
+                  <div
+                    className={`cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none ${
+                      isDisabled ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                  >
                     2x
                   </div>
                   {maxBetEnable && (
-                    <div className="cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none">
+                    <div
+                      className={`cursor-pointer hover:bg-activeHover inline-flex relative items-center gap-2 justify-center rounded-sm font-semibold whitespace-nowrap ring-offset-background transition disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] bg-grey-400 text-white hover:bg-grey-300 hover:text-white focus-visible:outline-white text-sm leading-none py-[0.8125rem] px-[1rem] shadow-none ${
+                        isDisabled ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
+                    >
                       Max
                     </div>
                   )}
@@ -199,17 +237,32 @@ const SideBar = ({
 
               {/* Number of bets */}
               <div className="w-full mb-1 order-10 md:order-2">
-                <h1 className="font-semibold mt-1 text-label">
-                  Number of Bets
-                </h1>
+                <div className="flex items-center justify-between">
+                  <h1 className="font-semibold mt-1 text-label">
+                    Number of Bets
+                  </h1>
+                  <h1 className="text-sm text-label">
+                    Total: ${(currentTotalBet * nbets).toFixed(6)}
+                  </h1>
+                </div>
                 <input
                   type="number"
                   value={nbets}
-                  disabled={!isConnected || startAutoBet}
-                  onChange={(e) => setNBets(e.target.value)}
+                  disabled={!isConnected || startAutoBet || isDisabled}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "") {
+                      setNbets("");
+                    } else {
+                      const numValue = parseInt(value, 10);
+                      if (!isNaN(numValue)) {
+                        setNbets(numValue);
+                      }
+                    }
+                  }}
                   className={`w-full mt-2 h-full rounded bg-secondry outline-none text-white px-2 pr-6 py-2 border ${
-                    !isConnected
-                      ? "border-gray-600"
+                    !isConnected || isDisabled
+                      ? "border-gray-600 opacity-50"
                       : "border-input hover:border-primary-4"
                   }`}
                 />
@@ -423,16 +476,22 @@ const SideBar = ({
               {/* Bet button */}
               <button
                 onClick={handleAutoBet}
-                disabled={!isConnected || startAutoBet}
+                disabled={!isConnected || startAutoBet || isDisabled}
                 className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black ${
-                  !isConnected
+                  !isConnected || isDisabled
                     ? "bg-gray-600 cursor-not-allowed"
                     : startAutoBet
                     ? "bg-primary text-white cursor-text"
                     : "bg-button-primary active:scale-90 cursor-pointer"
                 }`}
               >
-                {!isConnected ? "Connecting..." : "Start Autobet"}
+                {!isConnected
+                  ? "Connecting..."
+                  : isDisabled
+                  ? "Spinning..."
+                  : startAutoBet
+                  ? `Auto Betting (${(currentTotalBet * nbets).toFixed(6)})`
+                  : "Start Autobet"}
               </button>
             </>
           )}

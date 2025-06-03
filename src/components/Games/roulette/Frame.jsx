@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import "../../../styles/Frame.css";
 import FairnessModal from "../../Frame/FairnessModal";
 import FrameFooter from "../../Frame/FrameFooter";
@@ -20,65 +20,10 @@ import {
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
-const DisconnectModal = ({ isDisconnected, onReconnect, isReconnecting }) => {
-  const navigate = useNavigate();
-
-  return (
-    <div
-      className={`fixed inset-0 bg-black bg-opacity-75 z-[9999] flex items-center justify-center transition-opacity duration-300 ${
-        isDisconnected
-          ? "opacity-100 pointer-events-auto"
-          : "opacity-0 pointer-events-none"
-      }`}
-      style={{
-        top: "70px",
-        bottom: "0",
-        left: "0",
-        right: "0",
-        maxWidth: "1400px",
-        margin: "0 auto",
-      }}
-    >
-      <div className="bg-[#1a1a1a] p-6 rounded-lg shadow-lg max-w-md w-full mx-4 transform transition-transform duration-300">
-        <h2 className="text-xl font-bold text-white mb-4">Connection Lost</h2>
-        <p className="text-gray-300 mb-6">
-          {isReconnecting
-            ? "Attempting to reconnect to the game server..."
-            : "Your connection to the game server has been lost. Please try to reconnect or refresh the page."}
-        </p>
-        <div className="flex flex-col gap-3">
-          <button
-            onClick={onReconnect}
-            disabled={isReconnecting}
-            className={`w-full font-bold py-2 px-4 rounded transition-colors ${
-              isReconnecting
-                ? "bg-gray-600 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
-            }`}
-          >
-            {isReconnecting ? "Reconnecting..." : "Reconnect"}
-          </button>
-          <button
-            onClick={() => window.location.reload()}
-            disabled={isReconnecting}
-            className={`w-full font-bold py-2 px-4 rounded transition-colors ${
-              isReconnecting
-                ? "bg-gray-600 cursor-not-allowed"
-                : "bg-gray-600 hover:bg-gray-700 text-white"
-            }`}
-          >
-            Refresh Page
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const Frame = () => {
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
-  const [nbets, setNBets] = useState(0);
+  const [nbets, setNbets] = useState(0);
   const [onWin, setOnWin] = useState(0);
   const [onLoss, setOnLoss] = useState(0);
   const [onWinReset, setOnWinReset] = useState(false);
@@ -93,9 +38,13 @@ const Frame = () => {
   const [betStarted, setBettingStarted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [totalProfit, setTotalProfit] = useState("0.000000");
-  const [isDisconnected, setIsDisconnected] = useState(false);
-  const [isReconnecting, setIsReconnecting] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isBettingEnabled, setIsBettingEnabled] = useState(true);
+  const [isSpinComplete, setIsSpinComplete] = useState(true);
+  const [isAutoBetting, setIsAutoBetting] = useState(false);
+  const [isWheelAnimationComplete, setIsWheelAnimationComplete] =
+    useState(true);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 3;
 
@@ -120,9 +69,15 @@ const Frame = () => {
   const [isGameJoined, setIsGameJoined] = useState(false);
   const socketRef = useRef(null);
   const namespaceTimeoutRef = useRef(null);
+  const autoBetTimeoutRef = useRef(null);
 
   const navigate = useNavigate();
   const token = useSelector((state) => state.auth?.token);
+
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isAuthError, setIsAuthError] = useState(false);
+
+  const [totalBetAmount, setTotalBetAmount] = useState(0);
 
   useEffect(() => {
     console.log("[Roulette Frame] Updating bet amount:", bet);
@@ -130,19 +85,13 @@ const Frame = () => {
   }, [bet]);
 
   useEffect(() => {
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
     const setupSocket = async () => {
       try {
         setIsInitializing(true);
         setLoading(true);
         setIsSocketReady(false);
         setIsGameJoined(false);
-        setIsDisconnected(false);
-        setIsReconnecting(false);
+        setIsAuthError(false);
         reconnectAttempts.current = 0;
 
         initializeRouletteSocket(token);
@@ -151,8 +100,12 @@ const Frame = () => {
 
         socket.on("connect_error", (error) => {
           console.error("[Roulette Frame] Connection error:", error);
-          if (!isInitializing) {
-            setIsDisconnected(true);
+          if (
+            error.message === "Authentication failed" ||
+            error.message === "Invalid token"
+          ) {
+            setIsAuthError(true);
+            // setShowLoginModal(true);
           }
           setIsSocketReady(false);
           setIsGameJoined(false);
@@ -161,24 +114,20 @@ const Frame = () => {
 
         socket.on("disconnect", (reason) => {
           console.log("[Roulette Frame] Disconnected:", reason);
-          if (!isInitializing) {
-            setIsDisconnected(true);
+          if (
+            reason === "io server disconnect" ||
+            reason === "transport close"
+          ) {
+            setIsAuthError(true);
+            setShowLoginModal(true);
           }
           setIsSocketReady(false);
           setIsGameJoined(false);
           setLoading(false);
-
-          if (
-            reason !== "io client disconnect" &&
-            reason !== "io server disconnect"
-          ) {
-            handleReconnect();
-          }
         });
 
         socket.on("connect", () => {
           console.log("[Roulette Frame] Connected to server");
-          setIsDisconnected(false);
           setIsSocketReady(true);
           setLoading(false);
           reconnectAttempts.current = 0;
@@ -186,7 +135,6 @@ const Frame = () => {
           namespaceTimeoutRef.current = setTimeout(() => {
             if (!isGameJoined) {
               console.error("[Roulette Frame] Namespace connection timeout");
-              setIsDisconnected(true);
               setIsSocketReady(false);
               setIsGameJoined(false);
               setLoading(false);
@@ -208,8 +156,6 @@ const Frame = () => {
                 "[Roulette Frame] Failed to join game:",
                 result.message
               );
-              setIsDisconnected(true);
-              setIsInitializing(false);
               toast.error(
                 result.message ||
                   "Failed to join game. Please refresh the page."
@@ -224,8 +170,6 @@ const Frame = () => {
             clearTimeout(namespaceTimeoutRef.current);
             setIsGameJoined(true);
             setLoading(false);
-            setIsDisconnected(false);
-            setIsReconnecting(false);
             setIsInitializing(false);
             reconnectAttempts.current = 0;
           } else {
@@ -235,20 +179,21 @@ const Frame = () => {
             );
             toast.error("Failed to join game. Please refresh the page.");
             setLoading(false);
-            setIsDisconnected(true);
             setIsInitializing(false);
           }
         });
 
         onError((error) => {
           console.error("[Roulette Frame] Socket error:", error);
-          toast.error(error);
+          if (error.includes("Authentication") || error.includes("token")) {
+            setIsAuthError(true);
+            // setShowLoginModal(true);
+          } else {
+            toast.error(error);
+          }
           setLoading(false);
           setIsSocketReady(false);
           setIsGameJoined(false);
-          if (!isInitializing) {
-            setIsDisconnected(true);
-          }
         });
 
         if (!socket.connected) {
@@ -278,8 +223,15 @@ const Frame = () => {
         };
       } catch (error) {
         console.error("[Roulette Frame] Error setting up socket:", error);
-        toast.error("Failed to connect to game server");
-        setIsDisconnected(true);
+        if (
+          error.message?.includes("Authentication") ||
+          error.message?.includes("token")
+        ) {
+          setIsAuthError(true);
+          // setShowLoginModal(true);
+        } else {
+          toast.error("Failed to connect to game server");
+        }
         setIsSocketReady(false);
         setIsGameJoined(false);
         setLoading(false);
@@ -289,130 +241,6 @@ const Frame = () => {
 
     setupSocket();
   }, [token, navigate]);
-
-  const handleReconnect = async () => {
-    if (isReconnecting || reconnectAttempts.current >= maxReconnectAttempts) {
-      return;
-    }
-
-    try {
-      setIsReconnecting(true);
-      reconnectAttempts.current += 1;
-
-      // Clean up existing socket
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        removeAllListeners();
-      }
-      clearTimeout(namespaceTimeoutRef.current);
-
-      // Reset game state
-      setBettingStarted(false);
-      setStartAutoBet(false);
-      setCurrentBets({});
-
-      // Initialize new socket
-      initializeRouletteSocket(token);
-      const socket = getRouletteSocket();
-      socketRef.current = socket;
-
-      // Set up connection handlers before attempting to connect
-      socket.on("connect", () => {
-        console.log("[Roulette Frame] Socket reconnected");
-        setIsDisconnected(false);
-        setIsSocketReady(true);
-        setLoading(false);
-        reconnectAttempts.current = 0;
-
-        // Join game after successful connection
-        joinGame((result) => {
-          console.log(
-            "[Roulette Frame] Join game result after reconnect:",
-            result
-          );
-          if (result.success) {
-            setIsGameJoined(true);
-            setIsInitializing(false);
-            setIsReconnecting(false);
-            clearTimeout(namespaceTimeoutRef.current);
-          } else {
-            console.error(
-              "[Roulette Frame] Failed to join game after reconnect:",
-              result.message
-            );
-            setIsDisconnected(true);
-            setIsInitializing(false);
-            setIsReconnecting(false);
-            toast.error(
-              result.message || "Failed to join game. Please refresh the page."
-            );
-          }
-        });
-      });
-
-      socket.on("connect_error", (error) => {
-        console.error("[Roulette Frame] Reconnection error:", error);
-        setIsDisconnected(true);
-        setIsSocketReady(false);
-        setIsGameJoined(false);
-        setLoading(false);
-        setIsReconnecting(false);
-        toast.error("Failed to reconnect to game server");
-      });
-
-      // Set up namespace connection timeout
-      namespaceTimeoutRef.current = setTimeout(() => {
-        if (!isGameJoined) {
-          console.error("[Roulette Frame] Namespace reconnection timeout");
-          setIsDisconnected(true);
-          setIsSocketReady(false);
-          setIsGameJoined(false);
-          setLoading(false);
-          setIsReconnecting(false);
-          toast.error(
-            "Failed to reconnect to game namespace. Please refresh the page."
-          );
-        }
-      }, 5000);
-
-      // Set up game joined handler
-      onGameJoined((data) => {
-        console.log("[Roulette Frame] Game rejoined:", data);
-        if (data.success) {
-          clearTimeout(namespaceTimeoutRef.current);
-          setIsGameJoined(true);
-          setLoading(false);
-          setIsDisconnected(false);
-          setIsReconnecting(false);
-          reconnectAttempts.current = 0;
-        }
-      });
-
-      onError((error) => {
-        console.error("[Roulette Frame] Reconnection error:", error);
-        toast.error(error);
-        setLoading(false);
-        setIsReconnecting(false);
-      });
-
-      // If socket is already connected, trigger the connect handler
-      if (socket.connected) {
-        socket.emit("connect");
-      }
-    } catch (error) {
-      console.error("[Roulette Frame] Reconnection error:", error);
-      toast.error("Failed to reconnect to game server");
-      setIsDisconnected(true);
-      setLoading(false);
-      setIsReconnecting(false);
-
-      if (reconnectAttempts.current >= maxReconnectAttempts) {
-        toast.error(
-          "Maximum reconnection attempts reached. Please refresh the page."
-        );
-      }
-    }
-  };
 
   const handleBetstarted = () => {
     if (!token) {
@@ -426,15 +254,18 @@ const Frame = () => {
       return;
     }
 
-    if (!betStarted && Object.keys(currentBets).length !== 0) {
+    if (Object.keys(currentBets).length === 0) {
+      toast.error("Please place a bet first");
+      return;
+    }
+
+    if (!betStarted && !isProcessing && isBettingEnabled && isSpinComplete) {
       console.log("[Roulette Frame] Starting bet with:", {
         currentBets,
         betAmount,
         socketId: socketRef.current?.id,
       });
       setBettingStarted(true);
-    } else if (Object.keys(currentBets).length === 0) {
-      toast.error("Please place a bet first");
     }
   };
 
@@ -443,24 +274,154 @@ const Frame = () => {
     setBettingStarted(false);
   };
 
+  const handleAnimationComplete = useCallback(() => {
+    console.log("[Roulette Frame] Wheel animation complete");
+    setIsWheelAnimationComplete(true);
+  }, []);
+
   const handleAutoBet = () => {
     if (!token) {
       navigate(`?tab=${"login"}`, { replace: true });
       return;
     }
 
-    if (!startAutoBet && nbets !== 0 && Object.keys(currentBets).length !== 0) {
+    const betAmount = parseFloat(bet);
+    if (betAmount <= 0) {
+      toast.error("Please set a valid bet amount");
+      return;
+    }
+
+    if (nbets <= 0) {
+      toast.error("Please set a valid number of bets");
+      return;
+    }
+
+    if (Object.keys(currentBets).length === 0) {
+      toast.error("Please place a bet first");
+      return;
+    }
+
+    // Calculate total bet amount
+    const totalAmount =
+      Object.values(currentBets).reduce(
+        (sum, amount) => sum + parseFloat(amount),
+        0
+      ) * nbets;
+    setTotalBetAmount(totalAmount);
+
+    if (
+      !startAutoBet &&
+      !isProcessing &&
+      isBettingEnabled &&
+      isSpinComplete &&
+      isWheelAnimationComplete
+    ) {
+      console.log("[Roulette Frame] Starting auto bet with:", {
+        currentBets,
+        betAmount,
+        nbets,
+        totalBetAmount: totalAmount,
+        socketId: socketRef.current?.id,
+      });
+
+      // Reset states before starting new auto-bet
+      setStartAutoBet(false);
+      setIsAutoBetting(false);
+      setIsWheelAnimationComplete(true);
+
+      // Start auto bet sequence
       setStartAutoBet(true);
+      setIsAutoBetting(true);
+
+      // Function to place bets with proper sequencing
+      const placeAutoBets = async (count = 0) => {
+        // Clear any existing timeout
+        if (autoBetTimeoutRef.current) {
+          clearTimeout(autoBetTimeoutRef.current);
+        }
+
+        // Only check count against nbets
+        if (count >= nbets) {
+          console.log("[Roulette Frame] Auto bet sequence complete");
+          setStartAutoBet(false);
+          setIsAutoBetting(false);
+          setIsWheelAnimationComplete(true);
+          // Only clear bets after all bets are complete
+          setCurrentBets({});
+          setTotalBetAmount(0);
+          return;
+        }
+
+        // Wait for any ongoing processing to complete
+        if (
+          isProcessing ||
+          !isBettingEnabled ||
+          !isSpinComplete ||
+          !isWheelAnimationComplete
+        ) {
+          console.log("[Roulette Frame] Waiting for game to be ready...");
+          autoBetTimeoutRef.current = setTimeout(
+            () => placeAutoBets(count),
+            1000
+          );
+          return;
+        }
+
+        console.log(`[Roulette Frame] Placing bet ${count + 1} of ${nbets}`);
+
+        // Reset wheel animation state before placing bet
+        setIsWheelAnimationComplete(false);
+
+        // Place the bet by triggering betStarted
+        setBettingStarted(true);
+
+        // Wait for the wheel animation to complete
+        const waitForWheelAnimation = () => {
+          return new Promise((resolve) => {
+            const checkInterval = setInterval(() => {
+              if (isWheelAnimationComplete) {
+                clearInterval(checkInterval);
+                resolve();
+              }
+            }, 100);
+          });
+        };
+
+        try {
+          // Wait for the wheel animation to complete
+          await waitForWheelAnimation();
+
+          // Add delay before next bet
+          console.log("[Roulette Frame] Waiting before next bet...");
+          await new Promise((resolve) => setTimeout(resolve, 10500));
+
+          // Proceed to next bet without clearing current bets
+          placeAutoBets(count + 1);
+        } catch (error) {
+          console.error("[Roulette Frame] Error in auto bet sequence:", error);
+          setStartAutoBet(false);
+          setIsAutoBetting(false);
+          // Only clear bets if there's an error
+          setCurrentBets({});
+        }
+      };
+
+      // Start the auto bet sequence
+      placeAutoBets();
     }
   };
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (autoBetTimeoutRef.current) {
+        clearTimeout(autoBetTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <>
-      <DisconnectModal
-        isDisconnected={isDisconnected && !isInitializing}
-        onReconnect={handleReconnect}
-        isReconnecting={isReconnecting}
-      />
       <div
         className="w-full bg-secondry pt-[1px] pb-[12px] max-lg:pb-[36px]"
         style={{
@@ -473,7 +434,7 @@ const Frame = () => {
           }`}
         >
           <div className="flex flex-col gap-[0.15rem] relative">
-            <div className="grid grid-cols-12 lg:min-h-[600px]">
+            <div className="grid grid-cols-12 lg:min-h-[600px] relative">
               {/* Left Section */}
               <SideBar
                 handleAutoBet={handleAutoBet}
@@ -486,7 +447,7 @@ const Frame = () => {
                 setProfit={setProfit}
                 setLoss={setLoss}
                 nbets={nbets}
-                setNBets={setNBets}
+                setNbets={setNbets}
                 betMode={betMode}
                 bet={bet}
                 maxBetEnable={maxBetEnable}
@@ -507,6 +468,13 @@ const Frame = () => {
                 handleCheckout={handleCheckout}
                 isSocketReady={isSocketReady}
                 isGameJoined={isGameJoined}
+                isDisabled={isProcessing || !isBettingEnabled}
+                isAutoBetting={isAutoBetting}
+                isProcessing={
+                  isProcessing || !isBettingEnabled || !isSpinComplete
+                }
+                totalBetAmount={totalBetAmount}
+                currentBets={currentBets}
               />
 
               {/* Right Section */}
@@ -515,7 +483,7 @@ const Frame = () => {
                   theatreMode
                     ? "md:col-span-8 md:order-2"
                     : "lg:col-span-8 lg:order-2"
-                } xl:col-span-9 bg-gray-900 order-1`}
+                } xl:col-span-9 bg-gray-900 order-1 relative`}
               >
                 <div className="w-full relative text-white h-full flex items-center justify-center text-3xl">
                   {loading ? (
@@ -526,124 +494,124 @@ const Frame = () => {
                     <center className="w-full flex items-center justify-center">
                       <Game
                         betStarted={betStarted}
-                        nbets={nbets}
                         setBettingStarted={setBettingStarted}
-                        startAutoBet={startAutoBet}
-                        setStartAutoBet={setStartAutoBet}
                         currentBets={currentBets}
                         setCurrentBets={setCurrentBets}
                         isSocketReady={isSocketReady}
                         isGameJoined={isGameJoined}
+                        nbets={nbets}
+                        onAutoBetComplete={handleAutoBet}
+                        setIsProcessing={setIsProcessing}
+                        isProcessing={isProcessing}
+                        isBettingEnabled={isBettingEnabled}
+                        setIsBettingEnabled={setIsBettingEnabled}
+                        setIsAutoBetting={setIsAutoBetting}
+                        isSpinComplete={isSpinComplete}
+                        setIsSpinComplete={setIsSpinComplete}
+                        onAnimationComplete={handleAnimationComplete}
                       />
                     </center>
                   )}
                 </div>
               </div>
             </div>
-
-            <FrameFooter
-              isFav={isFav}
-              isGameSettings={isGameSettings}
-              setIsFav={setIsFav}
-              setIsFairness={setIsFairness}
-              setIsGamings={setIsGamings}
-              volume={volume}
-              setVolume={setVolume}
-              instantBet={instantBet}
-              setInstantBet={setInstantBet}
-              animations={animations}
-              setAnimations={setAnimations}
-              maxBet={maxBet}
-              setMaxBet={setMaxBet}
-              gameInfo={gameInfo}
-              setGameInfo={setGameInfo}
-              hotkeys={hotkeys}
-              setHotkeys={setHotkeys}
-              maxBetEnable={maxBetEnable}
-              setMaxBetEnable={setMaxBetEnable}
-              theatreMode={theatreMode}
-              setTheatreMode={setTheatreMode}
-            />
-
-            {/* Modals */}
-            {isGameSettings && (
-              <div
-                className="absolute bg-transparent top-0 left-0 w-full h-full z-[2] cursor-pointer"
-                onClick={() => setIsGamings(false)}
-              ></div>
-            )}
-
-            {isFairness && (
-              <div
-                className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
-                onClick={() => setIsFairness(false)}
-              >
-                <div className="text-white w-full flex items-center justify-center h-full">
-                  <div
-                    className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <FairnessModal setIsFairness={setIsFairness} />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {hotkeys && (
-              <div
-                className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
-                onClick={() => setHotkeys(false)}
-              >
-                <div className="text-white w-full flex items-center justify-center h-full">
-                  <div
-                    className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <HotKeysModal
-                      setHotkeys={setHotkeys}
-                      hotkeysEnabled={hotkeysEnabled}
-                      setHotkeysEnabled={setHotkeysEnabled}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {gameInfo && (
-              <div
-                className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
-                onClick={() => setGameInfo(false)}
-              >
-                <div className="text-white w-full flex items-center justify-center h-full">
-                  <div
-                    className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <GameInfoModal setGameInfo={setGameInfo} />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {maxBet && !maxBetEnable && (
-              <div
-                className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
-                onClick={() => setMaxBet(false)}
-              >
-                <div className="text-white w-full flex items-center justify-center h-full">
-                  <div
-                    className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <MaxBetModal
-                      setMaxBet={setMaxBet}
-                      setMaxBetEnable={setMaxBetEnable}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
+
+          <FrameFooter
+            isFav={isFav}
+            isGameSettings={isGameSettings}
+            setIsFav={setIsFav}
+            setIsFairness={setIsFairness}
+            setIsGamings={setIsGamings}
+            volume={volume}
+            setVolume={setVolume}
+            instantBet={instantBet}
+            setInstantBet={setInstantBet}
+            animations={animations}
+            setAnimations={setAnimations}
+            maxBet={maxBet}
+            setMaxBet={setMaxBet}
+            gameInfo={gameInfo}
+            setGameInfo={setGameInfo}
+            hotkeys={hotkeys}
+            setHotkeys={setHotkeys}
+            maxBetEnable={maxBetEnable}
+            setMaxBetEnable={setMaxBetEnable}
+            theatreMode={theatreMode}
+            setTheatreMode={setTheatreMode}
+          />
+
+          {/* Other modals */}
+          {isFairness && (
+            <div
+              className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
+              onClick={() => setIsFairness(false)}
+            >
+              <div className="text-white w-full flex items-center justify-center h-full">
+                <div
+                  className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <FairnessModal setIsFairness={setIsFairness} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {hotkeys && (
+            <div
+              className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
+              onClick={() => setHotkeys(false)}
+            >
+              <div className="text-white w-full flex items-center justify-center h-full">
+                <div
+                  className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <HotKeysModal
+                    setHotkeys={setHotkeys}
+                    hotkeysEnabled={hotkeysEnabled}
+                    setHotkeysEnabled={setHotkeysEnabled}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {gameInfo && (
+            <div
+              className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
+              onClick={() => setGameInfo(false)}
+            >
+              <div className="text-white w-full flex items-center justify-center h-full">
+                <div
+                  className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <GameInfoModal setGameInfo={setGameInfo} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {maxBet && !maxBetEnable && (
+            <div
+              className="absolute top-0 left-0 w-full h-full z-[2] bg-[rgba(0,0,0,0.4)] cursor-pointer flex items-center justify-center"
+              onClick={() => setMaxBet(false)}
+            >
+              <div className="text-white w-full flex items-center justify-center h-full">
+                <div
+                  className="max-h-[90%] custom-scrollbar overflow-y-auto w-[95%] pt-3 rounded max-w-[500px] bg-primary-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MaxBetModal
+                    setMaxBet={setMaxBet}
+                    setMaxBetEnable={setMaxBetEnable}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>
