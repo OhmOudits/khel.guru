@@ -18,6 +18,33 @@ const LeftSection = ({
   setenteredMultipler,
   gamestarted,
 }) => {
+  const validateMultiplier = (value) => {
+    const num = parseFloat(value);
+    if (isNaN(num) || num < 1 || num > 51) {
+      return false;
+    }
+    return true;
+  };
+
+  const handleMultiplierChange = (e) => {
+    const value = e.target.value;
+    if (value === "" || validateMultiplier(value)) {
+      setenteredMultipler(value);
+    }
+  };
+
+  const validateNumberOfBets = (value) => {
+    const num = parseInt(value);
+    return !isNaN(num) && num > 0 && num <= 100;
+  };
+
+  const handleNumberOfBetsChange = (e) => {
+    const value = e.target.value;
+    if (value === "" || validateNumberOfBets(value)) {
+      setNBets(value);
+    }
+  };
+
   return (
     <>
       <div
@@ -26,7 +53,7 @@ const LeftSection = ({
         } xl:col-span-3 bg-inactive order-2 max-lg:h-[fit-content] lg:h-[600px] overflow-auto`}
       >
         <div className="my-4 px-3 flex flex-col">
-          {/* Manual and auto  */}
+          {/* Manual and auto switch */}
           <div className="sticky top-0 z-[1] bg-inactive py-0 rounded-md">
             <div className="order-[100] max-lg:mt-2 lg:order-1 switch mb-4 w-full bg-primary rounded-full p-1.5 grid grid-cols-2 gap-1">
               <div
@@ -63,34 +90,39 @@ const LeftSection = ({
                 setBet={setBet}
                 maxBetEnable={maxBetEnable}
               />
-              <div>
-                <label className="text-gray-300 font-bold" htmlFor="targer">
-                  Target Multipler
+              <div className="mt-4">
+                <label className="text-gray-300 font-bold" htmlFor="target">
+                  Target Multiplier
                 </label>
-
                 <input
-                  type="text"
+                  type="number"
                   value={enteredMultipler}
                   id="target"
-                  onChange={(e) => setenteredMultipler(e.target.value)}
-                  className="w-full  rounded bg-secondry outline-none h-10 text-white px-2 pr-6 border border-inactive hover:border-primary-4"
+                  onChange={handleMultiplierChange}
+                  step="0.01"
+                  min="1"
+                  max="51"
+                  disabled={gamestarted}
+                  className="w-full rounded bg-secondry outline-none h-10 text-white px-2 pr-6 border border-inactive hover:border-primary-4 disabled:opacity-50"
+                  placeholder="Enter multiplier (1-51)"
                 />
+                <div className="text-sm text-gray-400 mt-1">
+                  Enter a multiplier between 1x and 51x
+                </div>
               </div>
+
               {/* Bet button */}
-              <div
-                disabled={gamestarted}
-                className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform active:scale-90 flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold ${
-                  bettingStarted
-                    ? "bg-primary text-white"
-                    : "bg-button-primary text-black cursor-pointer"
+              <button
+                disabled={gamestarted || !enteredMultipler || !bet}
+                className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-3 max-lg:mt-4 rounded text-lg font-semibold ${
+                  gamestarted || !enteredMultipler || !bet
+                    ? "bg-primary text-white cursor-not-allowed"
+                    : "bg-button-primary text-black cursor-pointer active:scale-90"
                 }`}
-                onClick={() => {
-                  if (gamestarted) return;
-                  handleBetClick();
-                }}
+                onClick={handleBetClick}
               >
-                Bet
-              </div>
+                {gamestarted ? "Betting in Progress..." : "Place Bet"}
+              </button>
             </div>
           )}
 
@@ -103,30 +135,64 @@ const LeftSection = ({
               />
 
               {/* Number of bets */}
-              <div className="w-full mb-1 order-10 md:order-2">
-                <h1 className="font-semibold mt-1 text-label">
+              <div className="w-full mb-1 order-10 md:order-2 mt-4">
+                <label
+                  className="font-semibold text-label"
+                  htmlFor="numberOfBets"
+                >
                   Number of Bets
-                </h1>
+                </label>
                 <input
                   type="number"
+                  id="numberOfBets"
                   value={nbets}
+                  onChange={handleNumberOfBetsChange}
                   disabled={startAutoBet}
-                  onChange={(e) => setNBets(e.target.value)}
-                  className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-2 pr-6 py-2 border border-input hover:border-primary-4"
+                  min="1"
+                  max="100"
+                  className="w-full mt-2 h-full rounded bg-secondry outline-none text-white px-2 pr-6 py-2 border border-input hover:border-primary-4 disabled:opacity-50"
+                  placeholder="Enter number of bets (1-100)"
                 />
+                <div className="text-sm text-gray-400 mt-1">
+                  Enter number of bets (1-100)
+                </div>
               </div>
 
-              {/* Bet button */}
+              {/* Target multiplier for auto bet */}
+              <div className="mt-4">
+                <label className="text-gray-300 font-bold" htmlFor="autoTarget">
+                  Target Multiplier
+                </label>
+                <input
+                  type="number"
+                  id="autoTarget"
+                  value={enteredMultipler}
+                  onChange={handleMultiplierChange}
+                  step="0.01"
+                  min="1"
+                  max="51"
+                  disabled={startAutoBet}
+                  className="w-full rounded bg-secondry outline-none h-10 text-white px-2 pr-6 border border-inactive hover:border-primary-4 disabled:opacity-50"
+                  placeholder="Enter multiplier (1-51)"
+                />
+                <div className="text-sm text-gray-400 mt-1">
+                  Enter a multiplier between 1x and 51x
+                </div>
+              </div>
+
+              {/* Auto bet button */}
               <button
                 onClick={handleAutoBet}
-                disabled={startAutoBet}
-                className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold text-black cursor-pointer ${
-                  startAutoBet
-                    ? "bg-primary text-white cursor-text"
-                    : "bg-button-primary active:scale-90"
+                disabled={startAutoBet || !enteredMultipler || !bet || !nbets}
+                className={`order-2 max-md:mb-2 md:order-20 transition-all duration-300 ease-in-out transform flex items-center justify-center w-full mx-auto py-1.5 mt-4 max-lg:mt-4 rounded text-lg font-semibold ${
+                  startAutoBet || !enteredMultipler || !bet || !nbets
+                    ? "bg-primary text-white cursor-not-allowed"
+                    : "bg-button-primary text-black cursor-pointer active:scale-90"
                 }`}
               >
-                Start Autobet
+                {startAutoBet
+                  ? "Auto Betting in Progress..."
+                  : "Start Auto Bet"}
               </button>
             </>
           )}

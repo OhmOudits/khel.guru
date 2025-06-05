@@ -1,224 +1,201 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 
-const Game = ({ setTargetNumber, gamestarted, setgamestarted }) => {
-  const [timeLeft, setTimeLeft] = useState(15); // Initial countdown timer
-  const [gameState, setGameState] = useState("waiting"); // 'waiting', 'scrolling', 'result'
-  const [bets, setBets] = useState(112); // Example value from image
+const Game = ({
+  setTargetNumber,
+  gamestarted,
+  setgamestarted,
+  timeLeft,
+  bets,
+  targetMultiplier,
+}) => {
+  const [gameState, setGameState] = useState("waiting");
   const [progress, setProgress] = useState(0);
-  const [targetMultiplier, setTargetMultiplier] = useState(10.98); // The multiplier we'll land on
   const containerRef = useRef(null);
   const animationRef = useRef(null);
   const lastScrollPositionRef = useRef(0);
-  const stickRef = useRef(null); // Reference for the stick element
+  const stickRef = useRef(null);
+  const scrollTimeoutRef = useRef(null);
 
-  useEffect(() => {
-    if (gameState == "scrolling") {
-      setgamestarted(true);
-    } else {
-      setgamestarted(false);
-    }
-  }, [gameState]);
-  // Create cards with multiplier values
   const generateCards = (count) => {
     const generatedCards = [];
     for (let i = 0; i < count; i++) {
-      const multiplier = parseFloat((Math.random() * 50 + 1).toFixed(2));
+      const multiplier = parseFloat((Math.random() * 4 + 1).toFixed(2));
       generatedCards.push({ id: i, multiplier });
     }
     return generatedCards;
   };
 
-  // Generate initial cards
-  const [cards, setCards] = useState(() => {
-    const initialCards = generateCards(20);
-    initialCards[3].multiplier = 10.98; // Set the initial multiplier for index 3
-    return initialCards;
-  });
+  const [cards, setCards] = useState(() => generateCards(20));
 
-  // Function to determine the next winning multiplier
-  const determineNextMultiplier = () => {
-    // Generate new random multiplier between 1 and 51
-    return parseFloat((Math.random() * 50 + 1).toFixed(2));
-  };
+  useEffect(() => {
+    if (targetMultiplier) {
+      const updatedCards = [...cards];
 
-  // Start scrolling animation
+      const targetIndex = Math.floor(Math.random() * cards.length);
+      updatedCards[targetIndex].multiplier = targetMultiplier;
+      setCards(updatedCards);
+    }
+  }, [targetMultiplier]);
+
+  useEffect(() => {
+    console.log("Game state changed:", {
+      gamestarted,
+      timeLeft,
+      targetMultiplier,
+    });
+    if (gamestarted) {
+      lastScrollPositionRef.current = 0;
+      if (containerRef.current) {
+        containerRef.current.style.transform = "translateX(0)";
+      }
+      setGameState("scrolling");
+      startScrollingAnimation();
+    } else {
+      if (targetMultiplier) {
+        setGameState("result");
+        scrollTimeoutRef.current = setTimeout(() => {
+          scrollToWinningCard();
+        }, 500);
+
+        const timer = setTimeout(() => {
+          setGameState("waiting");
+          setProgress(0);
+        }, 3000);
+        return () => {
+          clearTimeout(timer);
+          clearTimeout(scrollTimeoutRef.current);
+        };
+      } else {
+        setGameState("waiting");
+        setProgress(0);
+      }
+    }
+
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, [gamestarted, targetMultiplier]);
+
   const startScrollingAnimation = () => {
     if (containerRef.current) {
       let startPosition = lastScrollPositionRef.current;
       let currentPosition = startPosition;
-      let scrollSpeed = 15; // Initial scroll speed
+      let scrollSpeed = 30;
+      let direction = 1;
 
       const animate = () => {
         if (containerRef.current && gameState === "scrolling") {
-          // Move cards from right to left
-          currentPosition += scrollSpeed;
+          scrollSpeed = 30 + Math.sin(currentPosition * 0.01) * 5;
+
+          if (Math.random() < 0.01) {
+            direction *= -1;
+          }
+
+          currentPosition += scrollSpeed * direction;
+
+          if (currentPosition < 0) {
+            currentPosition = 0;
+            direction = 1;
+          }
+
           containerRef.current.style.transform = `translateX(-${currentPosition}px)`;
           lastScrollPositionRef.current = currentPosition;
-
-          // Continue animation
           animationRef.current = requestAnimationFrame(animate);
         }
       };
 
-      // Start animation
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
       animationRef.current = requestAnimationFrame(animate);
     }
   };
 
-  // Function to find winning card's DOM position and scroll to it
   const scrollToWinningCard = () => {
-    if (containerRef.current && stickRef.current) {
-      // Find the card element with the target multiplier
+    if (containerRef.current && stickRef.current && targetMultiplier) {
       const cardElements = containerRef.current.querySelectorAll(".card-item");
       let targetIndex = -1;
 
       for (let i = 0; i < cardElements.length; i++) {
         const value = parseFloat(cardElements[i].getAttribute("data-value"));
-        if (value === targetMultiplier) {
+        if (Math.abs(value - targetMultiplier) < 0.01) {
           targetIndex = i;
           break;
         }
       }
 
       if (targetIndex !== -1) {
-        // Cancel the continuous scrolling
         if (animationRef.current) {
           cancelAnimationFrame(animationRef.current);
         }
 
-        // Get the stick's position relative to the viewport
         const stickRect = stickRef.current.getBoundingClientRect();
         const stickCenter = stickRect.left + stickRect.width / 2;
-
-        // Get the target card's position
         const cardRect = cardElements[targetIndex].getBoundingClientRect();
         const cardCenter = cardRect.left + cardRect.width / 2;
-
-        // Calculate how much we need to scroll to center the card on the stick
         const offset = cardCenter - stickCenter;
         const currentScroll = lastScrollPositionRef.current;
         const targetScroll = currentScroll + offset;
 
-        // Start deceleration animation to this exact position
         startDecelerationAnimation(targetScroll);
       }
     }
   };
 
-  // Function to handle smooth deceleration
   const startDecelerationAnimation = (targetPosition) => {
-    const initialSpeed = 15; // Starting speed (pixels per frame)
-    const deceleration = 0.95; // Deceleration factor (slower = smoother stop)
-
+    const initialSpeed = 30;
+    const deceleration = 0.95;
     let currentPosition = lastScrollPositionRef.current;
     let currentSpeed = initialSpeed;
 
     const animate = () => {
       if (containerRef.current) {
-        // Apply current position
         containerRef.current.style.transform = `translateX(-${currentPosition}px)`;
-
-        // Calculate distance to target
         const distanceToTarget = targetPosition - currentPosition;
 
-        // Stop if we're very close or speed is negligible
         if (Math.abs(distanceToTarget) < 1 || currentSpeed < 0.1) {
           containerRef.current.style.transform = `translateX(-${targetPosition}px)`;
           lastScrollPositionRef.current = targetPosition;
-          setGameState("result");
           return;
         }
 
-        // Adjust speed based on distance (slower as we approach target)
-        if (distanceToTarget > 0) {
-          // Approaching from left
-          currentSpeed = Math.min(currentSpeed, distanceToTarget * 0.2);
-          currentPosition += currentSpeed;
-        } else {
-          // Overshot, slow down more rapidly
-          currentSpeed *= 0.9;
-          currentPosition -= currentSpeed;
-        }
-
-        // Decelerate
         currentSpeed *= deceleration;
+        currentPosition += currentSpeed * (distanceToTarget > 0 ? 1 : -1);
         lastScrollPositionRef.current = currentPosition;
-
-        // Request next frame
         animationRef.current = requestAnimationFrame(animate);
       }
     };
 
-    // Start animation
     animationRef.current = requestAnimationFrame(animate);
   };
 
-  // Game state management
   useEffect(() => {
-    let timer;
-    let progressTimer;
-
-    if (gameState === "waiting") {
-      // Update countdown
-      timer = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-
-            // Determine the next multiplier before scrolling starts
-            const nextMultiplier = determineNextMultiplier();
-            setTargetMultiplier(nextMultiplier);
-            setTargetNumber(nextMultiplier);
-
-            // Update a random card to have the target multiplier
-            const updatedCards = [...cards];
-            const targetIndex = Math.floor(Math.random() * cards.length);
-            updatedCards[targetIndex].multiplier = nextMultiplier;
-            setCards(updatedCards);
-
-            setGameState("scrolling");
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      // Update progress bar
-      progressTimer = setInterval(() => {
-        setProgress((prev) => {
-          const newProgress = prev + 100 / 15 / 10; // Smooth progress over 15 seconds
-          return newProgress > 100 ? 0 : newProgress;
-        });
-      }, 100);
-    } else if (gameState === "scrolling") {
-      // Start scrolling animation immediately
-      startScrollingAnimation();
-
-      // Give some time for cards to scroll, then start the deceleration
-      timer = setTimeout(() => {
-        scrollToWinningCard();
-      }, 3000);
-    } else if (gameState === "result") {
-      // Show result for 3 seconds, then restart
-      timer = setTimeout(() => {
-        // We arent reset the container position - keep it where it stopped
-        setGameState("waiting");
-        setTimeLeft(15);
-        setProgress(0);
-      }, 3000);
-    }
-
     return () => {
-      clearInterval(timer);
-      clearInterval(progressTimer);
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
     };
-  }, [gameState, cards]);
+  }, []);
+
+  // Update progress bar based on timeLeft
+  useEffect(() => {
+    if (timeLeft !== undefined) {
+      // Assuming max time is 15 seconds
+      const maxTime = 15;
+      const newProgress = ((maxTime - timeLeft) / maxTime) * 100;
+      setProgress(newProgress);
+    }
+  }, [timeLeft]);
 
   const displayCards = [
+    ...cards,
+    ...cards,
     ...cards,
     ...cards,
     ...cards,
@@ -245,7 +222,7 @@ const Game = ({ setTargetNumber, gamestarted, setgamestarted }) => {
               data-value={card.multiplier}
               className={`
                 card-item
-                w-24 h-40 mx-2 rounded-lg bg-gray-800 flex items-center justify-center
+                w-24 h-40 mx-2 text-sm rounded-lg bg-gray-800 flex items-center justify-center
                 ${
                   card.multiplier === targetMultiplier && gameState === "result"
                     ? "border-2 border-yellow-500 z-10"
@@ -298,7 +275,9 @@ const Game = ({ setTargetNumber, gamestarted, setgamestarted }) => {
               ? `Next round in: ${timeLeft}s`
               : gameState === "scrolling"
               ? "Scrolling..."
-              : `Result: ${targetMultiplier}×`}
+              : targetMultiplier
+              ? `Result: ${targetMultiplier}×`
+              : "Waiting..."}
           </div>
         </div>
 
@@ -306,9 +285,9 @@ const Game = ({ setTargetNumber, gamestarted, setgamestarted }) => {
         <div className="w-full max-w-4xl mt-4 bg-gray-700 rounded-full h-2.5 overflow-hidden">
           <motion.div
             className="bg-green-600 h-2.5"
-            style={{ width: `${progress}%` }}
+            initial={{ width: "0%" }}
             animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.1 }}
+            transition={{ duration: 0.5, ease: "linear" }}
           />
         </div>
       </div>

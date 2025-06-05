@@ -16,9 +16,21 @@ import { toast } from "react-toastify";
 import checkLoggedIn from "../../../utils/isloggedIn";
 import { useNavigate } from "react-router-dom";
 import {
-  disconnectSlideSocket,
-  getSlideSocket,
   initializeSlideSocket,
+  disconnectSlideSocket,
+  placeBet,
+  placeAutoBet,
+  onGameState,
+  onTimeUpdate,
+  onRoundResult,
+  onNewRound,
+  onBetPlaced,
+  onAutoBetStarted,
+  onAutoBetUpdated,
+  onAutoBetComplete,
+  onError,
+  onBetsUpdated,
+  removeAllListeners,
 } from "../../../socket/games/slide";
 import { useSelector } from "react-redux";
 
@@ -29,6 +41,8 @@ const DiceFrame = () => {
   const [bet, setBet] = useState("0.000000");
   const [loss, setLoss] = useState("0.000000");
   const [profit, setProfit] = useState("0.000000");
+  const [timeLeft, setTimeLeft] = useState(15);
+  const [bets, setBets] = useState(0);
 
   const [isFairness, setIsFairness] = useState(false);
   const [isGameSettings, setIsGameSettings] = useState(false);
@@ -53,7 +67,7 @@ const DiceFrame = () => {
   const [gameResult, setGameResult] = useState("");
   const [targetPosition, setTargetPosition] = useState(fixedPosition);
   const [dicePosition, setDicePosition] = useState(fixedPosition);
-  // for slide game only
+
   const [TargetNumber, setTargetNumber] = useState(0);
   const [enteredMultipler, setenteredMultipler] = useState(0);
   const [gamestarted, setgamestarted] = useState(false);
@@ -62,44 +76,97 @@ const DiceFrame = () => {
   const [winChance, setWinChance] = useState("50");
   const [startAutoBet, setStartAutoBet] = useState(false);
 
-  console.log(gamestarted, bettingStarted, TargetNumber);
+  const [targetMultiplier, setTargetMultiplier] = useState(null);
 
   const navigate = useNavigate();
   const token = useSelector((state) => state.auth?.token);
-  const initSocket = () => {
-    const slideSocket = getSlideSocket();
-    if (!slideSocket) {
-      initializeSlideSocket(token);
-    }
-  };
 
   useEffect(() => {
-    if (gamestarted == false && bettingStarted == true) {
-      setBettingStarted(false);
-    }
-  }, [gamestarted]);
+    initializeSlideSocket(token);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const slideSocket = getSlideSocket();
+    onGameState((data) => {
+      console.log("Game state update:", data);
+      setgamestarted(!data.isWaiting);
+      setTimeLeft(data.timeLeft);
 
-      if (slideSocket) {
-        slideSocket.on("error", ({ message }) => {
-          console.error("Join game error:", message);
-          toast.error(`Error joining game: ${message}`);
-        });
+      const formattedHistory = (data.roundResults || []).map((result) => ({
+        id: result.round,
+        value: result.multiplier,
+        color: "#15803D",
+      }));
+      setCurrentHistory(formattedHistory);
+      if (data.targetMultiplier) {
+        setTargetMultiplier(data.targetMultiplier);
       }
-    }
+    });
+
+    onTimeUpdate((data) => {
+      console.log("Time update:", data);
+      setTimeLeft(data.timeLeft);
+    });
+
+    onRoundResult((data) => {
+      console.log("Round result:", data);
+      setGameResult(data.multiplier.toString());
+      setTargetMultiplier(data.multiplier);
+
+      const formattedHistory = (data.roundResults || []).map((result) => ({
+        id: result.round,
+        value: result.multiplier,
+        color: "#15803D",
+      }));
+      setCurrentHistory(formattedHistory);
+      setgamestarted(false);
+    });
+
+    onNewRound((data) => {
+      console.log("New round:", data);
+      setgamestarted(false);
+      setTimeLeft(data.timeLeft);
+      setGameResult("");
+      setTargetMultiplier(null);
+      setBets(0);
+    });
+
+    onBetPlaced((data) => {
+      console.log("Bet placed:", data);
+      toast.success(
+        `Bet placed: ${data.betAmount} at ${data.targetMultiplier}x`
+      );
+    });
+
+    onAutoBetStarted((data) => {
+      console.log("Auto bet started:", data);
+      setStartAutoBet(true);
+      toast.info(`Auto bet started: ${data.totalBets} bets remaining`);
+    });
+
+    onAutoBetUpdated((data) => {
+      console.log("Auto bet updated:", data);
+      setNBets(data.remainingBets);
+    });
+
+    onAutoBetComplete(() => {
+      console.log("Auto bet complete");
+      setStartAutoBet(false);
+      toast.success("Auto bet sequence completed");
+    });
+
+    onError((data) => {
+      console.error("Game error:", data);
+      toast.error(data.message);
+    });
+
+    onBetsUpdated((data) => {
+      console.log("Bets updated:", data);
+      setBets(data.totalBets);
+    });
 
     return () => {
-      const slideSocket = getSlideSocket();
-      if (slideSocket) {
-        slideSocket.off("error");
-      }
+      removeAllListeners();
       disconnectSlideSocket();
     };
-  }, []);
+  }, [token, navigate]);
 
   const handleBetClick = () => {
     if (!checkLoggedIn()) {
@@ -107,32 +174,13 @@ const DiceFrame = () => {
       return;
     }
 
-    initSocket();
-
-    const slideSocket = getSlideSocket();
-    if (slideSocket) {
-      slideSocket.emit("add_game", {});
-      console.log("Emitted add_game event");
-    } else {
-      console.error("Slide socket not initialized");
-      toast.error("Failed to join game: Socket not connected");
-      return;
-    }
-
-    if (enteredMultipler > 1 && enteredMultipler < 9990) {
-      setBettingStarted(true);
-      setStart(true);
-      setGameResult("");
-      setDicePosition(fixedPosition);
-      setTargetPosition(null);
-    } else {
-      toast.error("Enter a Valid Multiplier", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
+    if (enteredMultipler > 1 && enteredMultipler < 51) {
+      placeBet({
+        betAmount: parseFloat(bet),
+        targetMultiplier: parseFloat(enteredMultipler),
       });
+    } else {
+      toast.error("Enter a valid multiplier between 1 and 51");
     }
   };
 
@@ -142,31 +190,15 @@ const DiceFrame = () => {
       return;
     }
 
-    initSocket();
-    if (!startAutoBet && nbets > 0) {
-      setStartAutoBet(true);
-      autoBet(nbets);
-    }
-  };
-
-  const autoBet = (remainingBets) => {
-    if (remainingBets > 0) {
-      console.log("clicked");
-      handleBetClick();
-      const gameDuration = 3500 + 500;
-
-      setTimeout(() => {
-        resetGame();
-        autoBet(remainingBets - 1);
-      }, gameDuration);
+    if (!startAutoBet && nbets > 0 && nbets <= 100) {
+      placeAutoBet({
+        betAmount: parseFloat(bet),
+        targetMultiplier: parseFloat(enteredMultipler),
+        numberOfBets: parseInt(nbets),
+      });
     } else {
-      setStartAutoBet(false);
+      toast.error("Enter a valid number of bets (1-100)");
     }
-  };
-
-  const resetGame = () => {
-    setStart(false);
-    setBettingStarted(false);
   };
 
   useEffect(() => {
@@ -226,12 +258,15 @@ const DiceFrame = () => {
               } xl:col-span-9 bg-gray-900 order-1 max-lg:min-h-[450px]`}
             >
               <div className="w-full px-5 relative text-white h-full items-center justify-center text-3xl">
-                <History list={currentHistory} />
+                <History list={currentHistory} displayOrder="right-to-left" />
                 <GameComponent
                   {...{
-                    setTargetNumber,
+                    setTargetNumber: setTargetMultiplier,
                     gamestarted,
                     setgamestarted,
+                    timeLeft,
+                    bets,
+                    targetMultiplier,
                   }}
                 />
               </div>
