@@ -7,6 +7,7 @@ import GameInfoModal from "../../Frame/GameInfoModal";
 import MaxBetModal from "../../Frame/MaxBetModal";
 import SideBar from "./SideBar";
 import Game from "./Game";
+import History from "../../Frame/History";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -16,6 +17,9 @@ import {
 import checkLoggedIn from "../../../utils/isloggedIn";
 
 const Frame = () => {
+  const token = useSelector((state) => state.auth?.token);
+  const [connectionStatus, setConnectionStatus] = useState("Connecting");
+  const [history, setHistory] = useState([]);
   // const user = useSelector((state) => state.auth.user.user);
   const [isFav, setIsFav] = useState(false);
   const [betMode, setBetMode] = useState("manual");
@@ -54,22 +58,38 @@ const Frame = () => {
   const [selectedBoxes, setSelectedBoxes] = useState([]);
   const [sidebarDisabled, setSidebarDisabled] = useState(false);
 
-  const token = useSelector((state) => state.auth?.token);
+  useEffect(() => {
+    if (!token) {
+      setConnectionStatus("Not Logged In");
+      return;
+    }
 
-  const initSocket = () => {
     const minesSocket = getMinesSocket();
     if (!minesSocket) {
       initializeMinesSocket(token);
     }
-  };
+
+    const onConnect = () => setConnectionStatus("Connected");
+    const onDisconnect = () => setConnectionStatus("Disconnected");
+
+    if (getMinesSocket()) {
+      getMinesSocket().on("connect", onConnect);
+      getMinesSocket().on("disconnect", onDisconnect);
+    }
+
+    return () => {
+      if (getMinesSocket()) {
+        getMinesSocket().off("connect", onConnect);
+        getMinesSocket().off("disconnect", onDisconnect);
+      }
+    };
+  }, [token]);
 
   const handleMineBet = () => {
     if (!checkLoggedIn()) {
       navigate(`?tab=${"login"}`, { replace: true });
       return;
     }
-
-    initSocket();
 
     if (!betStarted) {
       setBettingStarted(true);
@@ -105,8 +125,6 @@ const Frame = () => {
       navigate(`?tab=${"login"}`, { replace: true });
       return;
     }
-
-    initSocket();
 
     const minesSocket = getMinesSocket();
     if (!minesSocket) {
@@ -176,8 +194,8 @@ const Frame = () => {
                 setSelectBoxes={setSelectBoxes}
                 handleSelectBoxes={handleSelectBoxes}
                 setback={setback}
-                disabled={sidebarDisabled || loading}
-                loading={loading}
+                disabled={sidebarDisabled || connectionStatus !== "Connected"}
+                connectionStatus={connectionStatus}
                 setGrid={setGrid}
               />
 
@@ -190,6 +208,7 @@ const Frame = () => {
                 } xl:col-span-9 bg-gray-900 order-1`}
               >
                 <div className="w-full relative text-white h-full flex items-center justify-center text-3xl min-h-[450px]">
+                  <History list={history} />
                   {loading ? (
                     <>
                       <h1 className="text-xl font-semibold">Loading...</h1>
@@ -217,6 +236,7 @@ const Frame = () => {
                       setSidebarDisabled={setSidebarDisabled}
                       grid={grid}
                       setGrid={setGrid}
+                      setHistory={setHistory}
                     />
                   )}
                 </div>

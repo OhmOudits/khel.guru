@@ -25,7 +25,15 @@ const SideBar = ({
   disabled,
   loading,
   setGrid,
+  connectionStatus,
 }) => {
+  const getButtonText = () => {
+    if (connectionStatus === "Connecting") return "Connecting...";
+    if (connectionStatus === "Disconnected") return "Disconnected";
+    if (connectionStatus === "Not Logged In") return "Please Login";
+    return bettingStarted ? `Cashout (${totalprofit.toFixed(2)})` : "Bet";
+  };
+
   return (
     <>
       <div
@@ -222,7 +230,7 @@ const SideBar = ({
                   }`}
                   onClick={disabled ? undefined : handleMineBet}
                 >
-                  {loading ? "Connecting..." : "Bet"}
+                  {getButtonText()}
                 </div>
               )}
             </>

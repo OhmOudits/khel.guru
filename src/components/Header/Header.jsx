@@ -19,6 +19,10 @@ import { currencies } from "../../constants";
 import { IoMdClose } from "react-icons/io";
 import { FaVault } from "react-icons/fa6";
 import { IoSettings } from "react-icons/io5";
+import apiService from "../../config/api";
+import SetupWalletModal from "../Modals/SetupWalletModal";
+import WalletActionsModal from "../Modals/WalletActionsModal";
+import LoadingSpinner from "../LoadingSpinner";
 
 const userList = [
   { id: 1, name: "Wallet", icon: FaWallet },
@@ -42,12 +46,34 @@ const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfDropDownOpen, setIsProfDropDownOpen] = useState(false);
   const [isNotifications, setIsNotifications] = useState(false);
+  const [balance, setBalance] = useState(null);
+  const [hasWallet, setHasWallet] = useState(false);
+  const [loadingBalance, setLoadingBalance] = useState(true);
+  const [showSetupWallet, setShowSetupWallet] = useState(false);
+  const [showWalletActions, setShowWalletActions] = useState(false);
 
   const handleTabNavigation = (tab) => {
     navigate(`?tab=${tab}`, { replace: true });
   };
 
-  useEffect(() => {});
+  useEffect(() => {
+    if (user) {
+      setLoadingBalance(true);
+      apiService
+        .get("/wallet/balance")
+        .then((res) => {
+          setBalance(res.data.balance);
+          setHasWallet(true);
+        })
+        .catch(() => {
+          setBalance(0);
+          setHasWallet(false);
+        })
+        .finally(() => setLoadingBalance(false));
+    } else {
+      setLoadingBalance(false);
+    }
+  }, [user]);
 
   // Handle search filtering
   useEffect(() => {
@@ -92,6 +118,20 @@ const Header = () => {
     };
   }, [isDropdownOpen, isProfDropDownOpen, isNotifications]);
 
+  const handleWalletClick = () => {
+    if (loadingBalance) return;
+    if (!hasWallet) {
+      setShowSetupWallet(true);
+    } else {
+      setShowWalletActions(true);
+    }
+  };
+
+  const updateBalance = (newBalance) => {
+    setBalance(newBalance);
+    setHasWallet(true);
+  };
+
   return (
     <>
       <Link to="/" className="flex items-center">
@@ -107,78 +147,23 @@ const Header = () => {
 
       {user ? (
         <>
-          <div className="flex">
-            <div
-              className="flex relative px-3 py-1.5 bg-[#2a2a2a] rounded-tl rounded-bl cursor-pointer font-semibold items-center gap-2"
-              onClick={() => setIsDropdownOpen((prev) => !prev)}
-              ref={dropdownRef}
-            >
-              <div className="flex w-[120px] items-center justify-between text-lg gap-1.5">
-                0.000 <Bitcoin />
-              </div>
-              <FaChevronDown />
-
-              {isDropdownOpen && (
-                <>
-                  <div className="absolute top-[120%] left-1/2 bg-dropdown w-5 h-5 rotate-45"></div>
-                  <div className="absolute top-[125%] w-[260px] rounded -left-[12.5%] px-2 py-2 bg-dropdown z-20">
-                    <div
-                      id="searchbox"
-                      onClick={(e) => e.stopPropagation()}
-                      className="py-1.5 mx-1.5 px-2 flex items-center gap-2 my-1.5 border-2 border-gray-500 rounded-md text-black"
-                      htmlFor="search"
-                    >
-                      <FaSearch className="text-gray-200" />
-                      <input
-                        type="text"
-                        autoComplete="off"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        id="search"
-                        className="w-full text-white bg-transparent outline-none border-none"
-                        placeholder="Search"
-                      />
-                    </div>
-
-                    <div className="flex gap-0 pt-0 pb-3 flex-col w-full max-h-[400px] overflow-y-auto">
-                      {sortedCurrencies.length > 0 ? (
-                        sortedCurrencies.map((c) => (
-                          <div
-                            key={c.id}
-                            className="flex hover:bg-zinc-900 rounded py-1.5 px-3 w-full items-center justify-between text-zinc-200 font-semibold text-lg"
-                          >
-                            <h1>{c.value}</h1>
-                            <h1>{c.name}</h1>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="flex items-center justify-center h-[200px] text-gray-200 font-semibold">
-                          No wallets found
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="py-0.5 pt-2.5 mt-2 border-t border-zinc-400 w-full">
-                      <div
-                        onClick={() => handleTabNavigation("walletSettings")}
-                        className="py-2 hover:bg-zinc-800 flex gap-2 items-center justify-center w-full"
-                      >
-                        <FaWallet />
-                        <h1>Wallet Settings</h1>
-                      </div>
-                    </div>
-                  </div>
-                </>
+          <div
+            onClick={handleWalletClick}
+            className="flex items-center gap-2 bg-background-surface hover:bg-background-elevated p-2 rounded-lg cursor-pointer transition-colors"
+          >
+            <FaWallet className="text-interactive-primary" />
+            <div className="font-semibold text-text-primary">
+              {loadingBalance ? (
+                <LoadingSpinner size="sm" showText={false} />
+              ) : hasWallet ? (
+                `${balance.toFixed(2)}`
+              ) : (
+                "Setup Wallet"
               )}
             </div>
-
-            <div
-              onClick={() => handleTabNavigation("wallet")}
-              className="px-3 py-1.5 rounded-tr rounded-br transition active:scale-[0.92] bg-ter cursor-pointer"
-            >
-              <FaWallet className="mt-1" />
-            </div>
+            <Bitcoin />
           </div>
+
           <div className="flex max-md:gap-1 items-center">
             <div
               onClick={() => handleTabNavigation("search")}
@@ -266,6 +251,19 @@ const Header = () => {
               )}
             </div>
           </div>
+          {showSetupWallet && (
+            <SetupWalletModal
+              onClose={() => setShowSetupWallet(false)}
+              onSuccess={updateBalance}
+            />
+          )}
+          {showWalletActions && (
+            <WalletActionsModal
+              initialBalance={balance}
+              onClose={() => setShowWalletActions(false)}
+              onSuccess={updateBalance}
+            />
+          )}
         </>
       ) : (
         <div className="flex items-stretch gap-1.5">

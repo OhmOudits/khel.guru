@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { useEffect, useState, useRef, useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { segments } from "../../../constants";
 import {
   disconnectWheelSocket,
@@ -12,6 +13,7 @@ import {
   removeAllGameListeners,
 } from "../../../socket/games/wheel";
 import { toast } from "react-toastify";
+import { updateBalance } from "../../../store/slices/authSlice";
 
 /* eslint-disable react/prop-types */
 const Game = ({
@@ -25,6 +27,11 @@ const Game = ({
   setAutoStart,
   bet,
 }) => {
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.token);
+  const user = useSelector((state) => state.auth.user);
+  const balance = useSelector((state) => state.auth.balance);
+  const [connectionStatus, setConnectionStatus] = useState("Connecting");
   const [riskSegment, setRiskSegment] = useState(null);
   const [selectedSegmentData, setSelectedSegmentData] = useState(null);
   const [segmentColors, setSegmentColors] = useState([]);
@@ -122,60 +129,28 @@ const Game = ({
   }, [riskSegment, selectedSegmentData, segmentColors]);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     if (!token) {
-      console.error("No authentication token found");
-      toast.error("Please login to play");
+      setConnectionStatus("Not Logged In");
       return;
     }
 
-    const connectSocket = () => {
-      console.log("Attempting to connect socket...");
-      const wheelSocket = initializeWheelSocket(token);
-      if (!wheelSocket) {
-        console.error("Failed to initialize wheel socket");
-        toast.error("Failed to connect to game server");
-        return null;
-      }
-      return wheelSocket;
-    };
+    const wheelSocket = getWheelSocket();
 
-    const handleConnect = () => {
-      console.log("Game component: Socket connected successfully");
-      setSocketConnected(true);
-      setIsConnecting(false);
-    };
+    const onConnect = () => setConnectionStatus("Connected");
+    const onDisconnect = () => setConnectionStatus("Disconnected");
 
-    const handleDisconnect = (reason) => {
-      console.log("Game component: Socket disconnected:", reason);
-      setSocketConnected(false);
-      setIsConnecting(true);
-      setIsWaitingForResult(false);
-      setBetStarted(false);
-      toast.error("Disconnected from game server. Attempting to reconnect...");
-    };
-
-    let wheelSocket = connectSocket();
     if (wheelSocket) {
-      wheelSocket.on("connect", handleConnect);
-      wheelSocket.on("disconnect", handleDisconnect);
-
-      if (wheelSocket.connected) {
-        console.log("Game component: Socket already connected");
-        setSocketConnected(true);
-        setIsConnecting(false);
-      }
+      wheelSocket.on("connect", onConnect);
+      wheelSocket.on("disconnect", onDisconnect);
     }
 
     return () => {
-      console.log("Game component: Cleaning up connection handlers");
       if (wheelSocket) {
-        wheelSocket.off("connect", handleConnect);
-        wheelSocket.off("disconnect", handleDisconnect);
+        wheelSocket.off("connect", onConnect);
+        wheelSocket.off("disconnect", onDisconnect);
       }
-      removeAllGameListeners();
     };
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     const wheelSocket = getWheelSocket();
@@ -233,6 +208,7 @@ const Game = ({
           winAmount,
         };
 
+        dispatch(updateBalance(result.balance));
         console.log("Game component: Validated game result:", validatedResult);
         hasReceivedResult.current = true;
         pendingResult.current = validatedResult;
@@ -787,7 +763,7 @@ const Game = ({
       return;
     }
 
-    const betAmount = typeof bet === "string" ? parseFloat(bet) : bet;
+    const betAmount = parseFloat(bet);
 
     if (!validateBetAmount(betAmount)) {
       console.error("Invalid bet amount:", betAmount);
@@ -802,7 +778,16 @@ const Game = ({
       return;
     }
 
-    // Rest of the bet validation and processing...
+    if (betAmount > balance) {
+      toast.error("Insufficient balance");
+      setBetStarted(false);
+      setAutoStart(false);
+      return;
+    }
+
+    // Immediately deduct bet from frontend state
+    dispatch(updateBalance(balance - betAmount));
+
     const wheelSocket = getWheelSocket();
     if (!wheelSocket?.connected) {
       console.error("Socket not connected for bet");
@@ -818,7 +803,7 @@ const Game = ({
     const betData = {
       risk,
       segments: segment,
-      betAmount: betAmount,
+      betAmount: parseFloat(bet),
     };
 
     console.log("Sending bet request:", betData);
@@ -982,6 +967,10 @@ const Game = ({
           </div>
         </div>
       )}
+
+      <div className="absolute top-2 left-2 text-white text-sm p-2 rounded">
+        Status: {connectionStatus}
+      </div>
     </div>
   );
 };

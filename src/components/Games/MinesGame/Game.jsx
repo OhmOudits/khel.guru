@@ -33,12 +33,12 @@ const Game = ({
   setSidebarDisabled,
   grid,
   setGrid,
+  setHistory,
 }) => {
   const [gameOver, setGameOver] = useState(false);
   const [gameWon, setGameWon] = useState(false);
   const [gameProfit, setGameProfit] = useState(0);
   const [gameLoss, setGameLoss] = useState(0);
-  const [isConnected, setIsConnected] = useState(false);
   const [hasActiveGame, setHasActiveGame] = useState(false);
   const [showGameOptions, setShowGameOptions] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -51,27 +51,12 @@ const Game = ({
 
   useEffect(() => {
     if (isLoggedIn) {
-      if (!socketRef.current) {
-        const token = localStorage.getItem("token");
-        initializeMinesSocket(token);
-        socketRef.current = getMinesSocket();
-      }
-
-      const minesSocket = socketRef.current;
-
+      const minesSocket = getMinesSocket();
       if (minesSocket) {
-        minesSocket.on("connect", () => {
-          setIsConnected(true);
-          setIsDisconnected(false);
-          setShowDisconnectModal(false);
+        socketRef.current = minesSocket;
+        minesSocket.on("game_history", (data) => {
+          setHistory(data);
         });
-
-        minesSocket.on("disconnect", () => {
-          setIsConnected(false);
-          setIsDisconnected(true);
-          setShowDisconnectModal(true);
-        });
-
         minesSocket.on("game_state", (gameState) => {
           if (gameState) {
             if (gameState.checkedOut) {
@@ -135,7 +120,7 @@ const Game = ({
         });
 
         if (minesSocket.connected) {
-          setIsConnected(true);
+          setHasActiveGame(true);
         }
       }
     }
@@ -143,8 +128,7 @@ const Game = ({
     return () => {
       const minesSocket = socketRef.current;
       if (minesSocket) {
-        minesSocket.off("connect");
-        minesSocket.off("disconnect");
+        minesSocket.off("game_history");
         minesSocket.off("game_state");
         minesSocket.off("game_over");
         minesSocket.off("game_won");
@@ -152,7 +136,7 @@ const Game = ({
       }
       disconnectMinesSocket();
     };
-  }, [isLoggedIn]);
+  }, [isLoggedIn, setHistory]);
 
   useEffect(() => {
     if (betStarted && socketRef.current?.connected) {
@@ -441,58 +425,6 @@ const Game = ({
     </div>
   );
 
-  // Add disconnect handling
-  const [showDisconnectModal, setShowDisconnectModal] = useState(false);
-  const [isDisconnected, setIsDisconnected] = useState(false);
-
-  // Add DisconnectModal component
-  const DisconnectModal = () => (
-    <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center z-50">
-      <motion.div
-        className="p-6 bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        <h2 className="text-2xl font-bold text-white mb-4">
-          {isDisconnected ? "Disconnected from Game" : "Session Expired"}
-        </h2>
-        <p className="text-gray-300 text-lg mb-6">
-          {isDisconnected
-            ? "You have been disconnected from the game server. Would you like to reconnect?"
-            : "Your session has expired. Please login again to continue playing."}
-        </p>
-        <div className="flex gap-4 justify-center">
-          {isDisconnected ? (
-            <motion.button
-              className="px-6 py-3 text-lg bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                const token = localStorage.getItem("token");
-                if (token) {
-                  initializeMinesSocket(token);
-                  socketRef.current = getMinesSocket();
-                }
-              }}
-            >
-              Reconnect
-            </motion.button>
-          ) : (
-            <motion.button
-              className="px-6 py-3 text-lg bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate("?tab=login", { replace: true })}
-            >
-              Login
-            </motion.button>
-          )}
-        </div>
-      </motion.div>
-    </div>
-  );
-
   // Not Logged In View
   if (!isLoggedIn) {
     return (
@@ -502,15 +434,6 @@ const Game = ({
           Please login to play the Mines game and start winning!
         </p>
         <LoginButton />
-      </div>
-    );
-  }
-
-  // Loading View
-  if (isLoggedIn && !isConnected) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <h1 className="text-xl font-semibold">Connecting to game server...</h1>
       </div>
     );
   }
@@ -613,7 +536,6 @@ const Game = ({
 
       {showCheckoutModal && <CheckoutModal profit={gameProfit} />}
       {showGameOptions && <GameOptionsModal />}
-      {showDisconnectModal && <DisconnectModal />}
     </div>
   );
 };
